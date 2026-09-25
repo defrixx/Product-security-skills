@@ -1,0 +1,65 @@
+# Sensitive data cleanup report
+
+Template: replace bracketed prompts with actual evidence; keep unknowns explicit. Start with the outcome and sharing limitations. For a large inventory, include a category summary here and link one complete redacted inventory instead of duplicating every row.
+
+## Result
+
+[What was scanned or replaced, where the final output is, and what remains unresolved. Do not describe scan-only proposals as completed replacements or claim universal safety for sharing.]
+
+| Measure | Result |
+| --- | --- |
+| Mode / completion | [scan-only or clean-copy / completed within declared coverage, partial, or not performed] |
+| Files | [inventoried; checked; emitted; changed; omitted] |
+| Replacements | [actual occurrences; proposed occurrences separately for scan-only] |
+| Remaining work | [omissions, unknowns, and next action] |
+
+## Scope and accounting
+
+- Status: [scan-only / completed within declared coverage / partial / not performed]
+- Source: [safe alias, not a sensitive original path]
+- Output: [final sanitized path, or no replacements performed; identify superseded trials]
+- Replacement policy: [which sensitivity classes are replaced; whether runnable formats are required]
+- Mode and time: [values]
+- Tools and versions: [actual tools; detector configuration]
+- Coverage: [formats, hidden files, metadata, archives, binary files, Git history]
+- Limits and exclusions: [file size, expansion, depth, excluded areas]
+- Source preservation: [method and result]
+- File counts: [inventoried / checked / skipped / failed; changed / emitted / omitted]
+- Classification counts: [sensitive / synthetic or default / benign / unresolved occurrences; unique values separately]
+- Action counts: [candidates / rejected candidates / replaced / residual occurrences; replacements are not a leak count]
+- Excluded subtrees: [safe identifiers and reasons; not included as individually checked files]
+- Location convention: [source coordinates under opaque file IDs / output coordinates]
+
+## Acceptance evidence
+
+| Condition ID | Applicability | Static evidence | Executed check and observation | Assumptions / gaps | Status |
+| --- | --- | --- | --- | --- | --- |
+
+[Use CLEAN-001 through CLEAN-006 as applicable. Missing evidence remains not verified; mixed results remain partial. Do not infer complete detection from a clean rescan.]
+
+## Replacement inventory
+
+| Finding ID | File ID and sanitized location | Category and classification | Basis without original value | Replacement or action | Verification |
+| --- | --- | --- | --- | --- | --- |
+
+## Rescan and format validation
+
+[Checks actually performed, results, remaining candidates, and reasons for unavailable checks. Distinguish same-detector rescan, independent checks, syntax validation, and semantic compatibility; do not infer completeness.]
+
+## Rejected candidates and exclusions
+
+[Safe location, reviewed field/context, reason, and narrowly scoped exclusion. No original values.]
+
+## Omissions and errors
+
+[Safe file IDs, reasons, disposition, and impact. Identify any unprocessed material explicitly retained in a restricted partial copy.]
+
+## Follow-up
+
+[Unresolved decisions, credential rotation/revocation needs, broken references, and separately scoped history/backup cleanup.]
+
+Original sensitive values and reversible maps must not appear here. No matches is not proof of complete removal; this report covers only the declared formats and checks.
+
+## Deliverables
+
+[Link this report, the final redacted inventory if separate, and the final cleaned copy when cleanup was requested. State whether the copy is partial and identify omitted files by safe IDs. Do not attach superseded copies, raw matches, reversible maps, or private source-path indexes. Keep machine-generated output intact; write this narrative alongside it, not over it.]

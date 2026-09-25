@@ -1,0 +1,25 @@
+services:
+  app:
+    image: python:3.12-alpine
+    user: '65534:65534'
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    tmpfs: ["/work:uid=65534,gid=65534,mode=0700"]
+    working_dir: /work
+    command: [python, -m, http.server, '8080', --bind, 0.0.0.0]
+    ports:
+      - target: 8080
+        host_ip: 127.0.0.1
+        protocol: tcp
+    secrets: [synthetic]
+  isolated:
+    image: python:3.12-alpine
+    user: '65534:65534'
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    command: [python, -c, 'import time; time.sleep(300)']
+secrets:
+  synthetic:
+    file: ./synthetic-secret.txt

@@ -1,0 +1,7 @@
+{
+  "exclude_dirs": [".git", "node_modules", ".venv", "__pycache__"],
+  "text_extensions": [],
+  "redact_network": true,
+  "sensitive_values": [],
+  "suppressions": []
+}

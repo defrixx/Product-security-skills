@@ -1,0 +1,35 @@
+.DS_Store
+__pycache__/
+*.py[cod]
+.venv/
+AGENTS.md
+# Local outputs may contain sensitive information.
+/artifacts/
+/reports/
+
+# Local credentials; keep deliberately sanitized examples versionable.
+.env
+.env.*
+!.env.example
+!.env.sample
+
+# Python tooling and test output.
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
+
+# Node / Next.js integration dependencies and generated output.
+node_modules/
+.next/
+playwright-report/
+test-results/
+*.tsbuildinfo
+
+# Local editor and assistant settings.
+/.idea/
+/.vscode/
+/.codex/
+/.agents/
