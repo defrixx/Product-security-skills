@@ -71,7 +71,7 @@ Reports lead with **the outcome and next actions**, followed by evidence and lim
 
 ## Requirement coverage
 
-The [requirements catalog](skills/secure-development/references/requirements-index.md) contains 97 individually identified conditions across 23 topics, with 12 implementation controls across three stack profiles. It covers secrets, cryptography, certificates, APIs, identity and access, input handling, storage, files, client security, deployment, dependencies, and other security domains. Infrastructure as Code, CI/CD, and Kubernetes are separate topics.
+The [requirements catalog](skills/secure-development/references/requirements-index.md) contains 120 individually identified conditions across 28 topics, with 12 implementation controls across three stack profiles. It covers secrets, cryptography, certificates, APIs, identity and access, input handling, storage, files, client security, deployment, dependencies, and other security domains. Infrastructure as Code, CI/CD, and Kubernetes are separate topics.
 
 Stack profiles add implementation and acceptance checks for:
 
@@ -133,3 +133,7 @@ Instructions required to use a copied skill remain inside that skill's directory
 ## License
 
 Licensed under the [MIT License](LICENSE). Include the license notice when redistributing a standalone skill.
+
+Per-condition evidence is generated as `requirement-evidence.json` by the regression runner: every topic condition, stack control and workflow condition is listed, with exact tested clauses or explicit untested status. See the [coverage manifest](tests/requirement_coverage.json) and [manual applicability review](tests/requirements-manual-review.md). Partial synthetic evidence is not a full-condition pass or independent skill evaluation.
+
+Optional [framework and lifecycle integrations](tests/integration/README.md) exercise OAuth/OIDC/JWT client/verifier boundaries with a synthetic issuer, real MongoDB/Jinja, Next.js Data Cache and Chromium policies. Failure injection verifies cleanup of owned resources while preserving a separate scope; exact tested clauses and limits are in the integration evidence manifest.

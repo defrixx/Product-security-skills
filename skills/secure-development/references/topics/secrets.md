@@ -18,13 +18,13 @@ Status: proposed engineering baseline; not corporate approval. Each applicable c
 
 ### SD-SECRET-001.C02 — Keep credentials out of distributed output
 
-- **Apply when:** builds, browser bundles, source maps, images, installers, or generated configuration can capture secret-bearing inputs.
-- **Required / prohibited:** distributed output must not contain the credential. Deleting a secret from a later image layer or hiding it behind minification does not satisfy this condition.
+- **Apply when:** builds, browser bundles, source maps, images, installers, generated configuration, or successful responses can expose secret-bearing inputs to unintended recipients.
+- **Required / prohibited:** distributed output and successful responses must not disclose credentials outside their intended recipient/purpose. An explicitly authorized credential-issuance response is permitted by its own bounded delivery contract; returning an unrelated stored credential is not. Deleting a secret from a later image layer or hiding it behind minification does not satisfy this condition.
 - **Rationale:** Public artifacts can retain credentials even when source code appears clean.
 - **Implement:** isolate server-only data and restrict build-secret lifetime. Follow [Next.js client-boundary checks](../stacks/typescript-nextjs.md) and [BuildKit secret checks](../stacks/docker-compose.md) when applicable.
 - **Unsafe → corrected:** a build copies a credential file then deletes it → the needed build step reads an ephemeral secret mount and emits only its non-sensitive result.
 - **Positive check:** the build completes with an inert canary and the intended output remains usable.
-- **Negative check:** search actual output, layer contents, source maps, and client responses for the canary; any occurrence fails. Verify a planted disposable leak is detected before trusting the search setup.
+- **Negative check:** search applicable output, layer contents, source maps, and successful responses for the canary; any disclosure outside the explicit recipient/purpose contract fails. Check alternate response serialization paths; an unauthorized actor cannot retrieve an issuance result. Verify a planted disposable leak is detected before trusting the search setup.
 - **Evidence:** build-input-to-output trace and executed artifact inspection, including exact image/build identity. Source inspection alone cannot prove generated-output absence.
 - **Bounds / sources:** S1 section 3. Exact canary searches miss transformed values; inspect explicit encoding/inlining paths. Application logs are checked separately.
 

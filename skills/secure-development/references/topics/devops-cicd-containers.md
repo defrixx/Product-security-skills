@@ -45,7 +45,7 @@ Status: proposed baseline; C01–C04 are MUST conditions when applicable. Use th
 - **Apply when:** a service or build workload runs in a container.
 - **Required / prohibited:** use only justified process capabilities and host access. Unnecessary privileged mode, host control sockets, writable host mounts, or privilege escalation must be absent.
 - **Rationale:** a compromised process can otherwise cross the intended container boundary.
-- **Implement:** choose a non-root identity where feasible, drop unnecessary capabilities, restrict filesystem writes, and apply supported no-new-privileges and syscall controls. Record each required privilege as a scoped exception and verify effective settings after orchestration overrides.
+- **Implement:** choose a non-root identity where feasible, drop unnecessary capabilities, restrict filesystem writes, and apply supported no-new-privileges and syscall controls. Record justified required privileges as part of the normal policy; record a scoped exception only for a deliberately unmet applicable restriction and verify effective settings after orchestration overrides.
 - **Unsafe → corrected:** launch a web service privileged with the host engine socket mounted → remove host control access and run under the limited identity/capabilities its operation requires.
 - **Positive check:** normal service operations succeed with writes limited to the declared writable locations.
 - **Negative check:** writes outside those locations and selected operations requiring removed privileges fail; inspect absence of host-control mounts separately.

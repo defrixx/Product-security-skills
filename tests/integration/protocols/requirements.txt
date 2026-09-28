@@ -1,0 +1,14 @@
+Authlib==1.6.5
+PyJWT[crypto]==2.10.1
+requests==2.32.5
+Jinja2==3.1.6
+pymongo==4.15.1
+certifi==2026.7.22
+cffi==2.1.1
+charset-normalizer==3.5.1
+cryptography==50.0.1
+dnspython==2.8.0
+idna==3.20
+MarkupSafe==3.0.3
+pycparser==3.0
+urllib3==2.8.0

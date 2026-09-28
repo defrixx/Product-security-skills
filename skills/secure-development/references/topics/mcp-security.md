@@ -2,7 +2,7 @@
 
 ## SD-MCP-001
 
-Status: proposed baseline; C01–C05 are MUST conditions when applicable. Use the [requirement format](../requirement-format.md) for evidence and exceptions. Record protocol revision, SDK version, transport, deployment, and identity model. HTTP OAuth requirements do not automatically apply to stdio. Examples are synthetic local scenarios.
+Status: proposed baseline; C01–C06 are MUST conditions when applicable. Use the [requirement format](../requirement-format.md) for evidence and exceptions. Record protocol revision, SDK version, transport, deployment, and identity model. HTTP OAuth requirements do not automatically apply to stdio. Examples are synthetic local scenarios.
 
 ### SD-MCP-001.C01 — Authorize each tool operation and resource
 
@@ -30,10 +30,10 @@ Status: proposed baseline; C01–C05 are MUST conditions when applicable. Use th
 
 ### SD-MCP-001.C03 — Bind sessions to authenticated callers
 
-- **Apply when:** MCP transport maintains session identifiers or resumable event delivery across requests.
+- **Apply when:** an MCP transport maintains sessions or resumable events shared across requests/principals. Establish its authenticated principal or trusted channel model; stdio process-local state does not imply an HTTP identity system.
 - **Required / prohibited:** possession of a session ID alone must not authenticate a caller; prevent cross-user session use and event delivery.
 - **Rationale:** session confusion can inject another principal's responses or expose their data.
-- **Implement:** bind session state to the validated principal and recheck identity on subsequent requests. Partition queues/caches by authenticated ownership and define session invalidation behavior.
+- **Implement:** bind shared session state to the validated principal and recheck identity on subsequent requests. For process-local stdio, document the trusted process/channel boundary instead of inventing accounts; do not claim multi-user isolation from that design. Partition queues/caches by authenticated ownership and define session invalidation behavior.
 - **Unsafe → corrected:** route events using only a caller-supplied session ID → require that the current authenticated principal owns the referenced session before routing.
 - **Positive check:** the owning synthetic principal resumes its session and receives only its events.
 - **Negative check:** another principal reusing that session ID cannot invoke its state or receive queued events; invalidated sessions cannot resume.
@@ -45,7 +45,7 @@ Status: proposed baseline; C01–C05 are MUST conditions when applicable. Use th
 - **Apply when:** discovery or tool arguments influence URLs, paths, process launches, or local server configuration.
 - **Required / prohibited:** keep effects within the configured destination/resource boundary. Do not let metadata or tool input grant arbitrary network, filesystem, or process access.
 - **Rationale:** indirect requests can expose internal services or execute local code with the client's authority.
-- **Implement:** validate destinations through redirects and resolution, restrict egress where appropriate, and apply [file](files-uploads.md) and [command](input-validation-injection.md) controls. Inspect local server commands and minimize their inherited environment and permissions.
+- **Implement:** apply the independently assessed [outbound request conditions](outbound-requests.md) to destinations, resolution, redirects, and credential forwarding, restrict egress where appropriate, and apply [file](files-uploads.md) and [command](input-validation-injection.md) controls. Inspect local server commands and minimize their inherited environment and permissions.
 - **Unsafe → corrected:** fetch every discovery URL including a redirect to an excluded service → enforce the deployment's destination policy on every hop and the actual connection target.
 - **Positive check:** an approved synthetic destination or file operation completes within scope.
 - **Negative check:** an excluded destination, redirect escape, path escape, and unapproved process argument are denied in separate fixtures with no out-of-scope effect.
@@ -64,6 +64,19 @@ Status: proposed baseline; C01–C05 are MUST conditions when applicable. Use th
 - **Evidence:** action-gate design and trust-flow inspection; executed adversarial tool-content scenarios with observable effects. A few resisted prompts do not prove general prompt-injection immunity.
 - **Bounds / sources:** S1, session hijack prompt injection and local-server trust boundaries; external action enforcement is this baseline's engineering application. Human consent complements rather than replaces server authorization.
 
+### SD-MCP-001.C06 — Enforce the HTTP transport origin boundary
+
+- **Apply when:** an MCP endpoint uses Streamable HTTP; record its selected protocol revision. Not applicable to stdio header handling.
+- **Required / prohibited:** enforce the transport's Origin policy before processing messages. Under revision 2025-11-25, a present invalid Origin must be rejected with HTTP 403. Loopback binding, CORS, or a session identifier alone is not this check.
+- **Rationale:** a website can otherwise cross a local server's intended request boundary.
+- **Implement:** configure allowed origins explicitly, including scheme/host/port and trusted proxy handling. Document missing-Origin behavior for non-browser clients without accepting a present invalid origin. For local deployment prefer loopback-only binding and verify effective listeners; separately enforce the intended authentication policy.
+- **Unsafe → corrected:** accept every request because the listener is local → validate the transport Origin and the separately selected caller policy before tool effects.
+- **Positive check:** a permitted origin and a legitimate non-browser client under the declared absent-Origin policy can perform the allowed operation.
+- **Negative check:** unapproved, suffix-lookalike, and null origins receive the specified denial without tool side effects. Inspect wildcard/IPv6 exposure independently.
+- **Evidence:** actual HTTP requests, handler effects, effective listener configuration, and protocol/SDK version. Forged-header tests prove server behavior, not complete browser DNS-rebinding resistance.
+- **Bounds / sources:** S2, Security Warning. The selected revision does not require rejecting every request without Origin; preserve legitimate native clients through an explicit identity policy. Stdio needs its process/channel boundary, not new HTTP accounts.
+
 ## Sources
 
 - **S1:** [MCP Security Best Practices](https://modelcontextprotocol.io/docs/2025-11-25/tutorials/security/security_best_practices) — revision 2025-11-25; Confused Deputy, Token Passthrough, SSRF, Session Hijacking, Local MCP Server Compromise, Scope Minimization. Checked 2026-09-24. Match protocol/SDK versions before selecting implementation APIs.
+- **S2:** [MCP 2025-11-25 Transports](https://modelcontextprotocol.io/specification/2025-11-25/basic/transports) — Streamable HTTP Security Warning, Origin validation and local binding; checked 2026-09-28.

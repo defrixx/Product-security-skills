@@ -16,7 +16,7 @@ CONDITION=re.compile(r'^### (SD-[A-Z0-9]+-\d{3}\.C\d{2})[^\n]*\n(.*?)(?=^## |^##
 FIELDS=('Apply when','Required / prohibited','Rationale','Implement','Unsafe → corrected','Positive check','Negative check','Evidence','Bounds / sources')
 
 def main():
-    errors=[];ids=[];conditions=[];checked=0
+    errors=[];ids=[];conditions=[];checked=0;mappings=[]
     for skill in sorted((ROOT/'skills').iterdir()):
         if not skill.is_dir():continue
         entry=skill/'SKILL.md';text=entry.read_text()
@@ -57,6 +57,12 @@ def main():
                         if '**'+field+':**' not in body:errors.append(str(p)+': missing '+field+' in '+condition)
                 if p.parent.name=='topics' and not CONDITION.search(content):errors.append(str(p)+': topic lacks conditions')
                 if p.parent.name=='stacks':
+                    for line in content.splitlines():
+                        if '**Condition mapping:**' in line:
+                            mapped=re.findall(r'SD-[A-Z0-9]+-\d{3}\.C\d{2}',line)
+                            if not mapped:errors.append(str(p)+': empty condition mapping')
+                            mappings.extend((str(p),identifier) for identifier in mapped)
+                        if line.startswith('- Parent:'):errors.append(str(p)+': redundant parent metadata')
                     for block in re.split(r'(?=^## SD-)',content,flags=re.M)[1:]:
                         for field in ('Condition mapping','Apply when','Unsafe → corrected','Positive check','Negative check','Evidence'):
                             if '**'+field+':**' not in block:errors.append(str(p)+': profile missing '+field)
@@ -72,6 +78,8 @@ def main():
                 if re.search('[\u0400-\u04ff]',content):errors.append(str(p)+': unexpected Cyrillic text')
                 if '[TODO:' in content:errors.append(str(p)+': unfinished placeholder')
         checked+=1
+    for path,identifier in mappings:
+        if identifier not in conditions:errors.append(path+': nonexistent mapped condition '+identifier)
     if len(ids)!=len(set(ids)):errors.append('duplicate requirement ID')
     if len(conditions)!=len(set(conditions)):errors.append('duplicate condition ID')
     root_docs=[ROOT/'README.md',ROOT/'tests/README.md']

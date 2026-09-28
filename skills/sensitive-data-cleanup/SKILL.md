@@ -9,6 +9,22 @@ This skill combines contextual review with a bundled deterministic local helper.
 
 Use the [cleanup acceptance conditions](references/acceptance-conditions.md) to assess each workflow outcome separately and record static evidence, executed checks, and unresolved assumptions. Never infer overall completion from one passing check.
 
+## Route by cleanup circumstance
+
+Combine rows for the selected input and mode. Conditions remain subject to their own applicability; an unsupported format or uncertain classification is a coverage gap, not a clean result.
+
+| Circumstance | Load / apply | Expected decision or evidence |
+| --- | --- | --- |
+| Inventory only (`scan-only`) | [Helper contract](references/helper-contract.md), CLEAN-001–004 and CLEAN-006 | Report redacted findings and omissions without producing a modified copy. |
+| Prepare a cleaned copy (`clean-copy`) | [Helper contract](references/helper-contract.md), CLEAN-001–004 and CLEAN-006 | Use a fresh destination outside the source; verify preservation and replacements. |
+| Candidate secret, personal field or benign lookalike | [Detection and replacement](references/detection-and-replacement.md), CLEAN-003 | Classify by context and selected policy; a detector hit alone is not a confirmed leak. |
+| Explicitly selected JPEG/PNG metadata cleanup | [Image metadata guidance](references/image-metadata.md), CLEAN-005 plus ordinary path/output conditions | Remove supported metadata; report that encoded pixels remain unchanged and unexamined. |
+| Unsupported format, link, limit or failed processing | [Helper contract](references/helper-contract.md), CLEAN-002 and CLEAN-004 | Account for the omission; do not silently copy it into a purported shareable result. |
+| In-place modification requested | CLEAN-001 in [acceptance conditions](references/acceptance-conditions.md) | Establish explicit scope and recoverability; ordinary cleanup authorization covers a separate copy. |
+| Delivery or zero matches | [Cleanup report](assets/cleanup-report.md), CLEAN-006 | Report supported coverage, residual uncertainty and redacted evidence. |
+
+## Workflow
+
 1. Establish the input root, exclusions, mode (`scan-only` or `clean-copy`), format/size limits, and output location. Infer clear paths from the request; ask for the root if ambiguous. A request to clean authorizes replacements in a separate copy without per-match confirmation. Never overwrite an existing destination. In-place work requires an explicit request and a verified recovery copy.
 2. Inventory hidden files, ordinary files, links, filenames, and metadata without printing sensitive names or content. Read [detection and replacement](references/detection-and-replacement.md) before scanning. Keep output, reports, and temporary data outside the source tree; verify resolved paths. Do not follow symlinks or copy links that could expose originals.
 3. Detect candidates locally with redacted output, then classify using field names, format, context, and the requested sensitivity policy. Cover infrastructure addresses/configuration, credentials/tokens, private keys, certificate metadata, personal data, and internal identifiers. Separate confirmed sensitive data, synthetic/default values, benign lookalikes, and unresolved candidates. State which categories the cleanup policy replaces; a detector match alone is not a confirmed leak. Do not send candidate credentials to services to check whether they work.

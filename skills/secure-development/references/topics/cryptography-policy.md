@@ -12,7 +12,7 @@ Status: proposed baseline; C01–C03 are MUST conditions when applicable. Use th
 - **Implement:** inventory call sites and map each to its purpose; choose maintained high-level library APIs and matching primary documentation. Keep password verification, encryption, integrity, and signatures distinct. Apply [primitive conditions](cryptographic-primitives.md) to actual usage.
 - **Unsafe → corrected:** label a reversible encoding function as encryption → select an authenticated-encryption profile with explicit key and nonce handling for the storage use case.
 - **Positive check:** each synthetic operation selects the documented supported profile and produces an interoperable result for that purpose.
-- **Negative check:** an unknown profile identifier or unsupported parameter combination is rejected before cryptographic processing; no fallback to a custom algorithm occurs.
+- **Negative check:** when configuration or input selects a profile, unknown identifiers and unsupported parameters fail before processing. For a fixed-profile implementation, inspect its fixed selection and test reachable configuration failures without inventing a profile-selection API. No custom fallback occurs.
 - **Evidence:** purpose/profile inventory and library/version inspection; executed profile-selection tests. A round trip alone proves neither algorithm suitability nor authenticity.
 - **Bounds / sources:** S1, Algorithms and Custom Algorithms. Regulated and long-lived confidentiality use cases require additional authoritative policy; do not infer certification from an algorithm name.
 
@@ -26,21 +26,23 @@ Status: proposed baseline; C01–C03 are MUST conditions when applicable. Use th
 - **Positive check:** a record written under the selected profile decrypts with its correct key and context.
 - **Negative check:** a disallowed write profile fails configuration validation; modified ciphertext or authentication data is rejected without returning usable plaintext.
 - **Evidence:** selected mode/parameters and write/read-path inspection; executed configuration rejection and tamper tests. A library dependency without call-site evidence does not establish authenticated encryption.
-- **Bounds / sources:** S1, Algorithms and Cipher Modes. Nonce uniqueness, key lifecycle, and authentication-before-use are separately assessed in primitive conditions. Legacy exceptions require migration scope and review date.
+- **Bounds / sources:** S1, Algorithms and Cipher Modes. Nonce uniqueness and authentication-before-use are separately assessed in [primitive conditions](cryptographic-primitives.md); ownership, version transitions, and recovery follow [key lifecycle](key-lifecycle.md). Legacy exceptions require migration scope and review date.
 
 ### SD-CRYPTO-001.C03 — Restrict negotiated transport profiles
 
 - **Apply when:** an application or its terminating proxy configures TLS clients or servers.
-- **Required / prohibited:** disable SSL and TLS 1.0/1.1; prefer TLS 1.3 and permit TLS 1.2 only with a reviewed compatibility need and cipher configuration. Do not weaken the transport silently when negotiation fails.
+- **Required / prohibited:** for this application deployment profile, disable SSL and TLS 1.0/1.1; prefer TLS 1.3 and permit TLS 1.2 with a documented compatibility need and reviewed cipher configuration. Do not weaken the transport silently when negotiation fails.
 - **Rationale:** a nominal HTTPS endpoint can still negotiate obsolete protection.
 - **Implement:** select a version-matched TLS configuration at every termination point, including outbound clients. Inventory enabled cipher suites separately for applicable protocol versions; use vendor-supported configurations and [certificate validation](x509-certificates.md).
 - **Unsafe → corrected:** retry a failed TLS handshake using an obsolete protocol → fail the connection and resolve compatibility through the reviewed profile.
 - **Positive check:** an intended client/server pair negotiates an allowed protocol and cipher through the actual termination path.
 - **Negative check:** a client offering only a prohibited protocol cannot connect; a disallowed cipher offer also fails where independently configurable. Verify no plaintext fallback.
 - **Evidence:** effective endpoint configuration and negotiated parameters; executed local handshakes with known offer sets. Failure caused by an unrelated certificate error is not proof of protocol rejection.
-- **Bounds / sources:** S2, Only Support Strong Protocols and Only Support Strong Ciphers. Proxy and client configurations need distinct observations. No universal cipher string applies across TLS libraries and versions.
+- **Bounds / sources:** S2, Only Support Strong Protocols and Only Support Strong Ciphers; S3 section 3.1.1. S2 addresses web deployment preferences; S3 distinguishes implementation support from negotiated deployment policy. This baseline selects the deployment profile above, not a claim that TLS 1.2 support is forbidden or intrinsically insecure. Protocol-specific interoperability obligations take precedence in their scope. Proxy and client configurations need distinct observations. No universal cipher string applies across TLS libraries and versions.
 
 ## Sources
+
+- **S3:** [RFC 9325](https://www.rfc-editor.org/rfc/rfc9325.html#section-3.1.1) — BCP 195, November 2022, TLS versions and negotiation; checked 2026-09-28. Supports the implementation/deployment distinction in C03.
 
 - **S1:** [OWASP Cryptographic Storage](https://cheatsheetseries.owasp.org/cheatsheets/Cryptographic_Storage_Cheat_Sheet.html) — Algorithms, Custom Algorithms, Cipher Modes. Living documentation; checked 2026-09-24.
 - **S2:** [OWASP Transport Layer Security](https://cheatsheetseries.owasp.org/cheatsheets/Transport_Layer_Security_Cheat_Sheet.html) — Only Support Strong Protocols; Only Support Strong Ciphers. Living documentation; checked 2026-09-24. Record the target TLS implementation/version before selecting concrete settings.

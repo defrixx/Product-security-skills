@@ -39,3 +39,11 @@ Each condition specifies:
 Report one row per condition: `condition ID | applicability rationale | implementation location | static evidence | executed check and observation | assumptions/gaps | status`. A described test is a verification plan until actually executed. A synthetic fixture proves only the exercised property in that fixture. Unknown applicability requires investigation, not an N/A result.
 
 Common exception procedure: record the unmet condition ID, scope, rationale, compensating controls, owner, and review date. An exception does not turn a failing technical check into a pass. Stack profiles refine the condition's implementation; they do not create an alternative weaker acceptance criterion.
+
+## Source-to-claim and mapping discipline
+
+For each new or changed normative clause, identify the primary source section supporting its security property and label additional project synthesis. Record the document revision or vendor release, URL, actual verification date, and any unverified target compatibility. A source's page selector is not evidence of a tested runtime version. Recheck when the clause or target version changes; do not refresh dates without examining the relevant text.
+
+Where source recommendations differ, record both scopes and the selected interpretation alongside the condition. Deployment preference, protocol implementation obligations, and regulated assurance profiles are not interchangeable. An implementation option is not the only compliant design. Required privileges permitted by the rule are normal applicability, while deliberately unmet restrictions need exceptions.
+
+Stack **Condition mapping** fields are authoritative. Spell out every mapped condition ID; remove redundant parent metadata rather than maintaining competing classifications. Each mapped property needs its own evidence; a profile label cannot pass the entire parent topic. Keep historical condition IDs stable when clarifying scope; allocate a new ID for a distinct property and document migration rather than reusing a retired ID.

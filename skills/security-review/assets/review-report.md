@@ -83,6 +83,16 @@ Count confirmed findings once, including pre-existing findings. Keep hypotheses 
 
 ## Coverage and residual uncertainty
 
+### Flow coverage
+
+Use one row per distinct in-scope entry-to-operation path; separate paths when their guards differ. Include identified but untraced paths with explicit gaps. Link to safe evidence locations at the recorded revision and finding/hypothesis IDs where relevant. Label static traces, executed checks, and mocks separately. A checked protection may have failed: record its observed outcome rather than implying that inspection means it held. Retain this table even when no findings are confirmed; it describes assessed coverage, not a security guarantee.
+
+| Entry point | Sensitive operation | Protections checked and outcomes | Evidence | Gaps / untested conditions |
+| --- | --- | --- | --- | --- |
+| [route, event, import, or job; actor/input] | [read, write, execution, or outbound request; asset] | [specific guard and observed result, or not checked] | [static trace / executed check / mock; safe location or attachment; finding ID if any] | [untraced steps, unavailable runtime evidence, assumptions, or none identified within this path's stated scope] |
+
+### Remaining limitations
+
 [Examined areas, omissions, tool errors, runtime assumptions, and checks needing additional authorization or evidence.]
 
 ## Attachments

@@ -2,7 +2,7 @@
 
 ## SD-WEB-001
 
-Status: proposed baseline; C01–C06 are MUST conditions when applicable. Use the [requirement format](../requirement-format.md) for evidence and exceptions. Examples are synthetic sketches. The [TypeScript profile](../stacks/typescript-nextjs.md) supplies framework implementation details; browser/version assumptions must be recorded.
+Status: proposed baseline; C01–C08 are MUST conditions when applicable. Use the [requirement format](../requirement-format.md) for evidence and exceptions. Examples are synthetic sketches. The [TypeScript profile](../stacks/typescript-nextjs.md) supplies framework implementation details; browser/version assumptions must be recorded.
 
 ### SD-WEB-001.C01 — Render untrusted text as data
 
@@ -76,8 +76,37 @@ Status: proposed baseline; C01–C06 are MUST conditions when applicable. Use th
 - **Evidence:** all storage write/read sites and lifecycle policy; browser storage observations and server rejection test. HttpOnly does not prevent an injected script from issuing authenticated actions.
 - **Bounds / sources:** S3, Local Storage; [sessions](sessions-cookies.md). Offline applications need a specific data/threat model; encrypted client data with a co-located key does not establish protection against same-origin script access.
 
+### SD-WEB-001.C07 — Enforce the intended frame-embedding policy
+
+- **Apply when:** sensitive interactive pages can be embedded by another document.
+- **Required / prohibited:** allow embedding only by intended ancestors under the selected browser policy. Do not treat a report-only policy or HTML meta tag as enforced frame-ancestor protection.
+- **Rationale:** an untrusted parent can mislead users into interacting with a protected page.
+- **Implement:** deliver a justified CSP frame-ancestors policy in the HTTP response; select compatible fallback behavior only if the supported browsers need it. Preserve deliberately approved embedding. Verify all relevant ancestors and proxy/header handling.
+- **Unsafe → corrected:** assume CSRF tokens prevent framing → enforce the intended ancestor policy before the browser renders the protected interaction.
+- **Positive check:** direct navigation and explicitly allowed embedding work.
+- **Negative check:** an unapproved top-level or nested ancestor cannot render the protected page in the supported browser; report-only mode cannot satisfy the denial claim.
+- **Evidence:** final response headers and real multi-origin browser observations; header presence alone is static evidence.
+- **Bounds / sources:** S4, framing defenses; S5 section 6.4.2. Not every public page needs a ban on embedding; derive policy from the interaction's threat model.
+
+### SD-WEB-001.C08 — Verify the selected browser response protections
+
+- **Apply when:** a browser-facing application relies on script/resource restrictions, content interpretation, referrer control, or persistent HTTPS policy.
+- **Required / prohibited:** define each required property and verify its effective response/browser behavior. Do not apply an unexplained header bundle or report an observed header as proof of all browser protections.
+- **Rationale:** deployment and browser semantics can differ from configuration intent.
+- **Implement:** select CSP enforcement and allowed resources, accurate content types/nosniff where relevant, a referrer policy for sensitive navigation, and HSTS for an appropriate HTTPS deployment. Record compatibility, inheritance, and rollout effects; do not enable broad subdomain/preload commitments without a justified deployment scope. These mechanisms supplement safe sinks and authenticated TLS.
+- **Unsafe → corrected:** add a CSP report-only header and claim scripts are blocked → choose enforcement deliberately and observe blocked and allowed resources in the intended browser.
+- **Positive check:** legitimate scripts/resources/navigation still work under each selected policy.
+- **Negative check:** test each claimed property independently: denied script/resource, forbidden MIME interpretation, excluded referrer data, or HTTP downgrade after HSTS establishment. Do not mark unused mechanisms applicable solely because the list mentions them.
+- **Evidence:** production-equivalent headers/proxy chain and browser observations with selected origins. HSTS does not prove first-contact protection; HTTP unit tests alone do not prove browser policy enforcement.
+- **Bounds / sources:** S5, policy delivery/enforcement; S6, HSTS model; S7, referrer policies; S8, nosniff. Normative outcome is the selected protection; individual mechanisms and durations follow actual deployment needs.
+
 ## Sources
 
 - **S1:** [OWASP Cross Site Scripting Prevention](https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html) — Output Encoding, HTML Sanitization, Safe Sinks. Living documentation; checked 2026-09-24.
 - **S2:** [OWASP Cross-Site Request Forgery Prevention](https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html) — framework protection, token defenses, SameSite. Living documentation; checked 2026-09-24.
 - **S3:** [OWASP HTML5 Security](https://cheatsheetseries.owasp.org/cheatsheets/HTML5_Security_Cheat_Sheet.html) — Web Messaging, Cross Origin Resource Sharing, Local Storage. Living documentation; checked 2026-09-24.
+- **S4:** [OWASP Clickjacking Defense](https://cheatsheetseries.owasp.org/cheatsheets/Clickjacking_Defense_Cheat_Sheet.html) — frame-ancestors and header limitations; checked 2026-09-28.
+- **S5:** [W3C CSP Level 3](https://www.w3.org/TR/CSP3/) — policy delivery/enforcement and section 6.4.2 frame-ancestors; working specification checked 2026-09-28. Verify actual browser support; no blanket conformance claim.
+- **S6:** [RFC 6797](https://www.rfc-editor.org/rfc/rfc6797.html) — November 2012, sections 6–8 and 12, HSTS processing/deployment; checked 2026-09-28.
+- **S7:** [W3C Referrer Policy](https://www.w3.org/TR/referrer-policy/) — policy values and integration with Fetch; checked 2026-09-28.
+- **S8:** [WHATWG Fetch](https://fetch.spec.whatwg.org/#x-content-type-options-header) — X-Content-Type-Options processing; living standard checked 2026-09-28.

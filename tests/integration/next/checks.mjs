@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { extendedChecks } from './extended-checks.mjs';
 import { chromium } from '@playwright/test';
 import { spawn } from 'node:child_process';
 import { readdir, readFile } from 'node:fs/promises';
@@ -25,6 +26,7 @@ try {
   assert.equal((await mutate('Bearer SYNTHETIC_ALICE', body)).status, 200);
   assert.equal((await (await fetch(url + '/api/records')).json()).value, 'changed');
   console.log('PASS SD-TS-001: direct HTTP Route Handler authorization and mutation boundaries');
+  console.log('PSS_CASE ' + JSON.stringify({ case: 'SD-TS-001', result: 'passed' }));
   browser = await chromium.launch({ headless: true, args: ['--no-sandbox'] });
   const page = await browser.newPage();
   const responseBodies = [];
@@ -36,6 +38,7 @@ try {
   assert.equal(await page.getByTestId('rendered').locator('img,script').count(), 0);
   assert.equal(await page.evaluate(() => window.syntheticExecuted), undefined);
   console.log('PASS SD-TS-002: hydrated browser DOM retains payload as inert text');
+  console.log('PSS_CASE ' + JSON.stringify({ case: 'SD-TS-002', result: 'passed' }));
   async function scan(dir) {
     for (const entry of await readdir(dir, { withFileTypes: true })) {
       const path = dir + '/' + entry.name;
@@ -50,8 +53,16 @@ try {
     assert(!body.includes(Buffer.from(canary)), 'network_canary');
   }
   console.log('PASS SD-TS-003: client files, HTML and observed browser responses omit synthetic canary');
-  console.log(JSON.stringify({ next: JSON.parse(await readFile('node_modules/next/package.json')).version, react: JSON.parse(await readFile('node_modules/react/package.json')).version, browser: browser.version(), checks: 3 }));
+  console.log('PSS_CASE ' + JSON.stringify({ case: 'SD-TS-003', result: 'passed' }));
+  await extendedChecks(url, browser);
+  console.log(JSON.stringify({ next: JSON.parse(await readFile('node_modules/next/package.json')).version, react: JSON.parse(await readFile('node_modules/react/package.json')).version, browser: browser.version(), checks: 6 }));
 } finally {
-  if (browser) await browser.close();
-  server.kill('SIGTERM');
+  try { if (browser) await browser.close(); } finally {
+    const exited = new Promise(resolve => server.once('exit', resolve));
+    if (server.exitCode === null) {
+      server.kill('SIGTERM');
+      const force = setTimeout(() => server.kill('SIGKILL'), 3000);
+      try { await exited; } finally { clearTimeout(force); }
+    }
+  }
 }

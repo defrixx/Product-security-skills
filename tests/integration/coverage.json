@@ -1,0 +1,135 @@
+[
+  {
+    "stack": "protocols",
+    "case": "ProtocolTests.test_code_flow_state_pkce_redirect_and_replay",
+    "conditions": [
+      "SD-PROTOCOL-001.C01"
+    ],
+    "behavior": "Authlib HTTP code exchange: restored state, PKCE, redirect binding, callback replay and valid identity.",
+    "limitations": "Minimal synthetic issuer and in-memory transaction/session counter; no real IdP, browser login, TLS or cookie/session store.",
+    "kind": "synthetic framework integration"
+  },
+  {
+    "stack": "protocols",
+    "case": "ProtocolTests.test_unbound_state_is_an_unsafe_control",
+    "conditions": [
+      "SD-PROTOCOL-001.C01"
+    ],
+    "behavior": "Intentionally omitted state permits mismatched callback; unsafe reproduction paired with restored-state control.",
+    "limitations": "A passed reproduction is evidence of the anti-example vulnerability, not a passed control.",
+    "kind": "synthetic framework integration"
+  },
+  {
+    "stack": "protocols",
+    "case": "ProtocolTests.test_oidc_issuer_nonce_fail_before_session",
+    "conditions": [
+      "SD-PROTOCOL-001.C01",
+      "SD-PROTOCOL-001.C02"
+    ],
+    "behavior": "Real signed ID tokens with wrong issuer/nonce do not increment session-creation counter.",
+    "limitations": "Synthetic issuer, direct PyJWT verifier; not complete OIDC middleware/provider conformance.",
+    "kind": "synthetic framework integration"
+  },
+  {
+    "stack": "protocols",
+    "case": "ProtocolTests.test_jwt_real_signature_claims_and_key_source",
+    "conditions": [
+      "SD-PROTOCOL-001.C02"
+    ],
+    "behavior": "PyJWT RSA signature, algorithm/key, issuer/audience/time/purpose/required-claim checks; untrusted key selector causes no fetch.",
+    "limitations": "No JWKS discovery, rotation or remote provider; key selector/nonce/purpose guards are fixture code.",
+    "kind": "synthetic framework integration"
+  },
+  {
+    "stack": "protocols",
+    "case": "ProtocolTests.test_refresh_single_use_concurrency_and_recipient",
+    "conditions": [
+      "SD-PROTOCOL-001.C03"
+    ],
+    "behavior": "Authlib HTTP refresh with concurrent single-use token, wrong recipient/purpose denial and synthetic issuer-side revocation.",
+    "limitations": "Issuer state is synthetic/in-memory; no real provider, sender constraint, token-family policy or distributed crash recovery.",
+    "kind": "synthetic framework integration"
+  },
+  {
+    "stack": "protocols",
+    "case": "InterpreterTests.test_mongodb_operator_injection_and_literal_control",
+    "conditions": [
+      "SD-INPUT-001.C06"
+    ],
+    "behavior": "Actual MongoDB operator-shaped input broadens unsafe query; safe typed literal query and benign dollar-string work.",
+    "limitations": "One equality-query contract; not all MongoDB operators, aggregations, LDAP, XPath or prototype mutation.",
+    "kind": "synthetic framework integration"
+  },
+  {
+    "stack": "protocols",
+    "case": "InterpreterTests.test_jinja_data_does_not_become_template_source",
+    "conditions": [
+      "SD-INPUT-001.C07"
+    ],
+    "behavior": "Actual Jinja evaluates unsafe interpolated template source; safe template data preserves expressions without sentinel disclosure.",
+    "limitations": "No untrusted-template authoring/sandbox conformance, resource exhaustion or other interpreters.",
+    "kind": "synthetic framework integration"
+  },
+  {
+    "stack": "next",
+    "case": "SD-TS-001",
+    "conditions": [
+      "SD-TS-001"
+    ],
+    "behavior": "Direct Route Handler mutation authorization.",
+    "limitations": "Synthetic bearer identities; Server Actions not tested.",
+    "kind": "synthetic framework integration"
+  },
+  {
+    "stack": "next",
+    "case": "SD-TS-002",
+    "conditions": [
+      "SD-TS-002"
+    ],
+    "behavior": "Hydrated browser renders untrusted input as inert text.",
+    "limitations": "Rich HTML sanitizers and all sinks not tested.",
+    "kind": "synthetic framework integration"
+  },
+  {
+    "stack": "next",
+    "case": "SD-TS-003",
+    "conditions": [
+      "SD-TS-003"
+    ],
+    "behavior": "Canary absent from emitted client files and observed browser content.",
+    "limitations": "Exact-canary checks on visited routes only.",
+    "kind": "synthetic framework integration"
+  },
+  {
+    "stack": "next",
+    "case": "SD-API-001.C06",
+    "conditions": [
+      "SD-API-001.C06",
+      "SD-AUTHZ-001.C03",
+      "SD-AUTHZ-001.C05"
+    ],
+    "behavior": "Next unstable_cache actual hits (stable computation UUID), actor/variant separation and post-hit revocation; unsafe leak reproduced.",
+    "limitations": "Next Data Cache only; not use-cache directive, CDN/shared HTTP cache, real sessions or distributed invalidation.",
+    "kind": "synthetic framework integration"
+  },
+  {
+    "stack": "next",
+    "case": "SD-WEB-001.C07",
+    "conditions": [
+      "SD-WEB-001.C07"
+    ],
+    "behavior": "Chromium blocks cross-origin frame, permits same-origin frame; report-only remains permissive.",
+    "limitations": "Distinct loopback origins, one browser version; same-origin parent served by Playwright routing; no full frame nesting matrix.",
+    "kind": "synthetic framework integration"
+  },
+  {
+    "stack": "next",
+    "case": "SD-WEB-001.C08",
+    "conditions": [
+      "SD-WEB-001.C08"
+    ],
+    "behavior": "Chromium enforces script CSP, permits nonce script, executes unsafe/report-only payload.",
+    "limitations": "CSP script subset only; no HSTS, nosniff, referrer policy or full header bundle; fixture nonce is fixed, not production guidance.",
+    "kind": "synthetic framework integration"
+  }
+]

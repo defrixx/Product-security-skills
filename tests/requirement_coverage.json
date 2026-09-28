@@ -1,0 +1,189 @@
+[
+  {
+    "case": "test_security_boundaries.SecurityBoundaryTests.test_outbound_pins_checked_endpoint",
+    "conditions": [
+      "SD-OUTBOUND-001.C01",
+      "SD-OUTBOUND-001.C02"
+    ],
+    "behavior": "Local HTTP endpoint confinement and changed resolver answer; rejects unsupported authority forms.",
+    "limitations": "Injected resolver and loopback ports, not real DNS rebinding, IPv6, TLS, proxy, or deployed client.",
+    "kind": "synthetic boundary test"
+  },
+  {
+    "case": "test_security_boundaries.SecurityBoundaryTests.test_redirect_confinement_and_budget",
+    "conditions": [
+      "SD-OUTBOUND-001.C03"
+    ],
+    "behavior": "Permitted hop works; prohibited destination remains untouched; redirect loop stops.",
+    "limitations": "Synthetic HTTP endpoints; no client library auto-redirect or proxy integration.",
+    "kind": "synthetic boundary test"
+  },
+  {
+    "case": "test_security_boundaries.SecurityBoundaryTests.test_redirect_does_not_forward_recipient_credential",
+    "conditions": [
+      "SD-OUTBOUND-001.C04"
+    ],
+    "behavior": "Recipient-bound synthetic Authorization is absent at another allowed host.",
+    "limitations": "No cookies, request bodies, HTTPS downgrade, or real credentials.",
+    "kind": "synthetic boundary test"
+  },
+  {
+    "case": "test_security_boundaries.SecurityBoundaryTests.test_concurrent_consumption_preserves_quota",
+    "conditions": [
+      "SD-BUSINESS-001.C02"
+    ],
+    "behavior": "Two synchronized SQLite connections consume exactly one entitlement in safe control.",
+    "limitations": "SQLite only; no distributed database or service.",
+    "kind": "synthetic boundary test"
+  },
+  {
+    "case": "test_security_boundaries.SecurityBoundaryTests.test_authoritative_transition",
+    "conditions": [
+      "SD-BUSINESS-001.C01"
+    ],
+    "behavior": "Only approved pending state can become issued; unsafe transition contrasted.",
+    "limitations": "Minimal state machine; no pricing, payments, or application roles.",
+    "kind": "synthetic boundary test"
+  },
+  {
+    "case": "test_security_boundaries.SecurityBoundaryTests.test_retry_identity_and_durable_recovery",
+    "conditions": [
+      "SD-BUSINESS-001.C03"
+    ],
+    "behavior": "Payload conflict, actor/key scoping, concurrent retries and recovery after injected post-commit failure.",
+    "limitations": "Fresh connections, not process restart; effects in same SQLite database, not external payment atomicity.",
+    "kind": "synthetic boundary test"
+  },
+  {
+    "case": "test_security_boundaries.SecurityBoundaryTests.test_event_verification_scope_and_freshness",
+    "conditions": [
+      "SD-EVENT-001.C01",
+      "SD-EVENT-001.C02"
+    ],
+    "behavior": "HMAC verified over exact bytes before writes; stale/future and wrong account/object rejected.",
+    "limitations": "Synthetic protocol and fixture-only time window; not a vendor webhook SDK.",
+    "kind": "synthetic boundary test"
+  },
+  {
+    "case": "test_security_boundaries.SecurityBoundaryTests.test_event_duplicates_and_reordering",
+    "conditions": [
+      "SD-EVENT-001.C03"
+    ],
+    "behavior": "Concurrent and re-signed duplicate deliveries produce one effect; old version cannot regress state.",
+    "limitations": "No network acknowledgment-loss, broker crash or process restart exercise.",
+    "kind": "synthetic boundary test"
+  },
+  {
+    "case": "test_security_boundaries.SecurityBoundaryTests.test_key_purpose_rotation_revocation_and_recovery",
+    "conditions": [
+      "SD-KEY-001.C01",
+      "SD-KEY-001.C02",
+      "SD-KEY-001.C03"
+    ],
+    "behavior": "Actual HMAC with actor/purpose/version policy, rotation, revocation, unavailable material and authorized restore.",
+    "limitations": "Identity is injected; no KMS/HSM, AEAD migration, durable backup, secure erasure or stale worker integration.",
+    "kind": "synthetic boundary test"
+  },
+  {
+    "case": "test_security_boundaries.SecurityBoundaryTests.test_cache_hit_isolation_variants_and_revocation",
+    "conditions": [
+      "SD-API-001.C06",
+      "SD-AUTHZ-001.C03",
+      "SD-AUTHZ-001.C05"
+    ],
+    "behavior": "Cache hit count, actor/variant separation and revocation checked; unsafe cross-actor disclosure reproduced.",
+    "limitations": "Synthetic principals and in-process cache; not HTTP shared cache, CDN or Next.js.",
+    "kind": "synthetic boundary test"
+  },
+  {
+    "case": "test_security_boundaries.SecurityBoundaryTests.test_mcp_http_origin_denied_before_effect",
+    "conditions": [
+      "SD-MCP-001.C06"
+    ],
+    "behavior": "Loopback HTTP invalid Origin returns 403 before effect; valid/absent Origin and authentication controls.",
+    "limitations": "Injected token policy; not MCP SDK, browser exploit, DNS rebinding or deployment listener audit.",
+    "kind": "synthetic boundary test"
+  },
+  {
+    "case": "test_cleanup.CleanupTests.test_original_bytes_names_and_permissions_preserved",
+    "conditions": [
+      "CLEAN-001"
+    ],
+    "behavior": "Helper preserves original bytes, names and permissions.",
+    "limitations": "Only helper path; no autonomous scope decision.",
+    "kind": "helper regression"
+  },
+  {
+    "case": "test_cleanup.CleanupTests.test_symlink_file_and_directory_are_not_followed",
+    "conditions": [
+      "CLEAN-002"
+    ],
+    "behavior": "File/directory symlinks excluded.",
+    "limitations": "Other scope/format clauses not established.",
+    "kind": "helper regression"
+  },
+  {
+    "case": "test_cleanup.CleanupTests.test_known_corpus_detects_seeds_without_benign_replacements",
+    "conditions": [
+      "CLEAN-003"
+    ],
+    "behavior": "Labeled corpus seeds and benign values.",
+    "limitations": "No unlabeled recall or universal detection.",
+    "kind": "helper regression"
+  },
+  {
+    "case": "test_cleanup.CleanupTests.test_consistent_across_files_and_distinct_values",
+    "conditions": [
+      "CLEAN-003"
+    ],
+    "behavior": "Cross-file consistent distinct replacements.",
+    "limitations": "Supported helper formats only.",
+    "kind": "helper regression"
+  },
+  {
+    "case": "test_cleanup.CleanupTests.test_report_errors_do_not_leak_input",
+    "conditions": [
+      "CLEAN-006"
+    ],
+    "behavior": "Error report avoids original input.",
+    "limitations": "No arbitrary downstream report renderer.",
+    "kind": "helper regression"
+  },
+  {
+    "case": "test_pr_review.PRReviewTests.test_diverged_target_uses_merge_base",
+    "conditions": [
+      "REVIEW-001"
+    ],
+    "behavior": "Exact Git merge-base scope on diverged target.",
+    "limitations": "Known-answer fixture, no agent scope selection.",
+    "kind": "helper regression"
+  },
+  {
+    "case": "test_pr_review.PRReviewTests.test_introduced_existing_and_disproved_signals",
+    "conditions": [
+      "REVIEW-003",
+      "SD-INPUT-001.C02"
+    ],
+    "behavior": "SQLite injection contrasted with parameterized queries and base/head provenance.",
+    "limitations": "No independent finding discovery or ORM/framework integration.",
+    "kind": "helper regression"
+  },
+  {
+    "case": "test_cleanup.CleanupTests.test_entry_limit_reports_incomplete_coverage",
+    "conditions": [
+      "CLEAN-004"
+    ],
+    "behavior": "Entry limit reports incomplete coverage.",
+    "limitations": "Other unsupported formats and limits require their own checks.",
+    "kind": "helper regression"
+  },
+  {
+    "case": "test_image_metadata.ImageMetadataTests.test_default_mode_still_omits_images",
+    "conditions": [
+      "CLEAN-005"
+    ],
+    "behavior": "Default mode excludes images rather than silently claiming pixel cleanup.",
+    "limitations": "Does not prove pixel or arbitrary binary cleanup.",
+    "kind": "helper regression"
+  }
+]

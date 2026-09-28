@@ -9,7 +9,7 @@ python3 -m unittest discover -s tests -v
 python3 scripts/run_regressions.py --output artifacts/new-regression-run
 ```
 
-Requirements: Python 3.9+, Git, and a POSIX filesystem with no-follow/descriptor-relative operations. No third-party Python packages, network services, Docker, or installed skills are needed. The reporting runner requires a new output path and records source fingerprints, tool/runtime versions, per-test outcomes, exact synthetic base/head/merge-base IDs, and a completed PR review exercise.
+Requirements: Python 3.9+, Git, and a POSIX filesystem with no-follow/descriptor-relative operations. The suite starts disposable HTTP servers bound only to 127.0.0.1; allow local socket binding when running under a sandbox. No external network services, third-party Python packages, Docker, or installed skills are needed. The reporting runner requires a new output path and records source fingerprints, tool/runtime versions, per-test outcomes, exact synthetic base/head/merge-base IDs, and a completed PR review exercise.
 
 ## Scenarios and observable expectations
 
@@ -30,8 +30,18 @@ The PR exercise uses the review skill's required scope, threat model, provenance
 
 ## Optional integration suite and personal-data coverage
 
-[Framework integration checks](integration/README.md) run separately with Docker and pinned dependencies; they are not part of the dependency-free suite above. They exercise five Python integration cases, three Next.js/browser control groups, and four Compose/BuildKit control groups on synthetic applications.
+[Framework integration checks](integration/README.md) run separately with Docker and pinned dependencies; they are not part of the dependency-free suite above. They exercise five Python integration cases, six Next.js/browser control groups, seven protocol/interpreter cases, and four Compose/BuildKit control groups on synthetic applications. The separate lifecycle integration injects three failures against actual Docker resources.
 
 `test_personal_data.py` covers sixteen explicit personal-field aliases, ambiguous-field negative controls, numeric-identifier omission, CSV detection, and an explicit natural-language coverage limit. Field-context coverage is not a measurement of universal personal-data detection.
 
 JPEG/PNG metadata-only regressions use synthetic container fixtures in `test_image_metadata.py`. `fixtures/synthetic-jpeg.json` stores tiny generated images as base64, without real photographs or personal metadata. Independent decoder checks run separately with `python3 tests/integration/images/checks.py` (Pillow 11.3.0 was used); runtime cleanup remains standard-library-only.
+
+## Requirements expansion evidence
+
+Eleven cases in `test_security_boundaries.py` contrast deliberately unsafe and safe synthetic controls for outbound connections/redirects/credentials, transitions/concurrent quotas/retries, event verification/deduplication, HMAC key versions/recovery, cache hits and HTTP MCP Origin rejection. Tests use actual loopback HTTP requests, SQLite transactions and HMAC operations with injected resolver answers and identities. They do not establish real DNS-rebinding resistance, provider compatibility, distributed external-effect atomicity, KMS recovery, Next.js caching or browser exploit resistance.
+
+[The coverage manifest](requirement_coverage.json) maps exact cases to clauses and limits. The runner expands it to all 144 condition/profile/workflow IDs in `requirement-evidence.json`, records the run path, outcomes, repository revision/working tree and source fingerprints in `summary.json`, and leaves unmapped conditions explicitly unexercised. Failed or skipped mapped cases retain their outcome; a mapping never means a condition passed. Optional integrations from earlier runs are not imported. Evidence reporter tests verify this distinction and reject unknown condition IDs or unexecuted cases.
+
+[Manual applicability and mapping review](requirements-manual-review.md) records contrasting design decisions and unexecuted branches. This is a guided specification walkthrough, not independent skill scoring. No model was evaluated, so no model identity or hidden-ground-truth performance is asserted.
+
+Resource cleanup regression `test_resource_cleanup.py` injects exception, timeout and SIGTERM with real local processes/ports/temp files while a separately owned scope stays intact. See [integration details](integration/README.md#failure-cleanup-and-evidence) for Docker cleanup and optional framework evidence.

@@ -14,7 +14,7 @@ Status: proposed baseline; C01–C04 are MUST conditions when applicable. Use th
 - **Positive check:** empty and maximum permitted labels produce exactly the expected terminated value without changing adjacent canaries.
 - **Negative check:** a 16-byte label and a forbidden embedded-NUL label fail without partial publication or out-of-range access. Exercise source read bounds as well as destination writes.
 - **Evidence:** capacity/length argument for each access; executed boundary tests with supported address-sanitizer instrumentation. A clean run covers only executed paths and does not establish every parser branch.
-- **Bounds / sources:** S1, Description and Potential Mitigations. Container choice alone does not prove bounds; unchecked indexing, pointer extraction, and foreign APIs still require review.
+- **Bounds / sources:** S1 and S5, Description and Potential Mitigations, for writes and reads respectively. Container choice alone does not prove bounds; unchecked indexing, pointer extraction, and foreign APIs still require review.
 
 ### SD-MEMORY-001.C02 — Check size arithmetic before allocation or access
 
@@ -53,6 +53,8 @@ Status: proposed baseline; C01–C04 are MUST conditions when applicable. Use th
 - **Bounds / sources:** S4, Potential Mitigations. Correct formatting does not independently establish valid pointer lifetime, termination, or log-injection protection; apply C01, C03, and [logging](logging-monitoring.md).
 
 ## Sources
+
+- **S5:** [MITRE CWE-125](https://cwe.mitre.org/data/definitions/125.html) — Out-of-bounds Read, CWE 4.20, Description and Potential Mitigations; checked 2026-09-28. Compiler and library API details still require their primary documentation.
 
 - **S1:** [MITRE CWE-787](https://cwe.mitre.org/data/definitions/787.html) — Description and Potential Mitigations, CWE 4.20; checked 2026-09-24. Mitigations are contextual: a bounded string-copy API alone is not accepted as proof of safety.
 - **S2:** [MITRE CWE-190](https://cwe.mitre.org/data/definitions/190.html) — Description and Potential Mitigations, CWE 4.20; checked 2026-09-24.

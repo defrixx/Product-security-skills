@@ -18,6 +18,7 @@ ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT/'tests'))
 from support import cleanup,pr_context
 from pr_fixture import build,git
+import requirement_evidence
 
 class Result(unittest.TextTestResult):
     def __init__(self,*args,**kwargs):super().__init__(*args,**kwargs);self.outcomes=[]
@@ -100,12 +101,18 @@ def main():
     result=unittest.TextTestRunner(verbosity=1,resultclass=Result).run(suite)
     revisions=pr_exercise(output) if result.wasSuccessful() else None
     if result.wasSuccessful():cleanup_corpus(output)
-    fingerprint={str(p.relative_to(ROOT)):hashlib.sha256(p.read_bytes()).hexdigest() for folder in ['skills','tests','scripts'] for p in sorted((ROOT/folder).rglob('*')) if p.is_file() and p.suffix in {'.md','.py','.json'} and '__pycache__' not in p.parts}
+    fingerprint={str(p.relative_to(ROOT)):hashlib.sha256(p.read_bytes()).hexdigest() for folder in ['skills','tests','scripts'] for p in sorted((ROOT/folder).rglob('*')) if p.is_file() and p.suffix in {'.md','.py','.json','.ts','.tsx','.mjs','.yaml','.yml','.txt'} and '__pycache__' not in p.parts}
     summary={'date_utc':datetime.now(timezone.utc).isoformat(),'python':platform.python_version(),
              'platform':platform.system(),'git':pr_context.git(ROOT,'--version').decode().strip(),'sqlite':sqlite3.sqlite_version,'test_count':result.testsRun,
              'success':result.wasSuccessful(),'outcomes':result.outcomes,'source_fingerprints':fingerprint,
+             'repository_revision':pr_context.git(ROOT,'rev-parse','HEAD').decode().strip(),
+             'working_tree':pr_context.git(ROOT,'status','--porcelain').decode().splitlines(),
+             'task':'Repository synthetic regression and per-condition partial evidence inventory',
+             'substitutions':['Injected outbound resolver, fixture identities and event protocol; see requirement-evidence.json'],
              'synthetic_pr_revisions':revisions,'limits':['not a blind model evaluation','no full framework/browser/container tests','no external project modified']}
     write(output,'summary.json',summary)
+    coverage=requirement_evidence.build(requirement_evidence.inventory(ROOT), json.loads((ROOT/'tests/requirement_coverage.json').read_text()), result.outcomes, str(output))
+    write(output,'requirement-evidence.json',coverage)
     print(json.dumps({'tests':result.testsRun,'success':result.wasSuccessful(),'pr_exercise':revisions is not None}))
     return 0 if result.wasSuccessful() else 1
 

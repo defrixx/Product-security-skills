@@ -42,5 +42,5 @@ Status: proposed baseline; C01–C03 are MUST conditions when applicable. Use th
 
 ## Sources
 
-- **S1:** [Terraform sensitive data](https://developer.hashicorp.com/terraform/language/manage-sensitive-data) — Background, Requirements, Hide sensitive variables and outputs; documentation displayed for Terraform 1.16.x, checked 2026-09-24. Select the target's actual version before prescribing ephemeral/write-only features.
+- **S1:** [Terraform sensitive data](https://developer.hashicorp.com/terraform/language/manage-sensitive-data) — Background, Requirements, Hide sensitive variables and outputs; living documentation; Requirements section rechecked 2026-09-28: ephemeral features require Terraform 1.10+, resource write-only arguments 1.11+ plus provider support. These are feature prerequisites, not a tested target version. The earlier 1.16.x selector observation is not retained as verified provenance; select the actual target version.
 - **S2:** [Terraform plan](https://developer.hashicorp.com/terraform/cli/commands/plan) — planning behavior, planning modes/options, saved plans; living CLI documentation checked 2026-09-24. General acceptance conditions are this baseline's engineering synthesis, not universal Terraform defaults.

@@ -6,7 +6,6 @@ Every applicable control below is a proposed MUST. Examples are synthetic sketch
 
 ## SD-COMPOSE-001 — Publish only intended listeners
 
-- Parent: `SD-CICD-001`, `SD-API-001`; applies to published service ports.
 - Required implementation behavior: bind a local-only application to the intended loopback interface; leave internal stores unpublished unless explicitly required.
 - Rationale: accidental host-wide exposure invalidates a local-only trust model.
 - Implementation: specify `host_ip` or the host-IP portion of a port mapping instead of relying on an omitted binding.
@@ -21,13 +20,12 @@ Every applicable control below is a proposed MUST. Examples are synthetic sketch
 
 ## SD-COMPOSE-002 — Restrict runtime secret access
 
-- Parent: `SD-SECRET-001`; applies to secret-consuming containers.
 - Required implementation behavior: provide secret material only to services that require it, without embedding it in committed configuration or images.
 - Rationale: unnecessarily shared credentials expand compromise scope.
 - Implementation option: declare Compose secrets and grant them to selected services; read the mounted file from the application. Protect the original host file too.
 - Limit: local file-backed Compose secrets do not imply encryption of the host source or automatic rotation.
 - Source: [Compose secrets](https://docs.docker.com/compose/how-tos/use-secrets/) — service grants and mounted files; checked 2026-09-24.
-- **Condition mapping:** [SD-SECRET-001.C01 and C02](../topics/secrets.md); service-specific access is a profile refinement requiring its own denial observation.
+- **Condition mapping:** [SD-SECRET-001.C01 and SD-SECRET-001.C02](../topics/secrets.md); service-specific access is a profile refinement requiring its own denial observation.
 - **Apply when:** a service consumes a file-backed Compose secret or equivalent runtime credential injection.
 - **Unsafe → corrected:** mount the same credential directory into every service → grant only the required secret to its designated consumer and protect the host source.
 - **Positive check:** the intended service can read the synthetic secret at its configured mount and perform its test operation.
@@ -36,7 +34,6 @@ Every applicable control below is a proposed MUST. Examples are synthetic sketch
 
 ## SD-COMPOSE-003 — Keep build credentials out of layers
 
-- Parent: `SD-SECRET-001`, `SD-SUPPLY-001`; applies to authenticated build steps.
 - Required implementation behavior: build credentials must not persist in image layers, history, or exported artifacts.
 - Rationale: later deletion does not remove a value from an earlier layer.
 - Implementation: use BuildKit secret mounts for the needed step rather than credential-bearing `ARG`, `ENV`, or copied files.
@@ -51,7 +48,6 @@ Every applicable control below is a proposed MUST. Examples are synthetic sketch
 
 ## SD-COMPOSE-004 — Minimize runtime privilege
 
-- Parent: `SD-CICD-001`; applies to ordinary application containers.
 - Required implementation behavior: use a non-root identity where supported and grant only required capabilities, mounts, and writable paths.
 - Rationale: unnecessary host or container privileges amplify application compromise.
 - Implementation options: configure `user`, `cap_drop`, `read_only`, and dedicated writable volumes as appropriate; avoid privileged mode and host daemon sockets without a scoped requirement.

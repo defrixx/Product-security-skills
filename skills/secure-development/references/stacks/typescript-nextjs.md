@@ -6,13 +6,12 @@ Status: proposed baseline, source-reviewed; every applicable rule below is a pro
 
 ## SD-TS-001 — Enforce access at server operations
 
-- Parent: `SD-AUTHZ-001`, `SD-API-001`; applies to protected Server Actions and Route Handlers.
 - Required implementation behavior: validate input and enforce the intended access policy inside each callable server operation.
 - Rationale: hiding controls in a page does not protect the callable operation.
 - Implementation: perform checks in the server-side data-access boundary and return only the necessary DTO fields. Treat action arguments as untrusted.
 - Limit: `use server` does not itself authenticate callers. Local-only applications need a documented local request boundary rather than an invented user model.
 - Source: [Next.js Data Security](https://nextjs.org/docs/app/guides/data-security) — Server Actions, authorization, and data-access layer; checked 2026-09-24.
-- **Condition mapping:** [SD-AUTHZ-001.C01, C02, and C04](../topics/authorization-access-control.md), [SD-INPUT-001.C01](../topics/input-validation-injection.md), and [SD-API-001.C01](../topics/api-web-services.md). Operation, object, protected-field, and schema checks need separate observations.
+- **Condition mapping:** [SD-AUTHZ-001.C01, SD-AUTHZ-001.C02, and SD-AUTHZ-001.C04](../topics/authorization-access-control.md), [SD-INPUT-001.C01](../topics/input-validation-injection.md), and [SD-API-001.C01](../topics/api-web-services.md). Operation, object, protected-field, and schema checks need separate observations.
 - **Apply when:** an exported Server Action or Route Handler reaches protected reads or writes, including actions invoked outside the page that normally displays them.
 - **Unsafe → corrected:** hide an edit button but let the handler update any supplied record ID → resolve the server-side principal, validate the request, and authorize the operation and record before writing.
 - **Positive check:** a synthetic authorized caller updates its permitted record and receives only the intended public result.
@@ -21,13 +20,12 @@ Status: proposed baseline, source-reviewed; every applicable rule below is a pro
 
 ## SD-TS-002 — Keep rendering data inert
 
-- Parent: `SD-WEB-001`; applies to untrusted text/HTML rendering.
 - Required implementation behavior: untrusted markup must not execute in the application origin.
 - Rationale: rendering escape hatches can bypass normal text treatment.
 - Implementation: render text as JSX children. If HTML is a product requirement, use a reviewed sanitizer before `dangerouslySetInnerHTML` and inspect the actual producer of that value.
 - Limit: finding an escape hatch is not proof of exploitable XSS; URL and third-party component behavior require separate checks.
 - Source: [React common DOM components](https://react.dev/reference/react-dom/components/common) — React 19, `dangerouslySetInnerHTML`; checked 2026-09-24.
-- **Condition mapping:** [SD-WEB-001.C01 and C02](../topics/client-web-security.md). Plain-text rendering and deliberately supported HTML have distinct acceptance paths.
+- **Condition mapping:** [SD-WEB-001.C01 and SD-WEB-001.C02](../topics/client-web-security.md). Plain-text rendering and deliberately supported HTML have distinct acceptance paths.
 - **Apply when:** URL/API/storage values reach JSX, third-party components, or direct DOM/HTML escape hatches.
 - **Unsafe → corrected:** render a plain user label with `dangerouslySetInnerHTML` → render it as `{label}`; if rich text is required, apply the selected sanitizer policy at the HTML boundary.
 - **Positive check:** plain labels retain their literal content; allowed rich-text formatting remains usable where supported.
@@ -36,15 +34,22 @@ Status: proposed baseline, source-reviewed; every applicable rule below is a pro
 
 ## SD-TS-003 — Keep credentials out of browser bundles
 
-- Parent: `SD-SECRET-001`; applies to secrets supplied during build or server execution.
 - Required implementation behavior: private credentials must not become client-visible configuration or component props.
 - Rationale: browser bundles are distributable artifacts.
 - Implementation: keep credentials in server-only code; do not put them in `NEXT_PUBLIC_` variables. Send only public values across the server/client boundary.
 - Limit: build-time filtering is not a substitute for runtime access controls, and already distributed artifacts need separate handling after a leak.
 - Source: [Next.js Environment Variables](https://nextjs.org/docs/app/guides/environment-variables) — browser inlining with `NEXT_PUBLIC_`; checked 2026-09-24.
-- **Condition mapping:** [SD-SECRET-001.C02](../topics/secrets.md), with response/diagnostic paths additionally assessed under C03 where applicable.
+- **Condition mapping:** [SD-SECRET-001.C02](../topics/secrets.md), including unintended successful-response disclosure; diagnostic paths additionally map to [SD-SECRET-001.C03](../topics/secrets.md). Authorized credential issuance follows its explicit recipient/purpose contract.
 - **Apply when:** build environment values, server modules, configuration, or server-produced props can cross into client assets or responses.
 - **Unsafe → corrected:** put a private API credential in `NEXT_PUBLIC_SERVICE_KEY` → retain it in the server-side integration and expose only the public result fields required by the client.
 - **Positive check:** the intended server operation can use an inert synthetic credential while the page receives its documented public data.
 - **Negative check:** the canary is absent from generated client assets, initial HTML, server-component payloads, and captured responses; exercise success and error branches separately.
 - **Evidence:** inspect module imports, configuration inlining, and server/client serialization; build and exercise the actual app, then inspect each output surface. A response-body read failure must be reported as uninspected, not treated as an empty safe response.
+
+## When protected results are cached
+
+Apply [SD-API-001.C06](../topics/api-web-services.md) and [SD-AUTHZ-001.C03/C05](../topics/authorization-access-control.md) to actual cache layers. For Next.js 16 Cache Components using `use cache`, serializable arguments and captured values participate in the key; derive actor/resource context from trusted state before passing it. A user ID in a cache key does not itself grant access, and a warm hit can skip the cached function body. Keep current authorization outside that reusable computation or use another verified design that preserves the selected lifetime policy. Inspect request-time APIs, remote handlers, revalidation, and route/CDN caching independently.
+
+Verify an authorized warm hit, then same-tenant unauthorized and anonymous reads, followed by a policy change; record the actual layer tested. Do not use default behavior from one Next.js release as proof for another or require this caching API when the application uses a different mechanism.
+
+Source: [Next.js use cache](https://nextjs.org/docs/app/api-reference/directives/use-cache) — Next.js 16, Cache keys, Cache output, Passing runtime values; checked 2026-09-28. This note refines existing controls and creates no new profile pass/fail shortcut.

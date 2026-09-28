@@ -2,7 +2,7 @@
 
 ## SD-DATASTORE-001
 
-Status: proposed baseline; C01–C04 are MUST conditions when applicable. Use the [requirement format](../requirement-format.md) for evidence and exceptions. Query construction belongs to [input validation](input-validation-injection.md); per-user and tenant decisions belong to [authorization](authorization-access-control.md). Examples describe synthetic deployments.
+Status: proposed baseline; C01–C04 are MUST conditions when applicable. Use the [requirement format](../requirement-format.md) for evidence and exceptions. Query construction belongs to [input validation](input-validation-injection.md); per-user and tenant decisions belong to [authorization](authorization-access-control.md). Concurrent business invariants and retry effects follow [business conditions](business-logic.md); this topic does not substitute storage hardening for transactional correctness. Examples describe synthetic deployments.
 
 ### SD-DATASTORE-001.C01 — Restrict the application's storage identity
 

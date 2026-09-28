@@ -2,7 +2,7 @@
 
 ## SD-INPUT-001
 
-Status: proposed engineering baseline; each applicable C01–C05 condition is a MUST. Follow the [requirement format](../requirement-format.md) for reporting and exceptions. Input validation and sink protection require separate evidence. Examples are deliberately small synthetic pseudocode; adapt APIs to the actual stack.
+Status: proposed engineering baseline; each applicable C01–C07 condition is a MUST. Follow the [requirement format](../requirement-format.md) for reporting and exceptions. Input validation and sink protection require separate evidence. Examples are deliberately small synthetic pseudocode; adapt APIs to the actual stack.
 
 ### SD-INPUT-001.C01 — Validate decoded input before effects
 
@@ -64,8 +64,35 @@ Status: proposed engineering baseline; each applicable C01–C05 condition is a 
 - **Evidence:** complete transformation trace and executed end-to-end cases through the relevant parser stack. An isolated validator test leaves downstream reinterpretation unverified.
 - **Bounds / sources:** S1, Unicode and Free-form Unicode Text. Do not normalize passwords or arbitrary binary data without a protocol-specific contract; encoding for one output context is not reusable everywhere.
 
+### SD-INPUT-001.C06 — Keep non-SQL query operators application-controlled
+
+- **Apply when:** external values enter a document-database query or another non-SQL query language.
+- **Required / prohibited:** enforce the intended query structure; external data must not become arbitrary operators or expressions. A driver query object alone is not safe if its values are unvalidated operator objects.
+- **Rationale:** an operator-shaped value can broaden a predicate without SQL syntax.
+- **Implement:** validate expected scalar/structured types; build operators from application-owned choices and allowlist any intentional query features. Avoid eval-like conversion and raw query fragments. Select the actual engine's primary operator/driver documentation.
+- **Unsafe → corrected:** pass a request-provided filter directly to the collection → build the intended predicate from validated typed values.
+- **Positive check:** a legitimate literal value and supported query option return only the intended records.
+- **Negative check:** an operator object in a scalar field and an unapproved expression cannot broaden results or mutate unrelated records. Test nested fields and alternate query paths where supported.
+- **Evidence:** input-to-driver trace and actual selected-engine queries. SQL binding tests or an in-memory toy filter do not establish document-database safety.
+- **Bounds / sources:** S4, injection and query construction; S5, operator semantics. Operator restrictions depend on the feature contract; a universal substring ban is not sufficient validation.
+
+### SD-INPUT-001.C07 — Separate template or code source from data
+
+- **Apply when:** external values reach server-side templates, expression engines, or dynamic code evaluation.
+- **Required / prohibited:** plain data must not become executable template/code source. If authoring expressions is an intentional feature, enforce an explicit capability and resource boundary instead of assuming escaping or a sandbox name suffices.
+- **Rationale:** an input meant as a label can execute with the server's available objects and permissions.
+- **Implement:** load trusted templates and pass values as data. For intentional untrusted templates, constrain accessible objects/functions, side effects, and output/work budgets using maintained engine support plus isolation as needed. Apply destination-specific output handling separately.
+- **Unsafe → corrected:** compile a greeting concatenated with a user label → render a fixed template with that label as a data parameter.
+- **Positive check:** supported labels containing template-like syntax remain literal data; approved authored expressions remain functional within their intended boundary.
+- **Negative check:** a template-looking label cannot evaluate an expression or access a local sentinel. For authored templates, denied attribute/call access and bounded output fail without external effects.
+- **Evidence:** source/data provenance and actual engine execution. A string snapshot or browser-only XSS test does not prove server-side interpreter confinement.
+- **Bounds / sources:** S6, sandbox security considerations; project synthesis separates ordinary rendering from expression-authoring products. LDAP/XPath/prototype-mutation paths require separately sourced engine-specific assessment when present; do not infer coverage from SQL or this template example.
+
 ## Sources
 
 - **S1:** [OWASP Input Validation](https://cheatsheetseries.owasp.org/cheatsheets/Input_Validation_Cheat_Sheet.html) — Input Validation Strategies; Syntactic and Semantic Validity; Unicode. Living documentation, checked 2026-09-24.
 - **S2:** [OWASP SQL Injection Prevention](https://cheatsheetseries.owasp.org/cheatsheets/SQL_Injection_Prevention_Cheat_Sheet.html) — Prepared Statements; Stored Procedures; Allow-list Input Validation. Living documentation, checked 2026-09-24.
 - **S3:** [OWASP OS Command Injection Defense](https://cheatsheetseries.owasp.org/cheatsheets/OS_Command_Injection_Defense_Cheat_Sheet.html) — Argument Injection; Primary Defenses. Living documentation, checked 2026-09-24.
+- **S4:** [OWASP NoSQL Security](https://cheatsheetseries.owasp.org/cheatsheets/NoSQL_Security_Cheat_Sheet.html) — Prevent NoSQL Injection, secure driver patterns; checked 2026-09-28. Query ownership is the adopted principle, not blind reuse of illustrative substring filtering.
+- **S5:** [MongoDB query predicates](https://www.mongodb.com/docs/manual/reference/mql/query-predicates/) — comparison, logical and evaluation operators; living vendor manual checked 2026-09-28. Choose target server/driver versions before implementation.
+- **S6:** [Jinja sandbox](https://jinja.palletsprojects.com/en/stable/sandbox/) — Jinja 3.1.x, Security Considerations; checked 2026-09-28. Supports scoped objects and resource limits; sandboxing alone is not a complete security guarantee.

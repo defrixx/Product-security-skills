@@ -2,7 +2,7 @@
 
 ## SD-API-001
 
-Status: proposed baseline, not corporate approval. Level: MUST for each applicable condition below. Use the [requirement format](../requirement-format.md) for evidence, statuses, and exceptions. This ID groups C01–C05; it cannot pass on evidence for one condition alone.
+Status: proposed baseline, not corporate approval. Level: MUST for each applicable condition below. Use the [requirement format](../requirement-format.md) for evidence, statuses, and exceptions. This ID groups C01–C06; it cannot pass on evidence for one condition alone.
 
 ### SD-API-001.C01 — Enforce the endpoint's access boundary
 
@@ -14,7 +14,7 @@ Status: proposed baseline, not corporate approval. Level: MUST for each applicab
 - **Positive check:** call the operation as an allowed actor with a valid object; receive only the permitted result.
 - **Negative check:** call it directly without the required identity or with a disallowed actor; observe the specified denial, no protected response, and no export job or other side effect.
 - **Evidence:** static route-to-policy trace covering middleware bypasses; executed request and state observations. Gateway settings without a demonstrated application path leave reachability assumptions unresolved.
-- **Bounds / sources:** S1, Access Control. Identity and object-policy correctness require their own condition evidence; this check establishes route enforcement coverage. Stack implementation: [Next.js server operations](../stacks/typescript-nextjs.md).
+- **Bounds / sources:** S1, Access Control. For machine events load [webhook conditions](webhooks-events.md). Identity and object-policy correctness require their own condition evidence; this check establishes route enforcement coverage. Stack implementation: [Next.js server operations](../stacks/typescript-nextjs.md).
 
 ### SD-API-001.C02 — Restrict HTTP methods
 
@@ -24,7 +24,7 @@ Status: proposed baseline, not corporate approval. Level: MUST for each applicab
 - **Implement:** declare methods on the route, inspect method-override handling, and distinguish protocol handling such as HEAD/OPTIONS from business operations.
 - **Unsafe → corrected:** illustrative: every method on `/records/delete` invokes deletion → deletion is reachable only through its explicitly authorized mutation method.
 - **Positive check:** the documented method performs the allowed operation with the expected response.
-- **Negative check:** GET and an unsupported method do not mutate state; the framework returns its documented rejection, usually 405. If overrides exist, test the effective method after middleware processing.
+- **Negative check:** on a mutation-only route, GET and unsupported methods cannot mutate state and follow documented rejection behavior. On a read route, a supported GET succeeds without business mutation; only unsupported methods are expected to be rejected, usually with 405. If overrides exist, test the effective method after middleware processing.
 - **Evidence:** route declarations plus dispatch/middleware inspection; executed requests with before/after state. A route decorator alone does not prove proxy behavior.
 - **Bounds / sources:** S1, Restrict HTTP Methods. OPTIONS/HEAD behavior is framework-dependent; document intentional handling rather than rejecting all protocol methods indiscriminately.
 
@@ -64,6 +64,19 @@ Status: proposed baseline, not corporate approval. Level: MUST for each applicab
 - **Evidence:** exception-handler and serializer inspection; captured validation and unexpected-error responses from executed tests. One validation-error test does not prove every failure path.
 - **Bounds / sources:** S1, Error Handling. Correlation identifiers must not encode sensitive input. Logging and successful-response filtering require separate evidence.
 
+### SD-API-001.C06 — Preserve response isolation through caches
+
+- **Apply when:** browser, proxy/CDN, framework, or application caches can retain a protected response.
+- **Required / prohibited:** cache reuse must preserve the response's recipient, variant, and authorization policy. Do not let a cache hit bypass access checks or treat tenant separation as sufficient for different users within one tenant.
+- **Rationale:** caching can disclose an authorized response to a later unauthorized reader.
+- **Implement:** define cacheability, key dimensions, freshness, and invalidation per layer. Distinguish private/no-store/shared-cache HTTP semantics from application memoization. Derive identity/context from trusted state; authorize before returning cached data. Apply [authorization C03/C05](authorization-access-control.md) to tenant scope and grant changes.
+- **Unsafe → corrected:** cache a private profile solely by URL → enforce access on hits and partition or disable reuse according to its recipient contract.
+- **Positive check:** an authorized repeat request obtains its correct response and intended cache behavior; deliberately public content remains shareable.
+- **Negative check:** warm as actor A, then read as same-tenant B and anonymously; neither receives A's private fields. Test other tenant, request variants, expiry, and role revocation independently where applicable.
+- **Evidence:** effective headers, actual cache keys/configuration, and two-actor observations through each claimed cache layer. A handler-only test does not verify CDN behavior.
+- **Bounds / sources:** S2 sections 3.5, 4.1, 5.2.2; application-key/authorization design is project synthesis. No universal ban on caching or assumption that Cookie implies private caching.
+
 ## Sources
 
 - **S1:** [OWASP REST Security Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/REST_Security_Cheat_Sheet.html) — Access Control; Restrict HTTP Methods; Input Validation; Validate Content Types; HTTP Return Codes; Error Handling. Living documentation, checked 2026-09-24. Conditions are this project's engineering synthesis, not a claim of OWASP certification.
+- **S2:** [RFC 9111](https://www.rfc-editor.org/rfc/rfc9111.html) — June 2022, authenticated response storage, Vary matching, Cache-Control directives; checked 2026-09-28. HTTP semantics do not certify framework cache APIs.

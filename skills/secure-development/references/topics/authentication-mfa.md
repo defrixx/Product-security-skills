@@ -2,7 +2,7 @@
 
 ## SD-AUTHN-001
 
-Status: proposed baseline; applicable C01–C06 conditions are MUST requirements. Use the [requirement format](../requirement-format.md) for evidence and exceptions. Determine the actual identity model before applying these conditions; a documented local-only application does not automatically need user accounts. Examples are synthetic design sketches, not authentication implementations.
+Status: proposed baseline; applicable C01–C07 conditions are MUST requirements. Use the [requirement format](../requirement-format.md) for evidence and exceptions. Determine the actual identity model before applying these conditions; a documented local-only application does not automatically need user accounts. Examples are synthetic design sketches, not authentication implementations.
 
 ### SD-AUTHN-001.C01 — Verify identity before creating authenticated state
 
@@ -14,7 +14,7 @@ Status: proposed baseline; applicable C01–C06 conditions are MUST requirements
 - **Positive check:** valid credentials/assertions for the intended application establish the expected identity.
 - **Negative check:** invalid credentials and, where applicable, altered signatures, wrong issuer/audience, expired assertions, or callbacks from a different transaction establish no authenticated state. Test each verifier constraint independently.
 - **Evidence:** verifier configuration and credential-to-session trace; actual provider/library tests and session observations. A mocked verifier returning success proves only application plumbing.
-- **Bounds / sources:** S1, Authentication General Guidelines and Authentication Protocols. Federation protocol details require protocol-specific primary sources; this condition does not claim a complete OIDC/SAML implementation checklist. Password storage belongs to [cryptographic usage](cryptographic-primitives.md).
+- **Bounds / sources:** S1, Authentication General Guidelines and Authentication Protocols. Load [conditional OAuth/OIDC/JWT guidance](authentication-protocols.md) when used. SAML/passkeys need separately selected protocol/vendor sources; this condition is not a complete federation checklist. Password storage belongs to [cryptographic usage](cryptographic-primitives.md).
 
 ### SD-AUTHN-001.C02 — Require completion of the selected factors
 
@@ -76,8 +76,21 @@ Status: proposed baseline; applicable C01–C06 conditions are MUST requirements
 - **Evidence:** enrollment-to-activation state trace and executed change-flow tests. Notification delivery alone is not prevention of unauthorized replacement.
 - **Bounds / sources:** S1, Reauthentication; S2, Changing MFA Factors and Resetting MFA. Freshness and lost-factor rules depend on the chosen provider and assurance policy; do not prescribe arbitrary universal durations.
 
+### SD-AUTHN-001.C07 — Enforce the selected password enrollment and change policy
+
+- **Apply when:** the application locally enrolls or changes passwords; delegated identity providers retain their own policy boundary.
+- **Required / prohibited:** select and enforce a sourced password policy consistently at enrollment/change and verification. Do not silently truncate supported passwords, impose arbitrary periodic changes without policy basis, or treat a fast password hash as this policy.
+- **Rationale:** enrollment and verification disagreement can weaken credentials or make valid credentials unusable.
+- **Implement:** document supported length/encoding, compromised/common-password screening, and recovery/change rules for the chosen assurance profile. Allow password-manager use. Apply [password verifier controls](cryptographic-primitives.md) independently; use current source values when adopting a specific profile rather than inventing a universal length or expiration interval.
+- **Unsafe → corrected:** accept a long password but truncate it at verification → use the same documented representation at both boundaries and reject unsupported input explicitly.
+- **Positive check:** a legitimate supported long/Unicode/password-manager input enrolls and verifies without transformation surprises.
+- **Negative check:** policy-prohibited or blocklisted candidates cannot enroll; a differing suffix beyond an implementation's former truncation point does not authenticate. Failed enrollment/change does not log the password or change the active verifier.
+- **Evidence:** policy/profile provenance and actual enrollment/change/verify observations with synthetic passwords. A form validation test alone is insufficient.
+- **Bounds / sources:** S4, Passwords. NIST profile constraints have their own applicability; this proposed baseline does not claim an assurance level or prescribe its numeric thresholds to every product.
+
 ## Sources
 
 - **S1:** [OWASP Authentication](https://cheatsheetseries.owasp.org/cheatsheets/Authentication_Cheat_Sheet.html) — General Guidelines; Authentication Responses; Login Throttling; Reauthentication; Authentication Protocols. Living documentation, checked 2026-09-24.
 - **S2:** [OWASP Multifactor Authentication](https://cheatsheetseries.owasp.org/cheatsheets/Multifactor_Authentication_Cheat_Sheet.html) — MFA implementation; OTP security; Resetting MFA; Changing MFA Factors. Living documentation, checked 2026-09-24.
 - **S3:** [OWASP Forgot Password](https://cheatsheetseries.owasp.org/cheatsheets/Forgot_Password_Cheat_Sheet.html) — Forgot Password Request; Reset Tokens; User Resets Password. Living documentation, checked 2026-09-24.
+- **S4:** [NIST SP 800-63B-4](https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-63b-4.pdf) — July 2025, Passwords, section 3.1.1; checked 2026-09-29. Supports consistent verification, blocklist screening, and policy selection; exact adopted profile parameters must be recorded.
