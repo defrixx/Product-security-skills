@@ -24,7 +24,7 @@ An unintended stored credential in a successful Python or TypeScript response is
 
 OAuth/OIDC/JWT exchanges, password enrollment, MongoDB operators, Jinja execution, browser framing/response policies and Next.js cache integrations were source-reviewed but were not executed in this change. Their new conditions have explicit `not_exercised_in_this_run` evidence status (API cache has partial synthetic evidence only). Existing optional integration results are not relabeled as results of this run. New boundary tests deliberately use local HTTP, SQLite and HMAC; injected identities/resolution and omitted production boundaries are listed for each case in [the manifest](requirement_coverage.json).
 
-Source review is not compatibility certification. Primary sources and actual verification dates are in each changed topic; unchanged source dates remain historical. TLS guidance separates RFC implementation/negotiation requirements from the chosen web deployment profile. Terraform feature minimums replace the unsupported inference from a historical version selector. NIST password text was checked through its July 2025 PDF after the HTML endpoint became unavailable. No independent model evaluation was conducted.
+Primary sources and actual verification dates are in each changed topic; unchanged source dates remain historical. TLS guidance separates RFC implementation/negotiation requirements from the chosen web deployment profile. Terraform feature minimums replace the unsupported inference from a historical version selector. NIST password text was checked through its July 2025 PDF after the HTML endpoint became unavailable.
 
 ## Subsequent integration expansion
 

@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "prompt-integrity"
+version = "0.1.0"
+description = "Exact static instruction verification at a model request dispatch boundary"
+requires-python = ">=3.11"
+readme = "README.md"
+license = {text = "MIT"}
+
+[project.scripts]
+prompt-integrity = "prompt_integrity.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]

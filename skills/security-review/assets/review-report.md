@@ -59,6 +59,7 @@ Count confirmed findings once, including pre-existing findings. Keep hypotheses 
 - Attack and impact: [demonstrated primitive; conditional consequences and missing prerequisites separately]
 - Remediation: [specific direction]
 - Fix verification: [negative and positive cases, expected outcome]
+- Related paths / aliases: [when grouped: affected paths, distinct guards and bypasses, per-path evidence and checks; preserve earlier finding IDs]
 
 ## Pre-existing findings in PR mode
 
@@ -66,8 +67,8 @@ Count confirmed findings once, including pre-existing findings. Keep hypotheses 
 
 ## Hypotheses
 
-| ID | Signal and location | Missing evidence | Next validation step |
-| --- | --- | --- | --- |
+| ID | Signal and location | Missing evidence | Next validation step | Confirming / disproving observation | Inconclusive stopping condition |
+| --- | --- | --- | --- | --- | --- |
 
 ## Disproved signals
 

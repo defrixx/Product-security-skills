@@ -12,7 +12,7 @@ docker run --rm --mount "type=bind,source=$PWD/tests/integration/python,target=/
 
 The requirements file pins the fixture dependencies. The base image tag is not digest-pinned; record its actual image ID for release evidence. Dependency installation requires network access; no project files are uploaded. Only this synthetic fixture directory is mounted, read-only, and no host ports or Docker socket are mounted.
 
-The checks exercise actual FastAPI routing, Pydantic validation, response filtering, exception handling, and SQLAlchemy parameter binding to an in-memory SQLite database. They cover selected conditions of SD-PY-001, SD-PY-002, SD-PY-003, SD-PY-004, and SD-PY-005. No network server or PostgreSQL integration is implied. The import endpoint uses a real temporary filesystem: malicious filenames, existing symlinks, and overwrites are rejected, while valid writes succeed. It does not implement ZIP parsing or database/filesystem transactions. Framework logs, authentication, deployment, and all version combinations are not covered.
+The checks exercise actual FastAPI routing, Pydantic validation, response filtering, exception handling, and SQLAlchemy parameter binding to an in-memory SQLite database. They cover selected conditions of SD-PY-001, SD-PY-002, SD-PY-003, SD-PY-004, and SD-PY-005. No network server or PostgreSQL integration is implied. The import endpoint uses a real temporary filesystem: malicious filenames, existing symlinks, and overwrites are rejected, while valid writes succeed. It does not implement ZIP parsing or database/filesystem transactions.
 
 Sources consulted on 2026-09-24: [FastAPI testing](https://fastapi.tiangolo.com/tutorial/testing/), [response models](https://fastapi.tiangolo.com/tutorial/response-model/), and [SQLAlchemy SQLite threading/pooling](https://docs.sqlalchemy.org/en/20/dialects/sqlite.html).
 
@@ -28,13 +28,13 @@ python3 tests/integration/run_framework.py next --output artifacts/next-run
 python3 tests/integration/compose/run.py --output artifacts/compose-run
 ```
 
-The framework runner records image ID, fixture hashes, status, and tool output. The Compose runner creates a unique project and image, retains a summary/log, and removes its own project resources. Docker access is required. Only synthetic fixture directories enter containers/build context. Do not point these runners at production resources. Local firewall/browser sandbox and host compromise resistance are not tested.
+The framework runner records image ID, fixture hashes, status, and tool output. The Compose runner creates a unique project and image, retains a summary/log, and removes its own project resources. Docker access is required. Only synthetic fixture directories enter containers/build context. Do not point these runners at production resources.
 
 ## Next.js / React / Chromium
 
 The fixture builds Next.js 16.3.6 and React 19.2.0 using the committed npm lockfile and runs Chromium from Playwright 1.55.1. Installation scripts are disabled. Dependencies install inside a disposable container; the fixture is mounted read-only and copied to its temporary filesystem. The server binds to container loopback without a host-published port. The test browser runs with its sandbox disabled inside this synthetic container; this is a test-environment limitation, not application hardening guidance.
 
-- SD-TS-001: direct HTTP Route Handler calls reject missing identity, the wrong owner, a different object, and extra mutation fields before state changes; the authorized mutation succeeds. Fixed bearer tokens are synthetic identity fixtures, not a production authentication implementation. Server Actions and session-provider integration are not tested.
+- SD-TS-001: direct HTTP Route Handler calls reject missing identity, the wrong owner, a different object, and extra mutation fields before state changes; the authorized mutation succeeds. Fixed bearer tokens are synthetic identity fixtures, not a production authentication implementation.
 - SD-TS-002: an actual hydrated browser DOM contains the attack string as text, creates no injected script/image nodes, and records no payload execution. This does not test third-party HTML sanitizers or every rendering sink.
 - SD-TS-003: an inert private environment canary is used at build/runtime; emitted client files, rendered HTML, and observed browser response bodies omit it. This does not cover unvisited routes or arbitrary encodings/exfiltration.
 
@@ -68,7 +68,7 @@ Seven cases run Authlib 1.6.5, PyJWT 2.10.1, Jinja 3.1.6 and PyMongo 4.15.1 agai
 - SD-INPUT-001.C06: real MongoDB executes the unsafe operator predicate; typed `$eq` lookup rejects operator objects while ordinary and dollar-prefixed literal values work.
 - SD-INPUT-001.C07: actual Jinja evaluates the unsafe concatenated template, exposing a synthetic sentinel; a fixed template with data parameters preserves the expression as data. Untrusted template authoring, sandbox escape resistance and exhaustion are outside scope.
 
-The issuer, accounts and session counter are synthetic substitutes; callback URLs are parsed directly rather than handled by a browser login/session stack. HTTP is permitted only for the isolated loopback issuer. The fixture is not production authentication code or a protocol conformance suite.
+The issuer, accounts and session counter are synthetic substitutes; callback URLs are parsed directly rather than handled by a browser login/session stack. HTTP is permitted only for the isolated loopback issuer.
 
 Primary references checked 2026-09-29: [Authlib 1.6.5 authorization code/state/PKCE](https://docs.authlib.org/en/v1.6.5/client/oauth2.html), [PyJWT 2.10.1 validation](https://pyjwt.readthedocs.io/en/2.10.1/usage.html), [MongoDB equality predicates](https://www.mongodb.com/docs/manual/reference/operator/query/eq/), and [Jinja 3.1 API](https://jinja.palletsprojects.com/en/stable/api/). These support fixture API choices, not blanket target compatibility.
 
@@ -78,7 +78,7 @@ The existing `next` runner now executes six control groups: its original three p
 
 - SD-API-001.C06 / AUTHZ C03/C05: actual Next.js Data Cache (`unstable_cache`) hits preserve a computation UUID. Actors and representation variants receive separate entries; current authorization rejects an actor after revocation despite a populated cache. The intentionally unsafe shared entry reproduces cross-actor disclosure. This does not test the `use cache` directive, CDN caches or a real identity provider.
 - SD-WEB-001.C07: Chromium permits a same-origin iframe and blocks the protected document in a distinct loopback origin; a report-only policy permits the negative control. The same-origin parent is served using Playwright request routing; the protected document and its headers come from Next.js.
-- SD-WEB-001.C08: enforced script CSP blocks the untrusted inline payload while permitting the nonce-bearing control. Unsafe and report-only variants execute the payload. The fixed fixture nonce is not production nonce-generation guidance. HSTS, MIME sniffing, referrer controls and other browser engines remain untested.
+- SD-WEB-001.C08: enforced script CSP blocks the untrusted inline payload while permitting the nonce-bearing control. Unsafe and report-only variants execute the payload. The fixed fixture nonce is not production nonce-generation guidance.
 
 Primary references checked 2026-09-29: [Next.js unstable_cache](https://nextjs.org/docs/app/api-reference/functions/unstable_cache) (arguments/keys and dynamic request data), [CSP Level 3](https://www.w3.org/TR/CSP3/) (script enforcement, reporting and frame-ancestors). The browser test closes its separate-origin server and waits for the Next.js process to exit, escalating to termination if needed.
 

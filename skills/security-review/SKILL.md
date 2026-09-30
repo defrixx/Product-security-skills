@@ -5,6 +5,12 @@ description: Review a specific pull request or a whole repository through threat
 
 # Security review
 
+## Task examples
+
+- “Review this PR” or “assess this repository”: use this skill with the corresponding scope and revisions.
+- “Recheck finding F-007 after this patch”: assess that finding and relevant adjacent paths; do not infer authorization for a whole-repository review or code changes.
+- “Implement a fix for F-007”: choose secure implementation; review evidence can inform the change, but a review-only task does not authorize it.
+
 Apply the [review acceptance conditions](references/acceptance-conditions.md) throughout the workflow. Assess each separately; distinguish static evidence, executed observations, and unresolved assumptions in the report.
 
 ## Route by review circumstance

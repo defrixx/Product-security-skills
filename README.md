@@ -1,6 +1,6 @@
 # Product Security Skills
 
-Three standalone skills for AI coding assistants: secure development, sensitive data cleanup, and evidence-based security reviews.
+Five standalone skill packages for AI coding assistants: secure development, sensitive data cleanup, security review, report triage, and fix verification. The repository also includes an independently installable [prompt-integrity library and CLI](tools/prompt-integrity/README.md).
 
 Created for [Defrixx’s security resource](https://defrixx.github.io/en/). The repository provides reusable instructions, requirement references, report templates, and optional local helpers.
 
@@ -11,8 +11,10 @@ Created for [Defrixx’s security resource](https://defrixx.github.io/en/). The 
 | Write or change code with security requirements in mind | [secure-development](skills/secure-development/SKILL.md) | Relevant requirements, implementation changes, and verification evidence |
 | Find and remove sensitive information from a folder | [sensitive-data-cleanup](skills/sensitive-data-cleanup/SKILL.md) | A separate cleaned copy and a report of replacements, omissions, and limitations |
 | Assess a pull request or repository for vulnerabilities | [security-review](skills/security-review/SKILL.md) | Confirmed findings, separate hypotheses, and a prioritized remediation plan |
+| Triage an existing scanner report | [security-report-triage](skills/security-report-triage/SKILL.md) | Accounted signals, justified grouping, and an action queue; bounded SARIF intake |
+| Verify a specified repair | [security-fix-verification](skills/security-fix-verification/SKILL.md) | Per-finding verdicts, original/bypass/allowed cases, and evidence limits |
 
-The skills work independently. Each skill directory can be copied on its own. A skill guides the assistant's decisions; its optional helper automates a bounded part of the work.
+Use each skill independently or combine them in a task-driven sequence: triage or review → implementation → fix verification. Each skill directory can be copied on its own. A skill guides the assistant's decisions; its optional helper automates a bounded part of the work.
 
 ## How the skills work
 
@@ -63,6 +65,28 @@ The assistant follows untrusted data across security boundaries and checks reach
 
 **Result:** actionable findings with evidence, confidence, prerequisites, remediation, and fix-verification criteria. Review does not itself authorize code changes or publication. See the [review report template](skills/security-review/assets/review-report.md).
 
+### Report triage — interpret scanner output
+
+**Record provenance → account for signals → inspect context → group root causes → prioritize.**
+
+> Use security-report-triage on this SARIF report against the current revision. Separate confirmed findings, hypotheses, disproved signals, and unprocessed results without changing code.
+
+**Result:** an action queue with raw-result accounting, justified duplicate grouping, evidence, and coverage limits. The local SARIF normalizer prepares a bounded inventory; it does not determine whether a vulnerability exists. See the [triage report template](skills/security-report-triage/assets/triage-report.md).
+
+### Fix verification — recheck a specified repair
+
+**Pin the finding and revision → inspect the repair → check original and alternate paths → verify allowed behavior → report.**
+
+> Use security-fix-verification to recheck finding F-007 at this patched revision. Preserve the original finding ID and distinguish candidate changes from applied fixes.
+
+**Result:** fixed, partially fixed, not fixed, or inconclusive for each selected finding, with supporting evidence. Historical confirmation remains separate from the later repair verdict. See the [verification report template](skills/security-fix-verification/assets/verification-report.md).
+
+## Prompt integrity tooling
+
+The independent [prompt-integrity package](tools/prompt-integrity/README.md) checks application-controlled static instructions immediately before model-request dispatch. Its first adapter supports a strict text-only subset of Ollama `/api/chat`. It blocks mismatches and sends the checked snapshot, including on explicitly managed retries and fallback attempts.
+
+The application must protect its baseline separately and route every model call through the wrapper. This checks request integrity; it does not establish model obedience or resistance to prompt injection. Installation and CLI examples are in the package guide.
+
 ## What belongs in the result
 
 Reports lead with **the outcome and next actions**, followed by evidence and limitations. Include only the attachments needed to act on the result: a detailed redacted inventory, the final cleaned copy, or a relevant patch/reproduction when useful.
@@ -103,6 +127,14 @@ python3 skills/security-review/scripts/pr_context.py --repo /path/to/repo --base
 
 Use a fresh output destination. Helpers do not install tools or publish results automatically.
 
+For scanner report intake:
+
+```sh
+python3 skills/security-report-triage/scripts/normalize_sarif.py --input /path/to/report.sarif --output /path/to/new-normalized --target-root /path/to/target
+```
+
+Read the [SARIF subset and limits](skills/security-report-triage/references/sarif-subset.md) first. Normalization produces an inventory, not confirmed vulnerabilities. The [prompt-integrity package guide](tools/prompt-integrity/README.md) covers its independent CLI, baseline lifecycle and application integration.
+
 ## Dependencies and checks
 
 | Component | Requirements |
@@ -110,7 +142,9 @@ Use a fresh output destination. Helpers do not install tools or publish results 
 | Skill instructions and templates | An assistant capable of reading the skill and the target project |
 | Cleanup helper | Python 3.9+, standard library, POSIX filesystem operations |
 | PR context helper | Python 3.9+ and Git |
-| Core regression suite | Python 3.9+, Git, POSIX; no third-party Python packages or network services |
+| SARIF normalizer | Python 3.9+, standard library, POSIX filesystem operations |
+| prompt-integrity | Python 3.11+, standard library runtime, POSIX file operations |
+| Full regression suite | Python 3.11+, Git, POSIX; standard library, local loopback sockets, no external services |
 | Optional framework integration | Docker and fixture dependencies; see the integration instructions |
 | Independent image decoding checks | Pillow; test-only, not required by the cleanup helper |
 
@@ -122,18 +156,24 @@ python3 scripts/run_regressions.py --output artifacts/new-regression-run
 
 Create `artifacts/` if absent and use a new run directory. The [synthetic regression corpus](tests/README.md) exercises helper behavior, source preservation, path boundaries, classification, PR provenance, and copied-skill execution. Reports record source fingerprints, versions, and outcomes. Structural validation checks packaging and links; it does not establish skill behavior.
 
-The separate [integration suite](tests/integration/README.md) exercises synthetic FastAPI/SQLAlchemy, Next.js/Chromium, and Compose/BuildKit applications. These checks do not certify a target deployment or every framework version. A successful vulnerability reproduction demonstrates the vulnerable behavior, not a passed security control.
+The separate [integration suite](tests/integration/README.md) exercises synthetic FastAPI/SQLAlchemy, Next.js/Chromium, and Compose/BuildKit applications.
 
 ## Evaluation scope and project maintenance
 
-Complete personal-data discovery, document/archive cleanup, visible image-content redaction, and target-application integration remain outside the current coverage. JPEG/PNG support is metadata-only.
+### Combined workflow
+
+Start with report triage for existing scanner signals or security review for code assessment. Continue to authorized implementation and fix verification while preserving finding IDs, provenance, and separate assessment/implementation/verification statuses. The two new skills carry local copies of the handoff contract; all five skills work independently. Cleanup is optional for selected delivery material; no stage implicitly authorizes installation or publication.
+
+Checks cover helpers, workflow examples, and HTTP integration for prompt-integrity. Working evidence is stored in ignored `artifacts/`.
+
+Complete personal-data discovery, document/archive cleanup, visible image-content redaction, and integration with a user's actual target application remain outside the current coverage. JPEG/PNG support is metadata-only.
 
 Instructions required to use a copied skill remain inside that skill's directory. Local maintainer instructions and evaluation artifacts are not part of the distributed skills.
+
+Per-condition evidence is generated as `requirement-evidence.json` by the regression runner: every topic condition, stack control and workflow condition is listed, with exact tested clauses or explicit untested status. See the [coverage manifest](tests/requirement_coverage.json) and [manual applicability review](tests/requirements-manual-review.md).
+
+Optional [framework and lifecycle integrations](tests/integration/README.md) exercise OAuth/OIDC/JWT client/verifier boundaries with a synthetic issuer, real MongoDB/Jinja, Next.js Data Cache and Chromium policies. Failure injection verifies cleanup of owned resources while preserving a separate scope; exact tested clauses and limits are in the integration evidence manifest.
 
 ## License
 
 Licensed under the [MIT License](LICENSE). Include the license notice when redistributing a standalone skill.
-
-Per-condition evidence is generated as `requirement-evidence.json` by the regression runner: every topic condition, stack control and workflow condition is listed, with exact tested clauses or explicit untested status. See the [coverage manifest](tests/requirement_coverage.json) and [manual applicability review](tests/requirements-manual-review.md). Partial synthetic evidence is not a full-condition pass or independent skill evaluation.
-
-Optional [framework and lifecycle integrations](tests/integration/README.md) exercise OAuth/OIDC/JWT client/verifier boundaries with a synthetic issuer, real MongoDB/Jinja, Next.js Data Cache and Chromium policies. Failure injection verifies cleanup of owned resources while preserving a separate scope; exact tested clauses and limits are in the integration evidence manifest.

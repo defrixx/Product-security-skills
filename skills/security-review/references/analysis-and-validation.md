@@ -31,7 +31,9 @@ Use the least invasive sufficient proof. A complete code trace may be sufficient
 
 For extracted-function or mocked tests, record which original code ran unchanged, which dependencies were replaced, and what the test can establish. A simulated transport may prove the order of checks without proving DNS rebinding; a fabricated browser header does not prove a browser can generate an exploitable request. State the demonstrated primitive separately from conditional downstream impact. Count “vulnerability reproduced” separately from “control held.”
 
-If a check cannot run, preserve the candidate as a hypothesis unless static evidence independently establishes it. Tool failure means unverified coverage, not a clean result. Deduplicate findings by root cause while listing affected paths.
+If a check cannot run, preserve the candidate as a hypothesis unless static evidence independently establishes it. Tool failure means unverified coverage, not a clean result. For each hypothesis, state the observation that would confirm it, the counterevidence that would disprove it, and when the check must stop as inconclusive (for example, missing runtime evidence). A failed probe alone does not disprove a candidate if it did not reach the relevant operation.
+
+Group findings only when evidence establishes the same defective control and a common repair boundary. List each affected path, its guards, prerequisites, impact, and verification case under the canonical finding. Similar titles, the same CWE, or a shared sink are insufficient: independent guards or independently required repairs can warrant separate findings. Preserve alternate bypass paths even when grouping. Retain existing IDs as aliases if previously reported findings are merged; count the canonical finding once and do not combine uncertain paths into confirmed evidence.
 
 ## Impact and remediation
 

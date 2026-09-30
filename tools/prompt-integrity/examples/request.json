@@ -1,0 +1,14 @@
+{
+  "model": "synthetic-model",
+  "messages": [
+    {
+      "role": "system",
+      "content": "Answer questions about the synthetic demo catalog."
+    },
+    {
+      "role": "user",
+      "content": "Describe the demo."
+    }
+  ],
+  "stream": false
+}

@@ -63,3 +63,14 @@ Original sensitive values and reversible maps must not appear here. No matches i
 ## Deliverables
 
 [Link this report, the final redacted inventory if separate, and the final cleaned copy when cleanup was requested. State whether the copy is partial and identify omitted files by safe IDs. Do not attach superseded copies, raw matches, reversible maps, or private source-path indexes. Keep machine-generated output intact; write this narrative alongside it, not over it.]
+
+Name the exact final content directory, not just the run directory. In scan-only mode state that no cleaned copy exists. For helper output, adapt this illustrative tree using sanitized names and only files actually present:
+
+```text
+selected-run/
+  files/             Final cleaned content; coverage limitations still apply
+  report.json        Machine-generated redacted inventory
+  cleanup-report.md  Narrative report, if saved here
+```
+
+The helper creates `report.json` and, for clean-copy mode, `files/`; the narrative is written separately. Select attachments explicitly rather than handing over the whole working directory. A `RUNNING` marker indicates incomplete output that must not be delivered as a completed result.

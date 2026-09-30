@@ -5,6 +5,12 @@ description: Scan a specified folder for sensitive infrastructure details, crede
 
 # Sensitive data cleanup
 
+## Task examples
+
+- “Clean this folder into a separate copy before sharing”: use clean-copy mode and identify the final content directory explicitly.
+- “Tell me what sensitive data this folder contains”: use scan-only mode; no cleaned copy is implied.
+- “Fix the code that logs credentials”: choose secure implementation; cleaning existing logs does not repair the logging behavior.
+
 This skill combines contextual review with a bundled deterministic local helper. Read the [helper contract](references/helper-contract.md) before running it; it supports bounded UTF-8 text, JSON/JSONL, and CSV processing. For the separately selected JPEG/PNG metadata-only mode, read [image metadata cleanup](references/image-metadata.md). It preserves encoded pixels and omits all other formats. Other formats require separately inspected tools and explicit coverage reporting.
 
 Use the [cleanup acceptance conditions](references/acceptance-conditions.md) to assess each workflow outcome separately and record static evidence, executed checks, and unresolved assumptions. Never infer overall completion from one passing check.

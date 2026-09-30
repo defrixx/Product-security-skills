@@ -2,6 +2,18 @@
 
 Template: replace prompts with evidence. Keep the summary short; omit empty optional sections. Do not turn a small code change into a full audit.
 
+## Short inline example
+
+Illustrative synthetic result, not evidence from an executed assessment:
+
+> Change: applied an ownership check to the requested document-read handler.
+> Conditions: SD-AUTHZ-001.C02, object authorization for the changed read handler; other entry points remain outside this check.
+> Verification: an owner can read the document; another user is rejected before content is returned. Both focused checks passed in the synthetic test environment.
+> Gaps: deployment middleware was not exercised; the condition remains partially verified.
+> Separate observation: an unrelated export handler may need the same protection; recorded for follow-up, not changed or confirmed vulnerable here.
+
+For a real inline result, replace the illustrative statements with actual IDs, observations, and evidence locations. Use the standalone sections below only when needed; omit this instructional example from a completed report.
+
 ## Result
 
 [What changed, whether it was applied to the target or remains a candidate, and the main unresolved condition.]

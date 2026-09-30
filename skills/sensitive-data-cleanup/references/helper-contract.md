@@ -31,6 +31,8 @@ Detectors cover named credential/personal fields, common provider-token shapes, 
 
 The default network policy redacts matching addresses including loopback. For a copy that should preserve operational local bindings, set `redact_network` to false and supply exact sensitive infrastructure values as needed. This changes detector coverage and must be explained in the report narrative. Replacement markers are inert strings, not necessarily valid IPs, credentials, or executable configuration. The copy is for inspection/sharing review, not guaranteed execution.
 
+Synthetic compatibility example: a source JSON document containing `{"endpoint":"https://service.example.invalid"}` may remain valid JSON after a policy-selected replacement, while the replacement is no longer a usable endpoint. Likewise, an emitted configuration can still refer to `settings.json` even though output filenames now use opaque IDs. Record these as semantic compatibility gaps; successful parsing does not establish a runnable copy. Inspect references as data without executing the copied project.
+
 ## Policy
 
 Start with [the policy template](../assets/cleanup-policy.json). Unknown properties and malformed policies fail closed. Treat a policy containing sensitive values as private; do not commit it or include it in reports.

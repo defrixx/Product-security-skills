@@ -101,7 +101,7 @@ def main():
     result=unittest.TextTestRunner(verbosity=1,resultclass=Result).run(suite)
     revisions=pr_exercise(output) if result.wasSuccessful() else None
     if result.wasSuccessful():cleanup_corpus(output)
-    fingerprint={str(p.relative_to(ROOT)):hashlib.sha256(p.read_bytes()).hexdigest() for folder in ['skills','tests','scripts'] for p in sorted((ROOT/folder).rglob('*')) if p.is_file() and p.suffix in {'.md','.py','.json','.ts','.tsx','.mjs','.yaml','.yml','.txt'} and '__pycache__' not in p.parts}
+    fingerprint={str(p.relative_to(ROOT)):hashlib.sha256(p.read_bytes()).hexdigest() for folder in ['skills','tests','scripts','tools'] for p in sorted((ROOT/folder).rglob('*')) if p.is_file() and p.suffix in {'.md','.py','.json','.ts','.tsx','.mjs','.yaml','.yml','.txt'} and '__pycache__' not in p.parts}
     summary={'date_utc':datetime.now(timezone.utc).isoformat(),'python':platform.python_version(),
              'platform':platform.system(),'git':pr_context.git(ROOT,'--version').decode().strip(),'sqlite':sqlite3.sqlite_version,'test_count':result.testsRun,
              'success':result.wasSuccessful(),'outcomes':result.outcomes,'source_fingerprints':fingerprint,
