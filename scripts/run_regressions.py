@@ -56,7 +56,7 @@ def pr_exercise(output):
                      'remediation':'bind the value; track separately from introduced PR changes',
                      'fix_check':'attack input returns zero records; ordinary alpha lookup returns one'}],
                 'disproved':[{'symbol':'guarded','reason':'bound parameter preserves input as data; attack returns no rows on every revision'}],
-                'limitations':['known-ground-truth exercise, not blind agent scoring','no remote systems or real application deployment',
+                'limitations':['known-ground-truth exercise, not blind agent scoring','local Git and SQLite fixture execution',
                                'no severity score assigned to synthetic data','hypothesis handling is evaluated by report guidance, not a model benchmark']}
         assert evidence['head']['recent']==2 and evidence['base']['recent']==0
         assert evidence['head']['legacy']==evidence['base']['legacy']==2
@@ -72,7 +72,7 @@ This is a known-ground-truth exercise using real local Git commits and SQLite, n
 | `legacy` lookup | Confirmed, pre-existing | Attack returns 2 rows before and after the PR; only a nearby comment changes |
 | `guarded` lookup | Disproved injection signal | Bound parameter returns 0 rows throughout; normal lookup succeeds |
 
-The assumed attacker controls a lookup string; the simulated impact is reading unrelated synthetic records. Bind values to fix both confirmed issues. Verify malicious and valid inputs. No HTTP application or live data is involved, so deployment severity is not asserted.
+The assumed attacker controls a lookup string; the simulated impact is reading unrelated synthetic records. Bind values to fix both confirmed issues. Verify malicious and valid inputs. Severity is not assigned to this synthetic fixture.
 
 Exact revisions, merge-base semantics, evidence, and remediation criteria are in [pr-review.json](pr-review.json). The feature excludes a target-only commit. The regression suite separately checks dirty-tree preservation, missing revisions, and disabled external Git helpers.
 ''')
@@ -97,11 +97,15 @@ def cleanup_corpus(output):
 def main():
     parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--output',required=True);args=parser.parse_args()
     output=Path(args.output);output.mkdir(parents=True,exist_ok=False,mode=0o700)
-    suite=unittest.defaultTestLoader.discover(str(ROOT/'tests'))
+    # Separate loaders keep each discovery root independent.
+    suite=unittest.TestSuite(
+        unittest.TestLoader().discover(str(folder))
+        for folder in (ROOT/'tests', ROOT/'evals/tests')
+    )
     result=unittest.TextTestRunner(verbosity=1,resultclass=Result).run(suite)
     revisions=pr_exercise(output) if result.wasSuccessful() else None
     if result.wasSuccessful():cleanup_corpus(output)
-    fingerprint={str(p.relative_to(ROOT)):hashlib.sha256(p.read_bytes()).hexdigest() for folder in ['skills','tests','scripts','tools'] for p in sorted((ROOT/folder).rglob('*')) if p.is_file() and p.suffix in {'.md','.py','.json','.ts','.tsx','.mjs','.yaml','.yml','.txt'} and '__pycache__' not in p.parts}
+    fingerprint={str(p.relative_to(ROOT)):hashlib.sha256(p.read_bytes()).hexdigest() for folder in ['skills','tests','scripts','tools','evals'] for p in sorted((ROOT/folder).rglob('*')) if p.is_file() and p.suffix in {'.md','.py','.json','.ts','.tsx','.mjs','.yaml','.yml','.txt'} and '__pycache__' not in p.parts}
     summary={'date_utc':datetime.now(timezone.utc).isoformat(),'python':platform.python_version(),
              'platform':platform.system(),'git':pr_context.git(ROOT,'--version').decode().strip(),'sqlite':sqlite3.sqlite_version,'test_count':result.testsRun,
              'success':result.wasSuccessful(),'outcomes':result.outcomes,'source_fingerprints':fingerprint,

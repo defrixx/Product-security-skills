@@ -1,11 +1,19 @@
 """Synthetic app integration: approved profiles, checked retries and fallback."""
-from prompt_integrity import TransportError, verify_and_send
+from prompt_integrity import TransportError, load_policy, verify_and_send
 
 
 class CatalogApplication:
     def __init__(self, policy, transport):
         self.policy = policy
         self.transport = transport
+
+    @classmethod
+    def from_release(cls, path, transport, *, config_root, profile, version, sha256):
+        # All release arguments come from protected deployment configuration.
+        # A load failure stops startup; never derive a replacement pin here.
+        policy = load_policy(path, profile, version, config_root=config_root,
+                             expected_sha256=sha256)
+        return cls(policy, transport)
 
     def answer(self, user_text, *, mutate_attempt=None):
         # These are trusted release choices, never request-selected profiles.

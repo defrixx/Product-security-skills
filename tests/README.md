@@ -1,5 +1,7 @@
 # Synthetic regression corpus
 
+Evaluation-harness tests live separately in [evals/tests/](../evals/tests/). Run `python3 scripts/run_regressions.py --output artifacts/new-regression-run` for both suites, or use the command below for product tests only.
+
 These tests exercise actual helper behavior and small explicitly vulnerable/control fixtures. They do not import external applications or operate on a user repository. All writes and intentionally unsafe path probes use disposable temporary directories. The only Git commits/checkouts are inside repositories created by the tests.
 
 Run from the repository root:
@@ -9,7 +11,7 @@ python3 -m unittest discover -s tests -v
 python3 scripts/run_regressions.py --output artifacts/new-regression-run
 ```
 
-Requirements: Python 3.9+, Git, and a POSIX filesystem with no-follow/descriptor-relative operations. The suite starts disposable HTTP servers bound only to 127.0.0.1; allow local socket binding when running under a sandbox. No external network services, third-party Python packages, Docker, or installed skills are needed. The reporting runner requires a new output path and records source fingerprints, tool/runtime versions, per-test outcomes, exact synthetic base/head/merge-base IDs, and a completed PR review exercise.
+Requirements: Python 3.11+, Git, and a POSIX filesystem with no-follow/descriptor-relative operations. The full suite includes prompt-integrity, whose supported runtime starts at Python 3.11. The suite starts disposable HTTP servers bound only to 127.0.0.1; allow local socket binding when running under a sandbox. No external network services, third-party Python packages, Docker, or installed skills are needed. The reporting runner requires a new output path and records source fingerprints, tool/runtime versions, per-test outcomes, exact synthetic base/head/merge-base IDs, and a completed PR review exercise.
 
 ## Scenarios and observable expectations
 

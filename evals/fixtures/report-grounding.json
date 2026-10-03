@@ -1,0 +1,410 @@
+{
+  "method": "Synthetic structured claim/evidence regression; not prose scoring or model evaluation. Unsafe claims are intentional and paired with safe controls.",
+  "cases": [
+    {
+      "id": "unknown-history-safe-control",
+      "claim": {
+        "revision": "candidate-B",
+        "target": "synthetic-target",
+        "provenance": "unknown",
+        "implementation": "candidate",
+        "verified_conditions": [
+          "scope-filter"
+        ]
+      },
+      "evidence": {
+        "checks": [
+          {
+            "condition": "scope-filter",
+            "case": "detail",
+            "result": "passed",
+            "executed": true,
+            "revision": "candidate-B"
+          }
+        ],
+        "required_cases": [
+          "detail",
+          "export",
+          "allowed"
+        ]
+      },
+      "expected": []
+    },
+    {
+      "id": "single-snapshot-not-history",
+      "claim": {
+        "revision": "candidate-B",
+        "target": "synthetic-target",
+        "provenance": "pre-existing",
+        "implementation": "candidate",
+        "verified_conditions": [
+          "scope-filter"
+        ]
+      },
+      "evidence": {
+        "checks": [
+          {
+            "condition": "scope-filter",
+            "case": "detail",
+            "result": "passed",
+            "executed": true,
+            "revision": "candidate-B"
+          }
+        ],
+        "required_cases": [
+          "detail",
+          "export",
+          "allowed"
+        ]
+      },
+      "expected": [
+        "unsupported_provenance"
+      ]
+    },
+    {
+      "id": "scope-filter-not-input-schema",
+      "claim": {
+        "revision": "candidate-B",
+        "target": "synthetic-target",
+        "provenance": "unknown",
+        "implementation": "candidate",
+        "verified_conditions": [
+          "scope-filter",
+          "input-schema"
+        ]
+      },
+      "evidence": {
+        "checks": [
+          {
+            "condition": "scope-filter",
+            "case": "detail",
+            "result": "passed",
+            "executed": true,
+            "revision": "candidate-B"
+          }
+        ],
+        "required_cases": [
+          "detail",
+          "export",
+          "allowed"
+        ]
+      },
+      "expected": [
+        "unsupported_coverage:input-schema"
+      ]
+    },
+    {
+      "id": "candidate-not-applied",
+      "claim": {
+        "revision": "candidate-B",
+        "target": "synthetic-target",
+        "provenance": "unknown",
+        "implementation": "applied",
+        "verified_conditions": [
+          "scope-filter"
+        ]
+      },
+      "evidence": {
+        "checks": [
+          {
+            "condition": "scope-filter",
+            "case": "detail",
+            "result": "passed",
+            "executed": true,
+            "revision": "candidate-B"
+          }
+        ],
+        "required_cases": [
+          "detail",
+          "export",
+          "allowed"
+        ]
+      },
+      "expected": [
+        "unsupported_applied_state"
+      ]
+    },
+    {
+      "id": "partial-not-fixed",
+      "claim": {
+        "revision": "candidate-B",
+        "target": "synthetic-target",
+        "provenance": "unknown",
+        "implementation": "candidate",
+        "verified_conditions": [
+          "scope-filter"
+        ],
+        "verdict": "fixed"
+      },
+      "evidence": {
+        "checks": [
+          {
+            "condition": "scope-filter",
+            "case": "detail",
+            "result": "passed",
+            "executed": true,
+            "revision": "candidate-B"
+          }
+        ],
+        "required_cases": [
+          "detail",
+          "export",
+          "allowed"
+        ]
+      },
+      "expected": [
+        "unsupported_fixed_verdict"
+      ]
+    },
+    {
+      "id": "real-history-safe-control",
+      "claim": {
+        "revision": "candidate-B",
+        "target": "synthetic-target",
+        "provenance": "pre-existing",
+        "implementation": "candidate",
+        "verified_conditions": [
+          "scope-filter"
+        ]
+      },
+      "evidence": {
+        "checks": [
+          {
+            "condition": "scope-filter",
+            "case": "detail",
+            "result": "passed",
+            "executed": true,
+            "revision": "candidate-B"
+          }
+        ],
+        "required_cases": [
+          "detail",
+          "export",
+          "allowed"
+        ],
+        "history": {
+          "compared": true,
+          "before_revision": "A",
+          "after_revision": "candidate-B",
+          "same_finding": true,
+          "before_present": true,
+          "after_present": true
+        }
+      },
+      "expected": []
+    },
+    {
+      "id": "unrelated-history-insufficient",
+      "claim": {
+        "revision": "candidate-B",
+        "target": "synthetic-target",
+        "provenance": "pre-existing",
+        "implementation": "candidate",
+        "verified_conditions": [
+          "scope-filter"
+        ]
+      },
+      "evidence": {
+        "checks": [
+          {
+            "condition": "scope-filter",
+            "case": "detail",
+            "result": "passed",
+            "executed": true,
+            "revision": "candidate-B"
+          }
+        ],
+        "required_cases": [
+          "detail",
+          "export",
+          "allowed"
+        ],
+        "history": {
+          "compared": true,
+          "before_revision": "A",
+          "after_revision": "candidate-B",
+          "same_finding": false,
+          "before_present": true,
+          "after_present": true
+        }
+      },
+      "expected": [
+        "unsupported_provenance"
+      ]
+    },
+    {
+      "id": "stale-coverage",
+      "claim": {
+        "revision": "candidate-B",
+        "target": "synthetic-target",
+        "provenance": "unknown",
+        "implementation": "candidate",
+        "verified_conditions": [
+          "scope-filter"
+        ]
+      },
+      "evidence": {
+        "checks": [
+          {
+            "condition": "scope-filter",
+            "case": "detail",
+            "result": "passed",
+            "executed": true,
+            "revision": "old"
+          }
+        ],
+        "required_cases": [
+          "detail",
+          "export",
+          "allowed"
+        ]
+      },
+      "expected": [
+        "unsupported_coverage:scope-filter"
+      ]
+    },
+    {
+      "id": "planned-check-not-executed",
+      "claim": {
+        "revision": "candidate-B",
+        "target": "synthetic-target",
+        "provenance": "unknown",
+        "implementation": "candidate",
+        "verified_conditions": [
+          "scope-filter"
+        ]
+      },
+      "evidence": {
+        "checks": [
+          {
+            "condition": "scope-filter",
+            "case": "detail",
+            "result": "passed",
+            "executed": false,
+            "revision": "candidate-B"
+          }
+        ],
+        "required_cases": [
+          "detail",
+          "export",
+          "allowed"
+        ]
+      },
+      "expected": [
+        "unsupported_coverage:scope-filter"
+      ]
+    },
+    {
+      "id": "applied-safe-control",
+      "claim": {
+        "revision": "candidate-B",
+        "target": "synthetic-target",
+        "provenance": "unknown",
+        "implementation": "applied",
+        "verified_conditions": [
+          "scope-filter"
+        ]
+      },
+      "evidence": {
+        "checks": [
+          {
+            "condition": "scope-filter",
+            "case": "detail",
+            "result": "passed",
+            "executed": true,
+            "revision": "candidate-B"
+          }
+        ],
+        "required_cases": [
+          "detail",
+          "export",
+          "allowed"
+        ],
+        "application": {
+          "observed": true,
+          "target": "synthetic-target",
+          "revision": "candidate-B"
+        }
+      },
+      "expected": []
+    },
+    {
+      "id": "wrong-target-not-applied",
+      "claim": {
+        "revision": "candidate-B",
+        "target": "synthetic-target",
+        "provenance": "unknown",
+        "implementation": "applied",
+        "verified_conditions": [
+          "scope-filter"
+        ]
+      },
+      "evidence": {
+        "checks": [
+          {
+            "condition": "scope-filter",
+            "case": "detail",
+            "result": "passed",
+            "executed": true,
+            "revision": "candidate-B"
+          }
+        ],
+        "required_cases": [
+          "detail",
+          "export",
+          "allowed"
+        ],
+        "application": {
+          "observed": true,
+          "target": "other-target",
+          "revision": "candidate-B"
+        }
+      },
+      "expected": [
+        "unsupported_applied_state"
+      ]
+    },
+    {
+      "id": "fixed-candidate-safe-control",
+      "claim": {
+        "revision": "candidate-B",
+        "target": "synthetic-target",
+        "provenance": "unknown",
+        "implementation": "candidate",
+        "verified_conditions": [
+          "scope-filter"
+        ],
+        "verdict": "fixed"
+      },
+      "evidence": {
+        "checks": [
+          {
+            "condition": "scope-filter",
+            "case": "detail",
+            "result": "passed",
+            "executed": true,
+            "revision": "candidate-B"
+          },
+          {
+            "case": "export",
+            "executed": true,
+            "result": "passed",
+            "revision": "candidate-B"
+          },
+          {
+            "case": "allowed",
+            "executed": true,
+            "result": "passed",
+            "revision": "candidate-B"
+          }
+        ],
+        "required_cases": [
+          "detail",
+          "export",
+          "allowed"
+        ]
+      },
+      "expected": []
+    }
+  ]
+}

@@ -1,4 +1,7 @@
 """POSIX bounded configuration I/O without following links."""
+import hashlib
+import hmac
+import re
 import os
 from pathlib import Path
 import stat
@@ -59,8 +62,20 @@ def write_new(path, root, raw):
         raise IntegrityError('output_failed') from None
 
 
-def load_policy(baseline_path, expected_profile, expected_version, *, config_root):
+def load_policy(baseline_path, expected_profile, expected_version, *, config_root, expected_sha256=None):
+    """Load an immutable policy; optionally pin exact approved release bytes.
+
+    The expected digest must come from trusted release configuration, never from
+    the candidate file or an untrusted request. Existing unpinned callers remain
+    responsible for protecting their baseline source.
+    """
+    if expected_sha256 is not None:
+        require(type(expected_sha256) is str and re.fullmatch(r"[0-9a-f]{64}", expected_sha256),
+                "baseline_pin_invalid")
     raw = read_bytes(baseline_path, config_root, DEFAULT_LIMITS['baseline_bytes'])
+    if expected_sha256 is not None:
+        require(hmac.compare_digest(hashlib.sha256(raw).hexdigest(), expected_sha256),
+                'baseline_digest_mismatch')
     try:
         obj = decode(raw, DEFAULT_LIMITS, DEFAULT_LIMITS['baseline_bytes'])
         return policy_from_dict(obj, expected_profile, expected_version)

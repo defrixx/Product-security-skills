@@ -1,4 +1,4 @@
-"""Static instruction policy and one strict Ollama chat wire adapter."""
+"""Static instruction policy and bounded, explicitly versioned wire adapters."""
 from dataclasses import dataclass
 import json
 import math
@@ -18,7 +18,13 @@ class IntegrityError(Exception):
 
 
 class TransportError(Exception):
-    """Transport failure; deliberately excludes underlying payload/URL errors."""
+    """Bounded diagnostics; never include response bodies, URLs or raw exceptions."""
+    def __init__(self, code='transport_failed'):
+        allowed = {'transport_failed', 'transport_timeout', 'transport_connection_failed',
+                   'transport_http_rejected', 'transport_redirect_rejected',
+                   'transport_response_too_large', 'transport_configuration_invalid'}
+        self.code = code if type(code) is str and code in allowed else 'transport_failed'
+        super().__init__(self.code)
 
 
 @dataclass(frozen=True)
@@ -132,7 +138,9 @@ def policy_from_dict(value, expected_profile, expected_version):
     for field in ('profile_id', 'profile_version'):
         require(type(obj[field]) is str and SAFE_ID.fullmatch(obj[field]) is not None)
     require(obj['profile_id'] == expected_profile and obj['profile_version'] == expected_version, 'version_mismatch')
-    require(obj['adapter_id'] == ADAPTER and obj['adapter_version'] == '1')
+    from .chat import ADAPTER as CHAT_ADAPTER, validate_options
+    require(obj['adapter_id'] in (ADAPTER, CHAT_ADAPTER) and obj['adapter_version'] == '1')
+    chat = obj['adapter_id'] == CHAT_ADAPTER
     limits = obj['limits']
     require(type(limits) is dict and set(limits) == set(DEFAULT_LIMITS))
     # Deployment can tighten bounds, never accidentally remove hard ceilings.
@@ -148,7 +156,7 @@ def policy_from_dict(value, expected_profile, expected_version):
         require(item['role'] == 'system' and type(item['text']) is str)
     data = obj['data_message_policy']
     require(type(data) is dict and set(data) == {'roles', 'min_messages', 'max_messages'})
-    require(type(data['roles']) is list and bool(data['roles']) and all(r in ('user', 'assistant') for r in data['roles']))
+    require(type(data['roles']) is list and bool(data['roles']) and all(r in (('user', 'assistant', 'tool') if chat else ('user', 'assistant')) for r in data['roles']))
     require(len(set(data['roles'])) == len(data['roles']))
     require(type(data['min_messages']) is int and type(data['max_messages']) is int)
     require(0 <= data['min_messages'] <= data['max_messages'] <= limits['messages']-len(trusted))
@@ -158,10 +166,13 @@ def policy_from_dict(value, expected_profile, expected_version):
         require(SAFE_ID.fullmatch(alias) is not None and type(model) is str and 0 < len(model) <= 256)
     # Intentionally only a fixed non-streaming option. No arbitrary option bags.
     options = obj['allowed_request_fields']
-    require(type(options) is dict and set(options) == {'stream'})
-    stream = options['stream']
-    require(type(stream) is dict and set(stream) == {'type', 'value'})
-    require(stream['type'] == 'boolean' and stream['value'] is False)
+    if chat:
+        validate_options(options)
+    else:
+        require(type(options) is dict and set(options) == {'stream'})
+        stream = options['stream']
+        require(type(stream) is dict and set(stream) == {'type', 'value'})
+        require(stream['type'] == 'boolean' and stream['value'] is False)
     bounded_copy(obj, limits)
     raw = encode(obj, limits['baseline_bytes'])
     return FrozenPolicy(raw)
@@ -181,7 +192,13 @@ def _prepare(policy, request, target_alias):
     limits = obj['limits']
     snapshot = decode(request, limits, limits['request_bytes']) if type(request) is bytes else bounded_copy(request, limits)
     require(type(target_alias) is str and target_alias in obj['allowed_targets'], 'unknown_target')
-    require(type(snapshot) is dict and set(snapshot) == {'model', 'messages', 'stream'}, 'unsupported_shape')
+    require(type(snapshot) is dict, 'unsupported_shape')
+    from .chat import ADAPTER as CHAT_ADAPTER, validate_request
+    if obj['adapter_id'] == CHAT_ADAPTER:
+        require(snapshot.get('model') == obj['allowed_targets'][target_alias], 'unknown_target')
+        validate_request(snapshot, obj)
+        return obj, encode(snapshot, limits['request_bytes'])
+    require(set(snapshot) == {'model', 'messages', 'stream'}, 'unsupported_shape')
     require(snapshot['model'] == obj['allowed_targets'][target_alias], 'unknown_target')
     require(snapshot['stream'] is False, 'unsupported_shape')
     messages = snapshot['messages']
@@ -226,5 +243,7 @@ def verify_and_send(policy, request, target_alias, transport):
         raise IntegrityError('internal_error') from None
     try:
         return transport.send(target_alias, payload)
+    except TransportError as error:
+        raise TransportError(error.code) from None
     except Exception:
         raise TransportError('transport_failed') from None

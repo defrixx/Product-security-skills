@@ -83,7 +83,7 @@ The assistant follows untrusted data across security boundaries and checks reach
 
 ## Prompt integrity tooling
 
-The independent [prompt-integrity package](tools/prompt-integrity/README.md) checks application-controlled static instructions immediately before model-request dispatch. Its first adapter supports a strict text-only subset of Ollama `/api/chat`. It blocks mismatches and sends the checked snapshot, including on explicitly managed retries and fallback attempts.
+The independent [prompt-integrity package](tools/prompt-integrity/README.md) checks application-controlled static instructions immediately before model-request dispatch. Its adapters support strict subsets of Ollama `/api/chat` and LM Studio `/v1/chat/completions` with pinned tool definitions. It blocks mismatches and sends the checked snapshot, including on explicitly managed retries and fallback attempts.
 
 The application must protect its baseline separately and route every model call through the wrapper. This checks request integrity; it does not establish model obedience or resistance to prompt injection. Installation and CLI examples are in the package guide.
 
@@ -160,19 +160,69 @@ The separate [integration suite](tests/integration/README.md) exercises syntheti
 
 ## Evaluation scope and project maintenance
 
+### Behavioral evaluations
+
+The optional model pilot and its fixed checks live in [evals/](evals/README.md), outside the standalone skill packages. Product regression tests live in `tests/`; evaluation-harness tests live in `evals/tests/`. The regression runner executes both suites without a model server. Local reports, copied targets and logs belong in ignored `artifacts/` and must not be committed.
+
 ### Combined workflow
 
 Start with report triage for existing scanner signals or security review for code assessment. Continue to authorized implementation and fix verification while preserving finding IDs, provenance, and separate assessment/implementation/verification statuses. The two new skills carry local copies of the handoff contract; all five skills work independently. Cleanup is optional for selected delivery material; no stage implicitly authorizes installation or publication.
 
 Checks cover helpers, workflow examples, and HTTP integration for prompt-integrity. Working evidence is stored in ignored `artifacts/`.
 
-Complete personal-data discovery, document/archive cleanup, visible image-content redaction, and integration with a user's actual target application remain outside the current coverage. JPEG/PNG support is metadata-only.
+Complete personal-data discovery, document/archive cleanup and visible image-content redaction remain outside the current coverage. JPEG/PNG support is metadata-only.
 
 Instructions required to use a copied skill remain inside that skill's directory. Local maintainer instructions and evaluation artifacts are not part of the distributed skills.
 
 Per-condition evidence is generated as `requirement-evidence.json` by the regression runner: every topic condition, stack control and workflow condition is listed, with exact tested clauses or explicit untested status. See the [coverage manifest](tests/requirement_coverage.json) and [manual applicability review](tests/requirements-manual-review.md).
 
 Optional [framework and lifecycle integrations](tests/integration/README.md) exercise OAuth/OIDC/JWT client/verifier boundaries with a synthetic issuer, real MongoDB/Jinja, Next.js Data Cache and Chromium policies. Failure injection verifies cleanup of owned resources while preserving a separate scope; exact tested clauses and limits are in the integration evidence manifest.
+
+
+## Reporting and integration follow-up
+
+The skills now require an evidence check before delivery and include a common
+action ledger in their standalone report templates. Carry the same finding IDs
+through triage/review, implementation and verification. Keep candidate/applied
+state independent of the fix verdict; never close an issue solely because a patch
+was produced. For cleanup, identify the delivered copy separately from the
+preserved source. The tool has its own [integration report template](tools/prompt-integrity/examples/integration-report.md).
+
+### Component results
+
+| Component | Implemented change | Evidence / current limitation |
+| --- | --- | --- |
+| Security review | Unknown history remains unknown; repairs must preserve the stated invariant | Labeled history controls; improved model reporting still needs a new trial |
+| Secure development | Exact-property coverage and observed application state required | Labeled coverage/state controls; no whole-control inference from one test |
+| Sensitive data cleanup | Helper execution, syntax validation and rescans reported separately | Existing real-helper regressions; autonomous helper selection not established |
+| Security report triage | Content identity separated from provenance; unresolved items retained | Existing triage regressions; revised reporting not yet model-evaluated |
+| Security fix verification | Case counts, alternate paths, candidate state and actual authorship reconciled | Partial/fixed fixture controls; revised reporting not yet model-evaluated |
+| prompt-integrity | Checked example attempts, optional release digest pin, safe failure codes | Package tests exercise wire rejection, release lifecycle and diagnostics |
+| Combined workflow | Same ledger fields in all five report templates and tool report | Handoff guidance implemented with stable finding IDs and separate verification states |
+
+### Shared action ledger
+
+This is the repository follow-up register, not a report of repaired vulnerabilities
+in EZII or another target. Changes are applied in the local working tree, not
+published or deployed. Test sources below identify reproducible checks; dated run
+outputs remain local in ignored `artifacts/`.
+
+| ID | Observed issue | What changed | Implementation state | Verification | What remains |
+| --- | --- | --- | --- | --- | --- |
+| REPORT-01 | Historical provenance asserted from one snapshot | Require same-finding revision comparison; explicit unknown | Applied to review/triage guidance | [Labeled claim controls](evals/tests/test_report_grounding.py) | New model trial; original report errors remain historical evidence |
+| REPORT-02 | Narrow tests presented as broader control coverage | Require evidence for the exact condition and revision | Applied to development guidance | Same fixture: unrelated property, stale revision and unexecuted check rejected | Measure model compliance on broader tasks |
+| REPORT-03 | Candidate confused with applied or fully fixed | Explicit target/state evidence and per-path verdict | Applied to guidance and templates | Candidate/application and partial/fixed controls | Verify the resulting revision and preserve per-path evidence |
+| REPORT-04 | Cleanup execution narration and verification authorship/counts overclaimed | Reconcile claims with actual tool records and known authorship | Applied to cleanup/verification guidance | Existing helper and fix-verification tests; new wording structurally validated only | Fresh semantic assessment of generated reports |
+| TOOL-01 | Dispatch protection needs attempt-by-attempt evidence | Test tamper at primary, retry and fallback; document call inventory | Applied to package tests/docs | [Actual HTTP tests](tools/prompt-integrity/tests/test_integration.py), guarded pilot-loop tests | Keep the call inventory current; unguarded eval modes remain explicit |
+| TOOL-02 | Version alone does not detect changed release bytes | Optional digest pin, pinned startup example, CLI pin | Applied to package | [Release lifecycle tests](tools/prompt-integrity/tests/test_release.py) | Protected release distribution and trusted pin storage belong to deployment |
+| TOOL-03 | Generic transport errors obscure failure class | Bounded diagnostic codes propagated into guarded pilot output | Applied to tool and evaluation harness | Failure/redaction tests and guarded pilot diagnostic test | Timeout cannot prove the provider did not receive a request |
+| FLOW-01 | Findings and unresolved work scattered across reports | Common action ledger in standalone templates; component summary and this register | Applied to documentation | Template structure/link validation | End-to-end user trial; no automated cross-report synchronization |
+| EVAL-01 | Model pilot mixed with general repository scripts | Move runner, workers, rubric and harness tests into `evals/`; run both test suites | Applied to repository layout | Pilot regression tests and full suite; fingerprints include `evals/` | Evaluation harness stays outside copied skills; local results must not be committed |
+
+These changes address implementation and reporting contracts. They do not establish
+improved model accuracy, generalized prompt-injection resistance, or complete
+application security. The next behavioral trial should assess the updated skill
+fingerprints and the whole handoff, preserving unresolved findings in the final ledger.
 
 ## License
 

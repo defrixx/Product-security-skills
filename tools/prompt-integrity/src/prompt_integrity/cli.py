@@ -32,6 +32,8 @@ def main(argv=None):
             command.add_argument('--config-root', required=True)
             command.add_argument('--expected-profile', required=True)
             command.add_argument('--expected-version', required=True)
+        for command in (validate, check):
+            command.add_argument('--expected-sha256')
         args = parser.parse_args(argv)
         if args.operation == 'create':
             def read(path):
@@ -44,7 +46,8 @@ def main(argv=None):
             write_new(args.output, args.config_root, frozen.encoded+b'\n')
             print('{"status":"candidate_created","approved":false}')
             return 0
-        policy = load_policy(args.baseline, args.expected_profile, args.expected_version, config_root=args.config_root)
+        policy = load_policy(args.baseline, args.expected_profile, args.expected_version, config_root=args.config_root,
+                             expected_sha256=args.expected_sha256)
         if args.group == 'baseline':
             print('{"status":"structurally_valid","approved":false}')
             return 0

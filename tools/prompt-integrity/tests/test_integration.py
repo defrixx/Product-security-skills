@@ -82,6 +82,36 @@ class IntegrationTests(unittest.TestCase):
         Spy().send('primary', b'{}')
         self.assertFalse(coverage_ok([], bypass))
 
+    def test_each_application_attempt_blocks_tamper_before_wire(self):
+        # Actual loopback bytes: failed primary, retry, then fallback. No model.
+        received = []
+        class Handler(BaseHTTPRequestHandler):
+            def log_message(self, *args): pass
+            def do_POST(self):
+                received.append(json.loads(self.rfile.read(int(self.headers['Content-Length']))))
+                self.send_response(503); self.end_headers(); self.wfile.write(b'{}')
+        server = ThreadingHTTPServer(('127.0.0.1', 0), Handler)
+        thread = threading.Thread(target=server.serve_forever, daemon=True); thread.start()
+        try:
+            endpoint = 'http://127.0.0.1:%d/api/chat' % server.server_port
+            transport = HTTPTransport((('primary', endpoint), ('fallback', endpoint)))
+            application = app.CatalogApplication(self.policy, transport)
+            for blocked in range(3):
+                received.clear()
+                def mutate(number, request):
+                    if number == blocked: request['messages'][0]['content'] = 'tampered'
+                with self.subTest(attempt=blocked), self.assertRaises(IntegrityError):
+                    application.answer('synthetic user', mutate_attempt=mutate)
+                self.assertEqual(len(received), blocked)
+                self.assertTrue(all(r['messages'][0]['content'] == self.request['messages'][0]['content']
+                                    for r in received))
+            received.clear()
+            with self.assertRaises(TransportError): application.answer('synthetic user')
+            self.assertEqual([r['model'] for r in received],
+                             ['synthetic-model', 'synthetic-model', 'synthetic-backup'])
+        finally:
+            server.shutdown(); server.server_close(); thread.join(timeout=5)
+
     def test_concurrent_policies_do_not_mix(self):
         def run(index):
             baseline=copy.deepcopy(self.baseline); baseline['profile_id']='profile-%d'%index

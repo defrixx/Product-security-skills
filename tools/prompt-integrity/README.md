@@ -1,6 +1,6 @@
 # prompt-integrity
 
-Static instruction verification at the final model-request dispatch boundary. Version 0.1.0. Static prompt MVP implemented with property, CLI and local HTTP integration tests, plus isolated installed-wheel verification. Requires Python 3.11+ and POSIX for filesystem operations. Runtime uses only the standard library.
+Static instruction verification at the final model-request dispatch boundary. Version 0.1.0. Static prompt and bounded tool-history adapters implemented with property, CLI and local HTTP integration tests, plus isolated installed-wheel verification. Requires Python 3.11+ and POSIX for filesystem operations. Runtime uses only the standard library.
 
 ## Install and use
 
@@ -45,6 +45,30 @@ Source: [Ollama Generate a chat message](https://docs.ollama.com/api/chat), requ
 
 Exact matching preserves whitespace, newlines, case, and Unicode distinctions. Equivalent JSON escaping/key order may differ while decoded text remains equal. User text that says “ignore prior instructions” is still permitted data when in its allowed role; this tool does not classify prompt injection or prove model obedience.
 
+## LM Studio Chat Completions adapter
+
+`lmstudio-chat-tools-v1`, version `1`, supports a separate strict, non-streaming
+Chat Completions subset. Select it in `adapter_id`. Its `allowed_request_fields`
+contains exact JSON values for `stream` (false), `temperature`, `max_tokens`, and
+`tools`, rather than the Ollama stream constraint object. The trusted prefix is
+still exact system text. Data roles may include `tool`; assistant function calls
+must use pinned tool names and unique call IDs, followed by matching tool results
+before another ordinary message. All tool descriptions and parameter schemas
+are pinned as trusted JSON. Unknown fields, extra system/developer instructions,
+multimodal content and incomplete tool histories are rejected. Parameter schemas
+are not an argument validator; the executing application must authorize and
+validate every tool call independently. Tool-result text remains untrusted data.
+
+Configure `HTTPTransport(..., path="/v1/chat/completions")` and matching endpoint
+paths. The default remains `/api/chat`; a mismatched path is rejected. The CLI
+can validate either policy but never sends a model request. This is not support
+for all OpenAI-compatible fields, Responses API, streaming, or arbitrary vendors.
+
+Primary contract sources: [LM Studio Chat Completions](https://lmstudio.ai/docs/developer/openai-compat/chat-completions)
+and [tool use](https://lmstudio.ai/docs/developer/openai-compat/tools), verified
+2026-10-02. Tests cover checked HTTP bytes, tool-result round trips, instruction/
+model/tool-definition tampering, malformed histories and retry rejection.
+
 ## Policy and release lifecycle
 
 The complete baseline schema is illustrated by `examples/baseline.json`. Unknown fields/versions and duplicate JSON keys are rejected. `allowed_targets` maps trusted aliases to exact model strings; endpoints are separately configured in the transport. `allowed_request_fields` must be the fixed stream-false constraint for this adapter. Limits can be tightened but cannot exceed the documented hard ceilings: 1 MiB baseline, 4 MiB request, 256 messages, depth 32, 100,000 nodes, 256 KiB per string. These are engineering resource bounds.
@@ -58,3 +82,47 @@ Baseline contents are sensitive configuration. Review candidate content and prom
 This checks observable request integrity, not prompt safety, output safety, tool authorization, hidden provider instructions, or a compromised process. An attacker controlling both the baseline and checker can bypass it. Application/SDK logs outside the wrapper require their own review.
 
 Run `python -m unittest discover -s tests -v` from this package directory. Fixtures use synthetic prompts and transport spies; no model credentials, server, or external checkout is required. Before deployment, inspect every request call site and any transport interceptor for bypass or post-check mutation.
+
+## Pinned startup and failure diagnosis
+
+For deployments that pin exact release contents, pass `expected_sha256` to
+`load_policy`, or `--expected-sha256` to CLI `baseline validate` / `request check`.
+This is the SHA-256 of the approved file bytes, including whitespace. Obtain it
+from separately protected release configuration; computing it from a candidate
+at startup defeats pinning. Profile, version and digest are checked before a
+policy is returned. Invalid or mismatched pins stop loading; there is no refresh,
+repair or fallback to an unpinned baseline. Existing callers omitting the optional
+pin retain their existing protected-file trust model.
+
+`CatalogApplication.from_release` in [the application example](examples/application.py)
+shows pinned startup. Promote a reviewed candidate and its separately protected
+profile/version/digest together. A running policy remains frozen until an explicit
+trusted reload. Rotation uses a new release selection. Rollback requires an
+explicit trusted selection of the older release; old bytes cannot satisfy the
+current digest. This is not signature verification, an approval service, or an
+anti-rollback guarantee against someone who can change the trusted release selection.
+Transport endpoints are separate trusted configuration, not covered by the baseline digest.
+
+`TransportError.code` is a bounded diagnostic: `transport_timeout`,
+`transport_connection_failed`, `transport_http_rejected`,
+`transport_redirect_rejected`, `transport_response_too_large`,
+`transport_configuration_invalid`, or `transport_failed`. Raw exception text,
+response bodies and URLs are excluded. A timeout may occur after the provider
+received a request: retry policy belongs to the application and can duplicate
+work. An integrity failure must stop the attempt without unchecked fallback.
+
+## Audited call paths in this repository
+
+| Call path | Boundary / observed check | Remaining limit |
+| --- | --- | --- |
+| Example primary, retry, fallback | All three call `verify_and_send`; loopback tests mutate each attempt and confirm no rejected bytes arrive | Synthetic Ollama-shaped application |
+| Pilot Chat with `--integrity`, including tool rounds | `IntegrityDispatch` checks each outbound request; simulated-model tests exercise the real guard and cleanup helper | Baseline is trusted experiment setup, not an approved deployment release; no automatic retry/fallback |
+| Pilot Chat without integrity / Responses | Deliberately unguarded evaluation modes; Responses plus integrity is rejected | Not deployment-ready protected routes |
+| Pilot model-list metadata GET | Read-only server discovery, not a model-generation request | Outside the instruction-integrity contract |
+| CLI | Offline validation only; no model dispatch | A successful check does not protect a later bypassing send |
+
+Before deploying,
+record every application job, SDK wrapper, retry and fallback in the
+[integration report template](examples/integration-report.md), with request-to-wire
+evidence and explicit untested routes. An inventory is not proof of complete
+coverage against dynamically introduced callers.

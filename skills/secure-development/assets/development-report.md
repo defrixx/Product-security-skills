@@ -14,6 +14,7 @@ Illustrative synthetic result, not evidence from an executed assessment:
 
 For a real inline result, replace the illustrative statements with actual IDs, observations, and evidence locations. Use the standalone sections below only when needed; omit this instructional example from a completed report.
 
+
 ## Result
 
 [What changed, whether it was applied to the target or remains a candidate, and the main unresolved condition.]
@@ -24,6 +25,16 @@ For a real inline result, replace the illustrative statements with actual IDs, o
 | Task and date | [requested change; assessment date] |
 | Delivery state | [applied / candidate only / guidance only] |
 | Verification | [verified conditions and important untested behavior] |
+
+## Action ledger
+
+Use one row per finding or unresolved action; preserve upstream IDs and aliases. For a combined workflow, carry these rows forward and link detailed evidence rather than silently replacing earlier assessments. Use safe paths/identifiers; never include original sensitive values. Omit the table only when there are no findings or outstanding actions, and say so explicitly.
+
+| ID | Observed issue | Change / next action | Implementation state | Verification and exact revision / copy | Remaining gap |
+| --- | --- | --- | --- | --- | --- |
+| [stable ID] | [bounded observation; detail link] | [what changed or is proposed] | [proposed / candidate / applied / unchanged / unknown; target] | [check and actual observation; fixed / partial / not fixed / inconclusive where relevant] | [unresolved path, check or decision] |
+
+Applied means observed in the named target or output copy; it does not mean verified or deployed. Record not run checks explicitly. Keep historical severity, evidence confidence and current fix verdict separate in the detailed finding.
 
 ## Next actions
 
