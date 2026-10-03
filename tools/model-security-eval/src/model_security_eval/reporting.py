@@ -116,6 +116,15 @@ def markdown(report):
              '| Case | Repeat | Kind | Status | Diagnostic |', '| --- | --- | --- | --- | --- |']
     for result in report['results']:
         lines.append(f"| {result['case_id']} | {result['repetition']} | {result['kind']} | {result['status']} | {result['diagnostic']} |")
+    guard = report.get('guard_criteria')
+    if guard:
+        lines.extend(['', f"Guard profile: `{guard['profile']}`. Mode: `{guard['mode']}`."])
+    comparison = report.get('guard_comparison')
+    if comparison and 'paired' in comparison:
+        lines.extend(['', f"Unguarded outcome: **{comparison['unguarded_verdict']}**. "
+                      f"Guard-blocked attacks: {comparison['guard_blocked_attacks']}; "
+                      f"guard-blocked allowed controls: {comparison['guard_blocked_controls']}.",
+                      'A blocked input is recorded as not assessed for model resistance.'])
     return '\n'.join(lines) + '\n'
 
 

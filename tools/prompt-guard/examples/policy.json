@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "policy_id": "synthetic-demo",
+  "policy_version": "1",
+  "limits": {"input_bytes": 1048576, "messages": 128, "rules": 64, "matches": 1024, "timeout_ms": 2000},
+  "rules": [
+    {"id": "PG-001", "kind": "literal", "pattern": "SYNTHETIC_PRIVATE_TOKEN_19", "ignore_case": false, "sources": ["user", "retrieval", "file", "tool", "assistant"], "action": "block", "replacement": "[REDACTED]"},
+    {"id": "PG-002", "kind": "regex", "pattern": "<\\s*system\\s*>", "ignore_case": true, "sources": ["retrieval", "file", "tool"], "action": "block", "replacement": null},
+    {"id": "PG-003", "kind": "literal", "pattern": "ignore previous instructions", "ignore_case": true, "sources": ["user", "retrieval", "file", "tool"], "action": "review", "replacement": null}
+  ]
+}

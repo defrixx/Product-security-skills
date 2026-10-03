@@ -1,6 +1,6 @@
 # Product Security Skills
 
-Five standalone skill packages for AI coding assistants: secure development, sensitive data cleanup, security review, report triage, and fix verification. The repository also includes an independently installable [prompt-integrity library and CLI](tools/prompt-integrity/README.md).
+Five standalone skill packages for AI coding assistants: secure development, sensitive data cleanup, security review, report triage, and fix verification. Independently installable tools provide [prompt integrity checks](tools/prompt-integrity/README.md), [prompt data guarding](tools/prompt-guard/README.md), and [model security regression evaluation](tools/model-security-eval/README.md).
 
 Created for [Defrixx’s security resource](https://defrixx.github.io/en/). The repository provides reusable instructions, requirement references, report templates, and optional local helpers.
 
@@ -93,6 +93,14 @@ The independent [model-security-eval CLI](tools/model-security-eval/README.md) t
 
 It emits JSON CI events, private JSON/Markdown evidence, baseline comparisons and exit codes: 0 pass, 1 fail, 2 inconclusive/error. Profiles select the synthetic developer workflow; identity discovery binds responses to the chosen local model. File, shell and external actions use in-memory fixtures. See the [CI entry script](tools/model-security-eval/examples/ci-gate.sh) for a blocking promotion step.
 
+## Prompt data guard
+
+The independent [prompt-guard library and CLI](tools/prompt-guard/README.md) checks untrusted UTF-8 text and JSON messages with source-scoped literal/regex rules. Default `strict` mode blocks matching requests; explicit `sanitize` mode applies policy-authorized replacements to a separate result and checks it again. Decisions are `allow`, `block`, `review` and `error`; only `allow` supplies dispatchable content. Regex execution has a subprocess deadline, and diagnostics omit input values.
+
+Select packaged user, retrieval, tool, security or strict-topic profiles. Schema v2 adds mapped Unicode detection views, assembled-context checks, memory/overall deadlines and a four-worker cap. Policy releases can be pinned by independently selected identity/version/digest. The provider adapter dispatches accepted snapshots to configured local endpoints or an application-owned prompt-integrity boundary. `model-security-eval --guard-profile user-input --compare-guard` compares guarded and unguarded trials with separate detector/model/action observations.
+
+Use it before model-request assembly, retain `prompt-integrity` at final dispatch, and authorize model-proposed actions before execution. Synthetic examples, policy fields and copy-output commands are in the package guide.
+
 ## What belongs in the result
 
 Reports lead with **the outcome and next actions**, followed by selected evidence. Include only the attachments needed to act on the result: a detailed redacted inventory, the final cleaned copy, or a relevant patch/reproduction when useful.
@@ -150,6 +158,7 @@ Read the [SARIF subset and limits](skills/security-report-triage/references/sari
 | PR context helper | Python 3.9+ and Git |
 | SARIF normalizer | Python 3.9+, standard library, POSIX filesystem operations |
 | prompt-integrity | Python 3.11+, standard library runtime, POSIX file operations |
+| prompt-guard | Python 3.11+, standard library runtime, POSIX file operations and subprocess execution |
 | Full regression suite | Python 3.11+, Git, POSIX; standard library, local loopback sockets, no external services |
 | Optional framework integration | Docker and fixture dependencies; see the integration instructions |
 | Independent image decoding checks | Pillow; test-only, not required by the cleanup helper |

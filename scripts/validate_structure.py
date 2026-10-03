@@ -89,8 +89,34 @@ def main():
         for target in LINK.findall(text):
             if '://' not in target and not (p.parent/target.split('#')[0]).exists():errors.append(str(p)+': broken link '+target)
         if 'docs/roadmap.md' in text:errors.append(str(p)+': stale roadmap link')
+    # Independent tools carry their own documentation and runtime packages.
+    tools_checked=0
+    for tool in sorted((ROOT/'tools').iterdir()):
+        if not tool.is_dir():continue
+        tools_checked+=1
+        metadata=tool/'pyproject.toml'
+        if not metadata.is_file():
+            errors.append(str(tool)+': missing package metadata');continue
+        if not re.search(r'^name = "'+re.escape(tool.name)+r'"$',metadata.read_text(),re.M):
+            errors.append(str(metadata)+': package/directory name mismatch')
+        for name in ('README.md','LICENSE'):
+            if not (tool/name).is_file():errors.append(str(tool)+': missing '+name)
+        for p in tool.rglob('*'):
+            if not p.is_file() or '__pycache__' in p.parts:continue
+            if p.suffix=='.py':ast.parse(p.read_text())
+            if p.suffix=='.json':json.loads(p.read_text())
+            if p.suffix=='.md':
+                content=p.read_text()
+                for target in LINK.findall(content):
+                    if '://' in target:continue
+                    local=unquote(target.split('#')[0])
+                    q=(p.parent/local).resolve() if local else p.resolve()
+                    if not q.is_relative_to(tool.resolve()):errors.append(str(p)+': external tool dependency '+target)
+                    elif not q.is_file():errors.append(str(p)+': missing '+target)
+                if '[TODO:' in content:errors.append(str(p)+': unfinished placeholder')
+                if re.search('[\u0400-\u04ff]',content):errors.append(str(p)+': unexpected Cyrillic text')
     if errors:
         print('\n'.join(errors));return 1
-    print(json.dumps({'skills':checked,'unique_requirement_ids':len(ids),'topic_conditions':len(conditions),'status':'valid_structure','behavior_verified':False}));return 0
+    print(json.dumps({'skills':checked,'tools':tools_checked,'unique_requirement_ids':len(ids),'topic_conditions':len(conditions),'status':'valid_structure','behavior_verified':False}));return 0
 
 if __name__=='__main__':sys.exit(main())

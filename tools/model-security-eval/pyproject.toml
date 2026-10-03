@@ -4,11 +4,14 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "model-security-eval"
-version = "0.2.0"
+version = "0.3.0"
 description = "Bounded synthetic model security regression gate for local inference"
 requires-python = ">=3.11"
 readme = "README.md"
 license = {file = "LICENSE"}
+
+[project.optional-dependencies]
+guard = ["prompt-guard>=0.2.0,<0.3"]
 
 [project.scripts]
 model-security-eval = "model_security_eval.cli:main"

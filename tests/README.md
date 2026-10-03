@@ -1,5 +1,9 @@
 # Synthetic regression corpus
 
+The standalone `prompt-guard` suite is included through `test_prompt_guard.py`. It checks strict rejection, explicit sanitization and residual checks, source scopes, synthetic attack/control pairs, file preservation and boundaries, redacted diagnostics, and regex deadlines.
+
+It also exercises mapped Unicode transformations, cross-message rules, pinned policy releases, capacity/overall/memory bounds and real loopback provider dispatch. The labeled package corpus separates attack/control expectations from intentionally blocked topic discussions. `test_guarded_workflow.py` exercises the actual prompt-integrity handoff and paired model evaluation with synthetic responses, identity drift and interruption.
+
 Evaluation-harness tests live separately in [evals/tests/](../evals/tests/). Run `python3 scripts/run_regressions.py --output artifacts/new-regression-run` for both suites, or use the command below for product tests only.
 
 These tests exercise actual helper behavior and small explicitly vulnerable/control fixtures. They do not import external applications or operate on a user repository. All writes and intentionally unsafe path probes use disposable temporary directories. The only Git commits/checkouts are inside repositories created by the tests.

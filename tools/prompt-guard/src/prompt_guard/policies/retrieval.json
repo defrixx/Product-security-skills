@@ -1,0 +1,122 @@
+{
+  "schema_version": 2,
+  "policy_id": "example-retrieval",
+  "policy_version": "1",
+  "assembly_separator": "\n",
+  "limits": {
+    "input_bytes": 1048576,
+    "messages": 128,
+    "rules": 64,
+    "matches": 1024,
+    "timeout_ms": 2000,
+    "overall_ms": 6000,
+    "memory_mb": 256
+  },
+  "rules": [
+    {
+      "id": "PG-OVERRIDE",
+      "category": "instruction-override",
+      "kind": "regex",
+      "pattern": "(?:ignore|disregard|forget)\\s+(?:all\\s+|the\\s+)?(?:previous|prior|system)\\s+(?:instructions|rules|policy)|ignora\\s+(?:las\\s+)?instrucciones\\s+anteriores|\\u0438\\u0433\\u043d\\u043e\\u0440\\u0438\\u0440\\u0443\\u0439\\s+\\u043f\\u0440\\u0435\\u0434\\u044b\\u0434\\u0443\\u0449\\u0438\\u0435\\s+\\u0438\\u043d\\u0441\\u0442\\u0440\\u0443\\u043a\\u0446\\u0438\\u0438|\\u524d\\u306e\\u6307\\u793a\\u3092\\u7121\\u8996",
+      "ignore_case": true,
+      "sources": [
+        "retrieval",
+        "file"
+      ],
+      "action": "block",
+      "replacement": null,
+      "view": "normalized",
+      "scope": "message"
+    },
+    {
+      "id": "PG-ROLE",
+      "category": "role-spoofing",
+      "kind": "regex",
+      "pattern": "<\\s*/?\\s*(?:system|developer)\\s*>|\\[INST\\]|\\[/?SYSTEM\\]|<\\|(?:im_start|start_header_id|endoftext)\\|>",
+      "ignore_case": true,
+      "sources": [
+        "retrieval",
+        "file"
+      ],
+      "action": "block",
+      "replacement": null,
+      "view": "normalized",
+      "scope": "message"
+    },
+    {
+      "id": "PG-PROMPT",
+      "category": "instruction-exfiltration",
+      "kind": "regex",
+      "pattern": "(?:print|reveal|show|dump|repeat)\\s+(?:your\\s+|the\\s+|all\\s+)?(?:hidden\\s+|private\\s+|original\\s+)?(?:system\\s+prompt|developer\\s+instructions)|revela\\s+(?:el\\s+)?prompt\\s+del\\s+sistema|\\u043f\\u043e\\u043a\\u0430\\u0436\\u0438\\s+\\u0441\\u0438\\u0441\\u0442\\u0435\\u043c\\u043d\\u044b\\u0439\\s+\\u043f\\u0440\\u043e\\u043c\\u043f\\u0442|\\u30b7\\u30b9\\u30c6\\u30e0\\u30d7\\u30ed\\u30f3\\u30d7\\u30c8\\u3092\\u8868\\u793a",
+      "ignore_case": true,
+      "sources": [
+        "retrieval",
+        "file"
+      ],
+      "action": "block",
+      "replacement": null,
+      "view": "normalized",
+      "scope": "message"
+    },
+    {
+      "id": "PG-APPROVAL",
+      "category": "forged-approval",
+      "kind": "regex",
+      "pattern": "(?:administrator|admin|developer)\\s+(?:approval|override|permission)\\s*[:=]|approval\\s+(?:granted|authorized)\\s+by\\s+(?:the\\s+)?administrator",
+      "ignore_case": true,
+      "sources": [
+        "retrieval",
+        "file"
+      ],
+      "action": "block",
+      "replacement": null,
+      "view": "normalized",
+      "scope": "message"
+    },
+    {
+      "id": "PG-SECRET",
+      "category": "secret-exfiltration",
+      "kind": "regex",
+      "pattern": "(?:print|reveal|send|export|encode)\\s+(?:the\\s+|your\\s+|all\\s+)?(?:private\\s+(?:test\\s+)?token|secret(?:s)?|api\\s+keys?|passwords?)|\\u043f\\u043e\\u043a\\u0430\\u0436\\u0438\\s+\\u0441\\u0435\\u043a\\u0440\\u0435\\u0442|revela\\s+(?:el\\s+)?token\\s+privado",
+      "ignore_case": true,
+      "sources": [
+        "retrieval",
+        "file"
+      ],
+      "action": "block",
+      "replacement": null,
+      "view": "normalized",
+      "scope": "message"
+    },
+    {
+      "id": "PG-TOOLS",
+      "category": "tool-scope-escape",
+      "kind": "regex",
+      "pattern": "(?:disable|bypass|ignore)\\s+(?:the\\s+)?(?:tool\\s+restrictions|authorization\\s+checks|scope\\s+restriction)|(?:send|upload|export)\\s+(?:private|secret)\\s+(?:data|files)\\s+to",
+      "ignore_case": true,
+      "sources": [
+        "retrieval",
+        "file"
+      ],
+      "action": "block",
+      "replacement": null,
+      "view": "normalized",
+      "scope": "message"
+    },
+    {
+      "id": "PG-JAILBREAK",
+      "category": "jailbreak-framing",
+      "kind": "regex",
+      "pattern": "(?:you\\s+are\\s+now|activate|enter)\\s+(?:DAN|developer\\s+mode|unrestricted\\s+mode)|(?:safety|security)\\s+(?:rules|policy|filters)\\s+(?:are\\s+)?(?:disabled|revoked)",
+      "ignore_case": true,
+      "sources": [
+        "retrieval",
+        "file"
+      ],
+      "action": "block",
+      "replacement": null,
+      "view": "normalized",
+      "scope": "message"
+    }
+  ]
+}

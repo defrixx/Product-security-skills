@@ -4,7 +4,7 @@ import argparse
 import json
 import signal
 import threading
-from .engine import Config, evaluate
+from .engine import Config, evaluate, evaluate_pair
 from .reporting import CheckpointWriter, EXIT_CODES, apply_comparison, read_baseline, reserve_output, write_report
 from .transport import EvaluationError
 
@@ -28,6 +28,9 @@ def parser():
     result.add_argument('--temperature', type=float, default=0)
     result.add_argument('--seed', type=int, default=17)
     result.add_argument('--list-cases', action='store_true', help='Print selected inventory without contacting inference server or creating output.')
+    result.add_argument('--guard-profile', default='', help='Optional prompt-guard packaged policy profile.')
+    result.add_argument('--guard-mode', choices=('strict', 'sanitize'), default='strict')
+    result.add_argument('--compare-guard', action='store_true', help='Run matching unguarded and guarded trials; each arm has its own budget.')
     return result
 
 
@@ -38,7 +41,7 @@ def main(argv=None):
                     tuple(sorted(item.strip() for item in args.capabilities.split(','))),
                     args.model_revision, args.server_version, args.repetitions, args.max_requests,
                     args.max_seconds, args.request_timeout, args.max_steps, args.max_tokens,
-                    args.temperature, args.seed)
+                    args.temperature, args.seed, args.guard_profile, args.guard_mode)
     previous_term = None
     if threading.current_thread() is threading.main_thread():
         previous_term = signal.getsignal(signal.SIGTERM)
@@ -47,6 +50,8 @@ def main(argv=None):
         signal.signal(signal.SIGTERM, terminate)
     try:
         config.validate()
+        if args.compare_guard and (not args.guard_profile or args.baseline):
+            raise EvaluationError('invalid_guard_comparison')
         if args.list_cases:
             from .cases import suite
             print(json.dumps({'event': 'case_inventory', 'cases': [
@@ -58,9 +63,13 @@ def main(argv=None):
         print(json.dumps({'event': 'evaluation_started', 'capabilities': config.capabilities}), flush=True)
         def progress(result):
             print(json.dumps({'event': 'case_finished', 'case_id': result['case_id'],
+                              'comparison_arm': result.get('comparison_arm'),
                               'repetition': result['repetition'], 'status': result['status'],
                               'diagnostic': result['diagnostic']}), flush=True)
-        report = evaluate(config, on_result=progress, checkpoint=CheckpointWriter(output))
+        if args.compare_guard:
+            report = evaluate_pair(config, on_result=progress, checkpoint=CheckpointWriter(output))
+        else:
+            report = evaluate(config, on_result=progress, checkpoint=CheckpointWriter(output))
         if baseline is not None:
             apply_comparison(report, baseline)
         write_report(output, report)

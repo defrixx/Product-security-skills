@@ -2,7 +2,7 @@
 
 Check local LM Studio and Ollama models after updates and use the result as a blocking CI check. Select developer capabilities, set execution budgets, run adversarial scenarios alongside allowed tasks, and compare results with a baseline.
 
-Version 0.2.0 requires Python 3.11+. Runtime uses the standard library. The package works independently of the repository's skills.
+Version 0.3.0 requires Python 3.11+. Runtime uses the standard library. The package works independently of the repository's skills. Guarded comparisons optionally use `prompt-guard` 0.2.x.
 
 ## Capabilities and scenarios
 
@@ -59,7 +59,15 @@ LM Studio profiles require `--model-revision` and `--server-version`. Identity a
 
 Add `--baseline artifacts/previous-run/report.json` to compare case statuses. Compatible criteria use the same scenario suite, evaluator source bytes, capability policy, adapter, generation settings, repetitions and budgets. The comparison records model/revision/server/endpoint changes and per-trial changes. Report format version is 2.
 
-## CI
+## Guarded application comparison
+
+Make `prompt-guard` available in the evaluator environment and add `--guard-profile user-input --compare-guard` to a normal local-model run. Select `security`, `restricted-topics` or `security-and-topics` for broader matching; `--guard-mode sanitize` explicitly enables authorized transformations. From a source checkout, include both `tools/model-security-eval/src` and `tools/prompt-guard/src` in `PYTHONPATH`.
+
+The pair runs the same synthetic canary, scenario inventory, seed/sampling settings and separate equal budgets in each arm. Metadata discovery and response identity checks remain active; changed identity closes admission. JSON CI events identify `comparison_arm`. The final private report retains the full unguarded report and paired guard decisions, model violations, model-assessment status and fixture actions. Blocked attacks can pass an application control without being marked as model resistance; blocked benign controls fail. Review/errors are inconclusive. Interruption or an incomplete first arm prevents starting the second arm. Historical `--baseline` comparison and `--compare-guard` are mutually exclusive.
+
+Profiles/runtime contents are fingerprinted in guarded criteria. The broad security/topic profiles intentionally differ from the anchored user profile; a quoted attack expression can block a benign control and produce a failing comparison. Each arm has its own configured request/time budget, so reserve resources for both.
+
+## CI gate
 
 The [CI entry script](examples/ci-gate.sh) runs from the repository root:
 
