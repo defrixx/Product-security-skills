@@ -1,6 +1,6 @@
 # Review acceptance conditions
 
-These stable IDs are required workflow outcomes for this skill. They assess review quality, not whether the target is secure. Record each condition separately with static evidence, executed checks, assumptions, and status. A successful vulnerability reproduction is a confirmed failure of a target control, not a security pass. Missing evidence remains not verified; mixed coverage remains partial. Examples are synthetic. Deviations need scope, rationale, compensating measures, owner, and review date without silently weakening conclusions.
+These stable IDs are required workflow outcomes for this skill. They assess review quality, not whether the target is secure. Record each condition separately with static evidence, executed checks, assumptions, and status. A successful vulnerability reproduction is a confirmed failure of a target control, not a security pass. Examples are synthetic. Deviations need scope, rationale, compensating measures, owner, and review date without silently weakening conclusions.
 
 The local [review modes](review-modes.md), [analysis and validation](analysis-and-validation.md), and [PR helper contract](pr-context-helper.md) define this workflow's sources and implementation boundaries. Target-specific security claims additionally require applicable primary protocol/vendor evidence; this process does not invent universal exploitability or severity rules.
 
@@ -13,7 +13,7 @@ The local [review modes](review-modes.md), [analysis and validation](analysis-an
 - **Unsafe → corrected:** review a moving branch name and label every finding new → resolve immutable revisions and compare each finding against the base.
 - **Positive check:** a synthetic PR with one introduced and one existing flaw produces correct distinct provenance and recorded revisions.
 - **Negative check:** missing/ambiguous revisions fail scope establishment; dirty working-tree content is not represented as part of a commit-only comparison.
-- **Evidence:** revision metadata and exact inspected file identities; executed comparison/helper results. A branch label alone leaves scope unverified.
+- **Evidence:** revision metadata and exact inspected file identities; executed comparison/helper results.
 - **Bounds / sources:** review modes and PR helper contract. Whole-repository mode does not imply historical introduction analysis.
 
 ## REVIEW-002 — Derive attack paths from the target trust model
@@ -58,7 +58,7 @@ The local [review modes](review-modes.md), [analysis and validation](analysis-an
 - **Required / prohibited:** distinguish confirmed attack links from prerequisites and assumptions. Do not inflate a demonstrated file write into code execution without an executable consumption path.
 - **Rationale:** unsupported impact claims misdirect remediation and undermine reliable prioritization.
 - **Implement:** write entry point → required capability → action → observed effect; add conditional consequences separately. Evaluate severity against the target assets/exposure and keep confidence independent.
-- **Unsafe → corrected:** label an arbitrary-file-write fixture as proven remote execution → report the write primitive and identify the missing execution trigger as unverified.
+- **Unsafe → corrected:** label an arbitrary-file-write fixture as proven remote execution → report the demonstrated write primitive and its prerequisites.
 - **Positive check:** a synthetic confirmed chain lists evidence for every demonstrated link and explains its contextual impact.
 - **Negative check:** removing a required privilege or trigger invalidates the claimed end-to-end attack; the report retains only the supported impact.
 - **Evidence:** source/reproduction references per link; executed outcomes where available. Do not invent CVSS inputs or external exploit evidence.
@@ -67,7 +67,7 @@ The local [review modes](review-modes.md), [analysis and validation](analysis-an
 ## REVIEW-006 — Produce an actionable, bounded remediation report
 
 - **Apply when:** delivering review results, including zero-finding outcomes.
-- **Required / prohibited:** preserve stable finding IDs, evidence strength, coverage gaps, and positive/negative fix-verification criteria. Do not present absent findings as proof of security or describe proposed fixes as applied.
+- **Required / prohibited:** preserve stable finding IDs, evidence strength, and positive/negative fix-verification criteria. Do not present absent findings as proof of security or describe proposed fixes as applied.
 - **Rationale:** a report must let an owner reproduce, prioritize, and verify remediation without overstating coverage.
 - **Implement:** use the report template; summarize outcome before details, redact sensitive values, and include only necessary safe attachments. Record omitted checks and next validation steps.
 - **Unsafe → corrected:** deliver a scanner total with “secure” status → separate confirmed findings, hypotheses, and coverage limits, with a concrete action and verification plan for each finding.

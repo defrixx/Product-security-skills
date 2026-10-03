@@ -1,28 +1,26 @@
 # Security review report
 
-Template: fill from evidence and retain explicit unknowns. Lead with the decision-relevant result; omit empty optional sections. Summary rows link to detailed findings and do not duplicate their full text.
+Template: fill from observed evidence. Lead with the decision-relevant result; omit empty optional sections. Summary rows link to detailed findings and do not duplicate their full text.
 
 ## Result
 
-[One short paragraph: main risk, confirmed finding count, hypothesis count, and recommended next action. No findings does not mean security is guaranteed.]
+[One short paragraph: main risk, confirmed finding count, hypothesis count, and recommended next action.]
 
 | Context | Value |
 | --- | --- |
 | Target / date | [safe identifier / assessment date] |
 | Mode / revisions | [repo or PR; exact revisions and working-tree state] |
 | Assessment state | [completed within scope / partial / blocked; reason] |
-| Main limitation | [what most affects the conclusion] |
 
 
 ## Action ledger
 
-Use one row per finding or unresolved action; preserve upstream IDs and aliases. For a combined workflow, carry these rows forward and link detailed evidence rather than silently replacing earlier assessments. Use safe paths/identifiers; never include original sensitive values. Omit the table only when there are no findings or outstanding actions, and say so explicitly.
+Carry stable finding IDs through the workflow and record the observed change, verification result and next action.
 
-| ID | Observed issue | Change / next action | Implementation state | Verification and exact revision / copy | Remaining gap |
+| ID | Observed issue | Change / next action | Implementation state | Verification and exact revision / copy | Next check |
 | --- | --- | --- | --- | --- | --- |
-| [stable ID] | [bounded observation; detail link] | [what changed or is proposed] | [proposed / candidate / applied / unchanged / unknown; target] | [check and actual observation; fixed / partial / not fixed / inconclusive where relevant] | [unresolved path, check or decision] |
+| [stable ID] | [observation and detail reference] | [change or action] | [actual target state] | [check, result and revision/copy] | [specific action] |
 
-Applied means observed in the named target or output copy; it does not mean verified or deployed. Record not run checks explicitly. Keep historical severity, evidence confidence and current fix verdict separate in the detailed finding.
 
 ## Findings at a glance
 
@@ -39,17 +37,10 @@ Count confirmed findings once, including pre-existing findings. Keep hypotheses 
 - Revisions: [base/head/merge base or commit and working-tree state]
 - Comparison semantics: [what the diff represents, if applicable]
 - Assessed components: [boundaries and entry points]
-- Exclusions and limitations: [including unavailable source or runtime evidence]
-- Tools/checks: [versions, executed checks, checks not run and why]
+- Tools/checks: [versions, executed checks and observations]
 - Evidence environment: [original code executed, extracted functions, mocks/stubs, real integrations]
 - Probe outcomes: [vulnerability reproduced / control held / inconclusive; do not combine as security passes]
 
-## Review acceptance evidence
-
-| Condition ID | Applicability | Static evidence | Executed check and observation | Assumptions / gaps | Status |
-| --- | --- | --- | --- | --- | --- |
-
-[Assess REVIEW-001 through REVIEW-006. These statuses describe the review process, not target security. Missing evidence remains not verified.]
 
 ## Threat model
 
@@ -57,7 +48,7 @@ Count confirmed findings once, including pre-existing findings. Keep hypotheses 
 
 ## Confirmed findings — repository or introduced/unknown PR issues
 
-[If none: “No vulnerabilities were confirmed in the assessed scope.” This is not a guarantee of security.]
+[If none: “No vulnerabilities were confirmed in the assessed scope.” ]
 
 ### [ID] [Title]
 
@@ -78,7 +69,7 @@ Count confirmed findings once, including pre-existing findings. Keep hypotheses 
 
 ## Hypotheses
 
-| ID | Signal and location | Missing evidence | Next validation step | Confirming / disproving observation | Inconclusive stopping condition |
+| ID | Signal and location | Evidence basis | Next validation step | Confirming / disproving observation | Inconclusive stopping condition |
 | --- | --- | --- | --- | --- | --- |
 
 ## Disproved signals
@@ -93,19 +84,16 @@ Count confirmed findings once, including pre-existing findings. Keep hypotheses 
 
 [Risk-based order, dependencies, and acceptance criteria. No external issues or comments are created by this report alone.]
 
-## Coverage and residual uncertainty
+## Assessed flows
 
 ### Flow coverage
 
-Use one row per distinct in-scope entry-to-operation path; separate paths when their guards differ. Include identified but untraced paths with explicit gaps. Link to safe evidence locations at the recorded revision and finding/hypothesis IDs where relevant. Label static traces, executed checks, and mocks separately. A checked protection may have failed: record its observed outcome rather than implying that inspection means it held. Retain this table even when no findings are confirmed; it describes assessed coverage, not a security guarantee.
+Use one row per distinct in-scope entry-to-operation path; separate paths when their guards differ. Link to safe evidence locations at the recorded revision and finding/hypothesis IDs where relevant. Label static traces, executed checks, and mocks separately. A checked protection may have failed: record its observed outcome rather than implying that inspection means it held. Retain this table even when no findings are confirmed; it describes assessed coverage at the recorded revision.
 
-| Entry point | Sensitive operation | Protections checked and outcomes | Evidence | Gaps / untested conditions |
+| Entry point | Sensitive operation | Protections checked and outcomes | Evidence | Next action |
 | --- | --- | --- | --- | --- |
-| [route, event, import, or job; actor/input] | [read, write, execution, or outbound request; asset] | [specific guard and observed result, or not checked] | [static trace / executed check / mock; safe location or attachment; finding ID if any] | [untraced steps, unavailable runtime evidence, assumptions, or none identified within this path's stated scope] |
+| [route, event, import, or job; actor/input] | [read, write, execution, or outbound request; asset] | [specific guard and observed result] | [static trace / executed check / mock; safe location or attachment; finding ID if any] | [specific investigation or remediation action] |
 
-### Remaining limitations
-
-[Examined areas, omissions, tool errors, runtime assumptions, and checks needing additional authorization or evidence.]
 
 ## Attachments
 

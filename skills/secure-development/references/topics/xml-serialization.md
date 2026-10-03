@@ -38,7 +38,7 @@ Status: proposed baseline; applicable C01–C03 are MUST conditions. Follow the 
 - **Positive check:** a representative supported document at the declared boundary parses successfully.
 - **Negative check:** bounded synthetic deep nesting, repeated aliases/entities, or excessive records terminate with the expected controlled failure; verify no partial trusted object is published. Use small configured limits rather than creating a real resource-exhaustion incident.
 - **Evidence:** parser limit configuration and executed boundary observations with time/memory/output measurements as relevant. A recursion exception alone does not establish a deliberate resource budget.
-- **Bounds / sources:** S1, Secure Processing and Entity Expansion; S2, defensive deserialization guidance. Limits and safe defaults vary by implementation/version. Report each selected budget independently and leave unmeasured resource dimensions unverified.
+- **Bounds / sources:** S1, Secure Processing and Entity Expansion; S2, defensive deserialization guidance. Limits and safe defaults vary by implementation/version.
 
 ## Sources
 

@@ -16,8 +16,14 @@ Group only when evidence establishes a shared defective control and common repai
 
 Disproved means specific counterevidence for the claimed path. Each hypothesis states missing evidence, next check, confirming/disproving observations, and an inconclusive stopping condition. Unprocessed/out-of-scope coverage is not clean. Missing signals after a rerun do not establish remediation.
 
+## Successive reports and reopened findings
+
+Compare the recorded scope, rule set, target state and processing errors before interpreting changes between runs. For each prior finding, distinguish still observed, newly observed, absent from this run, and unassessed; keep the original identity until the root-cause/path comparison supports a split or merge. Absence is an observation about the report, not a fixed verdict.
+
+If a previously repaired path fails again, retain its origin ID and append the new revision-specific observation and verification state. Do not replace the earlier confirmed defect or valid earlier repair. Recheck affected acceptance cases when shared guards, configuration, dependencies or lifecycle assumptions change, even if the reported function is unchanged. A scanner-only rerun cannot resolve those behavioral questions.
+
 ## Checkpoints and delivery
 
 TRIAGE-01: report/target provenance and scope. TRIAGE-02: all results accounted for. TRIAGE-03: path/guard analysis and counterevidence. TRIAGE-04: justified grouping and aliases. TRIAGE-05: independent statuses and priority. TRIAGE-06: redacted queue with source preserved.
 
-Record evidence and passed/partial/not verified/not applicable with rationale per checkpoint. Include tool versions, skill fingerprint, target dirty state, actual execution versus mocks, errors, and untested context. Check selected attachments for sensitive text and links. Opaque location IDs require authorized local source inspection before implementation; do not pretend they alone describe the repair.
+Check selected attachments for sensitive text and links. Opaque location IDs require authorized local source inspection before implementation; do not pretend they alone describe the repair.

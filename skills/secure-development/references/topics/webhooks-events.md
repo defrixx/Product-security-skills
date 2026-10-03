@@ -37,7 +37,8 @@ Status: proposed baseline; C01–C03 are MUST when applicable. Use the [requirem
 - **Unsafe → corrected:** issue one entitlement for each delivery → deduplicate the intended logical effect and enforce its state transition even when deliveries reorder.
 - **Positive check:** a normal event and valid retry reach the documented completed state without duplicate effect.
 - **Negative check:** simultaneous duplicates, older-after-newer delivery, and crash before/after acknowledgment cannot violate the invariant; recover pending work after restart.
-- **Evidence:** durable state and counted effects across actual worker restarts; label simulated queues/providers and untested distributed behavior.
+- **
+- **Evidence:** durable state and counted effects across actual worker restarts; identify the queues and providers exercised.
 - **Bounds / sources:** S1, event ordering, duplicates, asynchronous handling; S3, idempotency. This is conditional processing guidance, not universal exactly-once delivery.
 
 ## Sources

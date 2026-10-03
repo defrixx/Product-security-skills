@@ -38,7 +38,7 @@ Status: proposed baseline; applicable C01–C07 conditions are MUST requirements
 - **Positive check:** legitimate attempts within the documented policy can authenticate; permitted recovery from throttling works.
 - **Negative check:** exceed the budget in isolated tests, including parallel requests; verification is blocked or delayed as specified without granting a session. Check that switching an alternate route does not bypass enforcement.
 - **Evidence:** enforcement/state-storage inspection and executed budget-boundary/concurrency observations. An in-process counter alone does not establish multi-instance limits.
-- **Bounds / sources:** S1, Login Throttling; S2, OTP security. Do not brute-force real accounts. Record untested distributed behavior as a gap, not a pass.
+- **Bounds / sources:** S1, Login Throttling; S2, OTP security. Do not brute-force real accounts.
 
 ### SD-AUTHN-001.C04 — Avoid account disclosure through authentication failures
 

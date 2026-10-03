@@ -22,7 +22,7 @@ Record the classification, confidence, and chosen action without the value. Trea
 
 Scope false-positive exclusions to the reviewed field/context and record their reason. Do not exempt an entire file or all credentials merely because one UI label was benign. A future real secret in the same file must remain detectable. Use both benign lookalikes and seeded sensitive values when checking a detector change.
 
-Report semantic limitations as well as syntax validity. An inert marker inside a string can parse successfully while breaking an IP validator, connection URI, cross-file reference, or test. Use format-compatible synthetic values when required, or state explicitly that the copy is for reading and may not run.
+An inert marker inside a string can parse successfully while breaking an IP validator, connection URI, cross-file reference, or test. Use format-compatible synthetic values when required, or specify a reading-only output contract.
 
 ## Safe local processing
 
@@ -35,7 +35,7 @@ Report semantic limitations as well as syntax validity. An inert marker inside a
 
 ## Replacement invariants
 
-Use a single mapping per run and semantic category: repeated values get consistent replacements; distinct values must not accidentally collapse. Opaque counters are sufficient for reports; bare hashes of original values can disclose low-entropy data. Cross-category representations need explicit coordination when they refer to one entity.
+Use a single mapping per run and semantic category: repeated values get consistent replacements; distinct values must not accidentally collapse. Opaque counters are sufficient for reports; bare hashes of original values can disclose low-entropy data. Cross-category representations need explicit coordination when they refer to one entity. For a linked deliverable, compare the declared entity/reference relationships before and after cleanup, using private synthetic or opaque identities. Verify each emitted reference against emitted targets and retain distinctness; do not execute the cleaned project to infer compatibility. Plain repeated-value consistency does not cover encoded references, signatures, renamed paths or omitted files.
 
 Plan replacements against the original parsed values or spans, resolving overlaps before writing. Do not repeatedly run global substitutions over already replaced text. Preserve field types and escaping. A redacted credential can intentionally be nonfunctional; do not claim the application will still run.
 

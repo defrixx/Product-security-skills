@@ -24,7 +24,7 @@ Status: proposed baseline; C01–C03 are MUST when applicable. Use the [requirem
 - **Implement:** use an appropriate conditional write, unique constraint, lock, or isolation strategy; handle conflicts and bounded retries. Define which resource and actors share the invariant. Inspect every alternate write path.
 - **Unsafe → corrected:** read one remaining slot then independently decrement it → use an atomic conditional update and require a successful affected-row result.
 - **Positive check:** one permitted consumer succeeds and leaves the expected state.
-- **Negative check:** synchronize competing consumers at the decision boundary; at most the allowed number succeeds and the stored invariant remains true. A rejected/conflicted attempt emits no protected effect.
+- **Negative check:** synchronize competing consumers at the decision boundary; at most the allowed number succeeds and the stored invariant remains true. A rejected/conflicted attempt emits no protected effect. Establish that competitors reached the intended boundary using barriers or observable states; do not rely on timing sleeps.
 - **Evidence:** real storage-engine concurrency observations, isolation settings, and all update paths. An in-process lock test does not establish multi-process or distributed correctness.
 - **Bounds / sources:** S1, race conditions; S2, concurrency and isolation. Select the actual engine's semantics; SERIALIZABLE or a row lock is an option, not a universal required implementation.
 
@@ -36,12 +36,14 @@ Status: proposed baseline; C01–C03 are MUST when applicable. Use the [requirem
 - **Implement:** document idempotency scope/lifetime, pending/completed states, and recovery or compensation for every crash boundary. Use durable uniqueness and provider-supported idempotency/outbox/reconciliation where appropriate; constrain retry work.
 - **Unsafe → corrected:** repeat a timed-out issue request with no identity → replay its scoped operation identity and reconcile the recorded effect before another attempt.
 - **Positive check:** a legitimate retry returns the documented result without another sensitive effect.
-- **Negative check:** concurrent duplicates, a different payload under the same key, another actor's key, and failure between state commit and effect follow the declared policy. Restart and observe recovery rather than assuming it.
-- **Evidence:** durable records plus actual effect counts and injected-failure observations. Label simulated external effects; do not claim universal exactly-once delivery.
-- **Bounds / sources:** S1, idempotency; S3, example provider semantics. The failure-state design is project synthesis. Key lifetime and compensation depend on the business contract; no universal retention interval.
+- **Negative check:** concurrent duplicates, a different payload under the same key, another actor's key, and failure between state commit and effect follow the declared policy. Cut execution after intent commit, after effect commit but before acknowledgment, and after completion recording. Restart from persisted state and compare caller status with independent effect counts.
+- **Evidence:** durable records plus actual effect counts and injected-failure observations. A single-database rollback test cannot establish behavior across two independent commits. Record whether the interruption was an exception, process death or a network failure. Label simulated external effects; do not claim universal exactly-once delivery.
+- **Bounds / sources:** S1, idempotency; S3, example provider semantics. S4 explains duplicate delivery across the outbox boundary: an outbox alone does not make the consumer effect idempotent. If the recipient cannot deduplicate or reconcile an ambiguous outcome, preserve an unresolved state instead of blindly retrying. The failure-state design is project synthesis. Key lifetime and compensation depend on the business contract; no universal retention interval.
 
 ## Sources
 
-- **S1:** [OWASP Business Logic Security](https://cheatsheetseries.owasp.org/cheatsheets/Business_Logic_Security_Cheat_Sheet.html) — authoritative values, state machines, races, idempotency; checked 2026-09-28.
+- **S1:** [OWASP Business Logic Security](https://cheatsheetseries.owasp.org/cheatsheets/Business_Logic_Security_Cheat_Sheet.html) — authoritative values, state machines, races, idempotency; checked 2026-10-03.
 - **S2:** [PostgreSQL transaction isolation](https://www.postgresql.org/docs/current/transaction-iso.html) — isolation levels, conflicts and retries; living vendor documentation checked 2026-09-28. Match the installed release; SQLite fixtures do not verify PostgreSQL behavior.
 - **S3:** [Stripe idempotent requests](https://docs.stripe.com/api/idempotent_requests) — request keys and parameter comparison; checked 2026-09-28. Provider example only; do not transfer its retention/error rules to another service.
+
+- **S4:** [AWS Prescriptive Guidance: transactional outbox](https://docs.aws.amazon.com/prescriptive-guidance/latest/cloud-design-patterns/transactional-outbox.html) — Motivation; Issues and considerations (duplicates, ordering, rollback); checked 2026-10-03. Pattern guidance, not a requirement to use AWS or an outbox.

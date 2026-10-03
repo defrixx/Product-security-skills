@@ -48,11 +48,11 @@ Status: proposed baseline; C01–C04 are MUST conditions when applicable. Use th
 - **Implement:** inventory authoritative storage, caches, indexes, exports, and backups; implement idempotent deletion/expiry jobs and explicit handling of policy exclusions. Define how restricted backups expire and how deletions are reapplied on restoration.
 - **Unsafe → corrected:** delete a synthetic account row while leaving its searchable profile active → propagate its deletion identifier through the documented stores and verify the search result disappears.
 - **Positive check:** a synthetic record remains available before its configured expiry; an authorized deletion completes with the policy's stated outcome.
-- **Negative check:** after the completion boundary, normal reads and a tested restore/reindex cannot resurrect data outside the documented exclusions. Failed deletion work must not be reported as completed.
-- **Evidence:** lifecycle inventory, configured policy and job inspection; executed deletion/expiry and recovery observations per store. An untested backup process remains a gap.
+- **Negative check:** after the completion boundary, normal reads and a tested restore/reindex cannot resurrect data outside the documented exclusions. Replay an older indexing/publication event after deletion and verify it cannot reintroduce accessible output. Failed deletion work must not be reported as completed.
+- **Evidence:** lifecycle inventory, configured policy and job inspection; executed deletion/expiry and recovery observations per store. Distinguish removal from serving paths from physical disposition of retained copies; record the completion boundary and each store separately.
 - **Bounds / sources:** S2 supports user data management; lifecycle propagation is this baseline's engineering application. Do not invent retention durations, legal holds, or guarantees of physical media erasure. Disclose policy-authorized retained copies and their access/expiry limits.
 
 ## Sources
 
 - **S1:** [OWASP MASVS-PRIVACY-1](https://mas.owasp.org/MASVS/controls/MASVS-PRIVACY-1/) — minimization, necessary third-party sharing, and SDK collection controls. Living documentation; checked 2026-09-24. Mobile guidance adapted as a proposed general engineering baseline.
-- **S2:** [OWASP MASVS-PRIVACY-4](https://mas.owasp.org/MASVS/controls/MASVS-PRIVACY-4/) — user control over data and privacy settings. Living documentation; checked 2026-09-24. Project-specific lifecycle mechanisms are implementation choices, not prescribed legal obligations.
+- **S2:** [OWASP MASVS-PRIVACY-4](https://mas.owasp.org/MASVS/controls/MASVS-PRIVACY-4/) — user control over data and privacy settings. Living documentation; checked 2026-10-03. Project-specific lifecycle mechanisms, including stale-event rejection, are engineering synthesis, not prescribed legal obligations.

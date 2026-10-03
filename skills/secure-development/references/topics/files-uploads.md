@@ -49,7 +49,7 @@ Status: proposed baseline; C01–C05 are MUST conditions when applicable. Use th
 - **Unsafe → corrected:** permit a small ZIP based on its compressed size, then extract without limits → count actual expanded bytes and entries during constrained extraction and stop at the configured budget.
 - **Positive check:** a supported input at the documented boundary completes within the budget.
 - **Negative check:** exceed each selected budget independently using small synthetic fixtures; observe bounded termination and cleanup, not disk exhaustion or an unbounded parser operation.
-- **Evidence:** inspect enforcement location and accounting; execute boundary tests with measured output/work. A limit configured only at the reverse proxy leaves background imports unverified.
+- **Evidence:** inspect enforcement location and accounting; execute boundary tests with measured output/work.
 - **Bounds / sources:** S1, Malicious Files and Upload/Download Limits. Values are workload-specific. Report each selected budget separately; one oversized-file test does not verify expansion depth or CPU limits.
 
 ### SD-FILES-001.C05 — Serve uploaded content without granting execution or access

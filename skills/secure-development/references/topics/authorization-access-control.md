@@ -21,11 +21,11 @@ Status: proposed baseline; C01–C05 are MUST conditions when applicable. Use th
 - **Apply when:** a caller supplies an object identifier, relationship, nested resource, attachment, or bulk list.
 - **Required / prohibited:** authorize the actor's requested action on each selected object. Do not treat an unguessable identifier or a general role as proof of access.
 - **Rationale:** Knowing an object identifier does not establish permission to access it.
-- **Implement:** select through an actor-scoped query or check the loaded object's relationships before response construction or mutation. Apply the same decision to downloads, exports, and nested/bulk routes.
+- **Implement:** select through an actor-scoped query or check the loaded object's relationships before response construction or mutation. Apply the same decision to downloads, exports, and nested/bulk routes. Treat cached/search/vector results as candidates: establish current object scope and permitted output before disclosure, including snippets and counts.
 - **Unsafe → corrected:** `records.get(request.id)` followed by serialization → select from `records.visible_to(actor)` using that ID, or enforce equivalent object policy before disclosure.
 - **Positive check:** the owner or explicitly delegated actor reads/updates the allowed synthetic record.
 - **Negative check:** replace the ID with another actor's record, including one item in a bulk request; no unauthorized data or side effects result. Specify atomic rejection or permitted-item processing explicitly.
-- **Evidence:** inspect lookup-to-use flow and execute a two-actor/two-object matrix. Test both read and mutation when supported; one does not prove the other.
+- **Evidence:** inspect lookup-to-use flow and execute a two-actor/two-object matrix. Test both read and mutation when supported; one does not prove the other. Identify each distinct guard path and record returned data and side effects, not just status codes.
 - **Bounds / sources:** S1, Lookup IDs and Right Location. Cross-tenant boundaries are additionally C03; response denial alone does not prove that a mutation did not occur.
 
 ### SD-AUTHZ-001.C03 — Derive and enforce the tenant boundary
@@ -60,10 +60,10 @@ Status: proposed baseline; C01–C05 are MUST conditions when applicable. Use th
 - **Implement:** choose and document execution-time checks, bounded delegated capabilities, or versioned policy/cache invalidation appropriate to the operation. Bind delegation to the intended actor, action, and resource scope.
 - **Unsafe → corrected:** a queued export runs forever with the submitter's old role → reauthorize at execution, or use an explicitly approved bounded delegation with defined revocation semantics.
 - **Positive check:** a job with a valid current grant/delegation completes within its allowed lifetime.
-- **Negative check:** remove the grant before execution or expire the delegation; the operation follows its documented denial/revocation behavior without unauthorized output. Test cache expiry and invalidation separately if both matter.
+- **Negative check:** remove the grant before execution or expire the delegation; the operation follows its documented denial/revocation behavior without unauthorized output. Warm the cache and capture queued work before changing rights, ownership, publication state or resource existence; test subsequent use and delayed refresh events. Test cache expiry and invalidation separately if both matter.
 - **Evidence:** inspect authorization timing and lifetime enforcement; run a controlled policy-change sequence. A submission-time permission check cannot prove execution-time behavior.
-- **Bounds / sources:** S1, Every Request and Review Chosen Technologies. Some workflows intentionally preserve an approved transaction; record that policy rather than universally demanding cancellation. Signed bearer links need explicit expiry/revocation limits.
+- **Bounds / sources:** S1, Every Request and Review Chosen Technologies. Some workflows intentionally preserve an approved transaction; record that policy rather than universally demanding cancellation. Signed bearer links need explicit expiry/revocation limits. Declare when a change becomes effective and which in-flight work may finish; sequential before/after observations do not establish race safety.
 
 ## Sources
 
-- **S1:** [OWASP Authorization Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Authorization_Cheat_Sheet.html) — Least Privileges; Deny by Default; Validate Permissions on Every Request; Lookup IDs; Right Location; Exit Safely; Testing. Living documentation, checked 2026-09-24. These are project acceptance conditions; implementation and lifetime choices require the target's policy and stack documentation.
+- **S1:** [OWASP Authorization Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Authorization_Cheat_Sheet.html) — Least Privileges; Deny by Default; Validate Permissions on Every Request; Lookup IDs; Right Location; Exit Safely; Testing. Living documentation, checked 2026-10-03. These are project acceptance conditions; implementation and lifetime choices require the target's policy and stack documentation.

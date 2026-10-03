@@ -45,6 +45,30 @@ class CleanupTests(unittest.TestCase):
         self.write('b.txt','SYNTHETIC_ALPHA')
         r=self.run_clean({'sensitive_values':['SYNTHETIC_ALPHA']});obj=json.loads(self.emitted(r));text=self.emitted(r,1)
         self.assertEqual(obj['token'],obj['email']);self.assertEqual(obj['token'],text);self.assertNotEqual(obj['token'],obj['password'])
+    def test_cross_file_identity_references_survive_replacement(self):
+        ids = ['alice@synthetic.invalid', 'bob@synthetic.invalid']
+        people = {'people': [{'email': value, 'label': 'Email address'} for value in ids]}
+        edges = {'links': [{'from': ids[0], 'to': ids[1]}, {'from': ids[1], 'to': ids[0]}]}
+        first = self.write('a.json', json.dumps(people))
+        second = self.write('b.json', json.dumps(edges))
+        originals = [first.read_bytes(), second.read_bytes()]
+        report = self.run_clean()
+        cleaned_people = json.loads(self.emitted(report, 0))['people']
+        cleaned_edges = json.loads(self.emitted(report, 1))['links']
+        new_ids = [person['email'] for person in cleaned_people]
+        self.assertEqual(len(set(new_ids)), 2)
+        self.assertEqual(cleaned_edges, [{'from': new_ids[0], 'to': new_ids[1]},
+                                         {'from': new_ids[1], 'to': new_ids[0]}])
+        self.assertTrue(all(person['label'] == 'Email address' for person in cleaned_people))
+        for value in ids:
+            self.assertNotIn(value, json.dumps(report))
+            self.assertNotIn(value, self.emitted(report, 0) + self.emitted(report, 1))
+        self.assertEqual([first.read_bytes(), second.read_bytes()], originals)
+        # Unsafe control: parseable, independently replaced references lose their targets.
+        broken = json.loads(json.dumps(cleaned_edges))
+        broken[0]['to'] = 'UNRELATED_SYNTHETIC_ID'
+        self.assertFalse(all(edge[k] in new_ids for edge in broken for k in ('from', 'to')))
+
     def test_original_bytes_names_and_permissions_preserved(self):
         p=self.write('hidden/.env','API_KEY=SYNTHETIC_SECRET\n');p.chmod(0o640)
         before=(p.read_bytes(),stat.S_IMODE(p.stat().st_mode));r=self.run_clean()

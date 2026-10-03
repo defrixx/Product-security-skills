@@ -13,7 +13,7 @@ Status: proposed engineering baseline; not corporate approval. Each applicable c
 - **Unsafe → corrected:** `client(token="SYNTHETIC_EXAMPLE")` represents a prohibited production literal → `client(token=provider.require("service-token"))`, where the provider is configured outside source.
 - **Positive check:** supply an inert test credential through the selected mechanism; the isolated consumer receives it.
 - **Negative check:** omit it; the protected operation remains unavailable rather than using a committed fallback. No credential appears in the failure response.
-- **Evidence:** inspect credential origin through the client constructor; execute present/missing-provider cases. Merely replacing a literal with an environment lookup leaves deployment configuration unverified.
+- **Evidence:** inspect credential origin through the client constructor; execute present/missing-provider cases.
 - **Bounds / sources:** S1 sections 2.2, 2.3, 5.1. Clearly inert examples are allowed; production usability and privilege need contextual assessment, not entropy alone.
 
 ### SD-SECRET-001.C02 — Keep credentials out of distributed output
@@ -38,13 +38,14 @@ Status: proposed engineering baseline; not corporate approval. Each applicable c
 - **Positive check:** a normal operation still emits the necessary non-sensitive event and correlation identifier.
 - **Negative check:** induce authentication and serialization failures with a synthetic canary; inspect captured logs, traces, and error responses for absence.
 - **Evidence:** inspected logging/exception call sites and actual sink output. A redacting logger's existence is insufficient if some handlers bypass it.
-- **Bounds / sources:** S1 sections 2.6, 3.4, 8.3. Record uncaptured sinks as not verified. Masking only part of a value needs a justified disclosure policy.
+- **Bounds / sources:** S1 sections 2.6, 3.4, 8.3. Masking only part of a value needs a justified disclosure policy.
 
 ### SD-SECRET-001.C04 — Verify detection and narrow exclusions
 
 - **Apply when:** a change introduces credential-handling code, fixtures, generated artifacts, or a secret-detection gate.
 - **Required / prohibited:** run the selected redacting detection checks over the declared scope and review their findings. Do not report scanner failure as a clean result or exempt an entire directory because one fixture is benign.
-- **Rationale:** Untested detectors and broad exclusions can create false confidence in secret checks.
+- **
+- **Rationale:** Scoped detectors and reviewed exclusions support reliable secret detection.
 - **Implement:** record detector/configuration, scanned surfaces, skips, and exact contextual suppressions with rationale, owner, and review date. Use inert seeded values appropriate to the detector; never test real credentials against external services.
 - **Unsafe → corrected:** suppress all matches under `tests/` → suppress the reviewed fixture location/value while detecting an adjacent planted match.
 - **Positive check:** the benign reviewed fixture is accepted under its exact exclusion and ordinary files remain scanned.
@@ -61,7 +62,7 @@ Status: proposed engineering baseline; not corporate approval. Each applicable c
 - **Unsafe → corrected:** close the incident after removing a token from a file → retain an unresolved invalidation action until authorized provider evidence establishes the old credential is unusable.
 - **Positive check:** in an authorized test environment, the replacement credential supports the intended operation.
 - **Negative check:** the revoked synthetic credential is rejected by the test provider; caches and long-lived sessions are assessed where relevant.
-- **Evidence:** provider audit/status evidence and authorized observations, or an explicit unverified owner action. Never contact a production provider just to validate a discovered token.
+- **Evidence:** provider audit/status evidence and authorized observations, or the authorized owner action. Never contact a production provider just to validate a discovered token.
 - **Bounds / sources:** S1 sections 2.7 and 9. No universal rotation period is implied. Do not revoke production credentials under an ordinary code-review task.
 
 ## Sources

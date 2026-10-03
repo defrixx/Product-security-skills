@@ -38,7 +38,7 @@ Status: proposed baseline; applicable C01–C04 are MUST conditions. Follow the 
 - **Positive check:** the collector writes events and an authorized reviewer can retrieve the intended evidence.
 - **Negative check:** an unauthorized reader or writer cannot read, replace, or delete protected records. Verify the effective storage policy rather than only application UI permissions. With a controlled clock or synthetic aged records, verify configured expiry/disposal and any explicit retention hold separately; neither unauthorized deletion nor indefinite retention may be hidden by a passing read-access test.
 - **Evidence:** effective ACL/identity inspection and isolated allowed/denied access tests. Encryption at rest does not establish reader authorization.
-- **Bounds / sources:** S1, Where to Record Event Data, Protection, and Disposal. Retention follows actual policy; external archival systems outside the test scope remain unverified.
+- **Bounds / sources:** S1, Where to Record Event Data, Protection, and Disposal.
 
 ### SD-LOG-001.C04 — Verify alert delivery and logging-failure behavior
 

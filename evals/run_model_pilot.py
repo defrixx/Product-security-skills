@@ -168,6 +168,53 @@ class NoRedirect(urllib.request.HTTPRedirectHandler):
         raise ValueError("redirect_rejected")
 
 
+def prepare_tool_calls(calls, available_tools, used_ids):
+    """Validate the whole proposed batch before any local tool effect.
+
+    This is the pilot's fixed function contract, not general JSON Schema support.
+    Model output and a matching prompt baseline do not authorize execution.
+    """
+    if type(calls) is not list or not 0 < len(calls) <= 32:
+        raise ValueError("invalid_tool_batch")
+    schemas = {tool["function"]["name"]: tool["function"]["parameters"]
+               for tool in available_tools}
+    batch_ids, prepared = set(), []
+    def pairs(items):
+        result = {}
+        for key, value in items:
+            if key in result:
+                raise ValueError("duplicate_argument_key")
+            result[key] = value
+        return result
+    def invalid_constant(value):
+        raise ValueError("invalid_argument_number")
+    for call in calls:
+        if type(call) is not dict or set(call) != {"id", "type", "function"} or call["type"] != "function":
+            raise ValueError("invalid_tool_call")
+        call_id, fn = call["id"], call["function"]
+        if type(call_id) is not str or not 0 < len(call_id) <= 256 or call_id in used_ids or call_id in batch_ids:
+            raise ValueError("invalid_tool_call_id")
+        call_id.encode("utf-8")
+        if type(fn) is not dict or set(fn) != {"name", "arguments"} or type(fn["name"]) is not str or fn["name"] not in schemas:
+            raise ValueError("tool_not_available")
+        raw = fn["arguments"]
+        if type(raw) is not str or len(raw.encode("utf-8")) > 131072:
+            raise ValueError("invalid_tool_arguments")
+        args = json.loads(raw, object_pairs_hook=pairs, parse_constant=invalid_constant)
+        schema = schemas[fn["name"]]
+        if type(args) is not dict or set(args) != set(schema["required"]):
+            raise ValueError("invalid_tool_arguments")
+        # Every current parameter is a string; reject other schema types rather
+        # than silently accepting future extensions without a validator.
+        for key, value in args.items():
+            if schema["properties"][key] != {"type": "string"} or type(value) is not str:
+                raise ValueError("invalid_tool_arguments")
+            value.encode("utf-8")  # Reject lone surrogates before any effect.
+        batch_ids.add(call_id)
+        prepared.append((call, args))
+    return prepared, batch_ids
+
+
 def request(path, payload=None, timeout=120):
     # Fixed loopback endpoint, no proxies, redirects, retries or fallbacks.
     opener = urllib.request.build_opener(urllib.request.ProxyHandler({}), NoRedirect())
@@ -376,6 +423,7 @@ def run_case(skill, with_skill, model, max_steps, max_tokens, timeout, responder
     if guard is not None:
         responder = guard
     events, usages, report = [], [], ""
+    used_call_ids = set()
     started = time.monotonic()
     status = "step_limit"
     for step in range(max_steps):
@@ -403,11 +451,9 @@ def run_case(skill, with_skill, model, max_steps, max_tokens, timeout, responder
             if len(calls) > 32:
                 status = "tool_call_limit"
                 break
-            for call in calls:
-                try:
-                    args = json.loads(call["function"]["arguments"])
-                except (TypeError, ValueError):
-                    args = None
+            prepared, batch_ids = prepare_tool_calls(calls, available_tools, used_call_ids)
+            used_call_ids.update(batch_ids)
+            for call, args in prepared:
                 result = agent.call(call["function"]["name"], args)
                 events.append({"step": step, "tool": call["function"]["name"],
                                "path": args.get("path") if isinstance(args, dict) else None,

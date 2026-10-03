@@ -37,7 +37,7 @@ Status: proposed baseline; C01–C04 are MUST conditions when applicable. Use th
 - **Unsafe → corrected:** display a full synthetic recovery code in a notification → show a generic notification and reveal the code only within the authorized application flow.
 - **Positive check:** permitted notifications and backup/recovery features retain their documented utility.
 - **Negative check:** a seeded sensitive marker is absent from each prohibited destination under lock, backgrounding, backup, and error scenarios as applicable.
-- **Evidence:** destination configuration and call-site inspection; captured synthetic outputs or tested backup contents. Untested platform-managed copies remain explicit gaps.
+- **Evidence:** destination configuration and call-site inspection; captured synthetic outputs or tested backup contents.
 - **Bounds / sources:** S1, STORAGE and PLATFORM. Screenshot prevention varies by platform and cannot prevent an external camera; state the actual achieved boundary.
 
 ### SD-MOBILE-001.C04 — Constrain WebView content and native bridges

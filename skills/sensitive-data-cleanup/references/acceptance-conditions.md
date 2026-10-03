@@ -43,13 +43,13 @@ Examples below use synthetic data. Implementation details and supported versions
 ## CLEAN-004 — Account for every unsupported or failed item
 
 - **Apply when:** files exceed limits, fail parsing, use unsupported formats, or retain unresolved sensitivity.
-- **Required / prohibited:** omit them from a purported cleaned copy and explain the coverage gap. Explicitly requested retention makes the copy partial/restricted; absence of detector matches cannot override a processing failure.
+- **Required / prohibited:** omit them from a purported cleaned copy and identify the required next action. Explicitly requested retention makes the copy partial/restricted; absence of detector matches cannot override a processing failure.
 - **Rationale:** unnoticed pass-through can publish exactly the data cleanup was meant to remove.
 - **Implement:** track inventoried, processed, emitted, omitted, and failed items with safe IDs; validate structured output using the supported parser without executing project code.
 - **Unsafe → corrected:** copy a malformed JSON file unchanged → omit it and report the parse failure without its contents.
 - **Positive check:** valid supported input produces parseable output with the documented replacement behavior.
 - **Negative check:** malformed, oversized, or unsupported fixtures are omitted and counted; interrupted work is not reported as a completed clean copy.
-- **Evidence:** format dispatch/error paths and accounting inspection; executed failures with output-tree and report checks. Syntax validity does not prove application compatibility.
+- **Evidence:** format dispatch/error paths and accounting inspection; executed failures with output-tree and report checks. Syntax validity does not prove application compatibility. Where the intended deliverable needs linked identifiers or files, check that in-scope references still resolve, distinct entities remain distinct, and repeated identities agree. Preserve reference relationships using supported encodings.
 - **Bounds / sources:** helper contract, format/size limits and completion state. Excluded subtrees need explicit scope accounting, not invented per-file scan counts.
 
 ## CLEAN-005 — Limit binary cleanup to selected JPEG/PNG metadata

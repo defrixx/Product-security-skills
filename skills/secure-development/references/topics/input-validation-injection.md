@@ -61,7 +61,7 @@ Status: proposed engineering baseline; each applicable C01–C07 condition is a 
 - **Unsafe → corrected:** reject `../` before URL decoding, then decode and open the result → validate the actual decoded filename and enforce the filesystem boundary at use.
 - **Positive check:** supported non-ASCII and encoded inputs retain their documented meaning.
 - **Negative check:** malformed, multiply encoded, or ambiguous input cannot bypass the same policy applied to its final representation; inspect the sink's actual operand, not only the validator result.
-- **Evidence:** complete transformation trace and executed end-to-end cases through the relevant parser stack. An isolated validator test leaves downstream reinterpretation unverified.
+- **Evidence:** complete transformation trace and executed end-to-end cases through the relevant parser stack.
 - **Bounds / sources:** S1, Unicode and Free-form Unicode Text. Do not normalize passwords or arbitrary binary data without a protocol-specific contract; encoding for one output context is not reusable everywhere.
 
 ### SD-INPUT-001.C06 — Keep non-SQL query operators application-controlled

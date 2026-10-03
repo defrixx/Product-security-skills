@@ -15,11 +15,13 @@ Use this matrix to guide investigation, not as a claim that every row was tested
 | Data and cryptography | Credential use, certificate validation, key/nonce lifecycle, logs/backups | Invalid peer accepted, modified ciphertext consumed, secret disclosure |
 | Native/browser/mobile | Lifetime and bounds, DOM sinks, message origins, IPC/deep links | Boundary input, untrusted markup, unauthorized component invocation |
 | Deployment and supply chain | CI triggers, dependency hooks, IaC, images, RBAC and runtime | Untrusted build with secrets, overprivileged workload, public data |
-| MCP and agent integrations | Tool authorization, session binding, data/tool trust boundaries | Cross-user invocation, injected instructions, excessive data transmission |
+| MCP and agent integrations | Tool authorization, session binding, data/tool trust boundaries, request-to-wire integrity, generated-output sinks and persistent context | Direct unauthorized tool call, injected approval, schema/role tamper, wrong-context retrieval, generated sink injection, unbounded repeated work |
 
 Dependency advisories require exact version and environment applicability. Explain whether vulnerable code is reachable; lack of a demonstrated exploit does not automatically make an applicable advisory irrelevant. A configuration omission in source may be supplied at deployment: distinguish missing evidence from a confirmed insecure deployed setting.
 
 The declared product model is context to verify, not a blanket exemption: for a local single-user application, examine loopback exposure, browser request boundaries, and imported content rather than automatically prescribing multi-user authentication. Distinguish observed configuration from runtime evidence.
+
+For model integrations, trace both instruction configuration to dispatch and untrusted content to proposed action to actual effect. Unchanged static prompts can still accompany an unauthorized tool request. Test the action gate directly with synthetic arguments independently of whether a model produces them, then label any actual adversarial model trials separately. Inspect retries, fallback, batches, generated rendering and persistent context only where present. A prompt refusal is model behavior; an observed denied effect is boundary evidence. Do not claim generalized injection resistance from either a small corpus or request-integrity checks.
 
 ## Candidate validation
 
@@ -31,9 +33,17 @@ Use the least invasive sufficient proof. A complete code trace may be sufficient
 
 For extracted-function or mocked tests, record which original code ran unchanged, which dependencies were replaced, and what the test can establish. A simulated transport may prove the order of checks without proving DNS rebinding; a fabricated browser header does not prove a browser can generate an exploitable request. State the demonstrated primitive separately from conditional downstream impact. Count “vulnerability reproduced” separately from “control held.”
 
-If a check cannot run, preserve the candidate as a hypothesis unless static evidence independently establishes it. Tool failure means unverified coverage, not a clean result. For each hypothesis, state the observation that would confirm it, the counterevidence that would disprove it, and when the check must stop as inconclusive (for example, missing runtime evidence). A failed probe alone does not disprove a candidate if it did not reach the relevant operation.
+If a check cannot run, preserve the candidate as a hypothesis unless static evidence independently establishes it. For each hypothesis, state the observation that would confirm it, the counterevidence that would disprove it, and when the check must stop as inconclusive (for example, missing runtime evidence). A failed probe alone does not disprove a candidate if it did not reach the relevant operation.
 
 Group findings only when evidence establishes the same defective control and a common repair boundary. List each affected path, its guards, prerequisites, impact, and verification case under the canonical finding. Similar titles, the same CWE, or a shared sink are insufficient: independent guards or independently required repairs can warrant separate findings. Preserve alternate bypass paths even when grouping. Retain existing IDs as aliases if previously reported findings are merged; count the canonical finding once and do not combine uncertain paths into confirmed evidence.
+
+## Stateful paths and decisive checks
+
+When the suspected root cause spans time or derived data, extend the existing flow trace with the relevant sequence: permitted operation → cache/job/index population → rights, ownership, publication or deletion change → delayed use/replay. Record the expected effective boundary, output and durable side effects. A denial in the main handler does not establish that export, cached snippets or queued results use the same guard. Use only routes and state transitions present in the target.
+
+For repeatable effects, mark separate commits and test a lost reply after the effect was saved. Observe recipient effects as well as the caller's status; caller rollback cannot undo a committed recipient action. For races, synchronize competing operations at the contested boundary, then inspect both allowed success and rejected-attempt effects. Keep sequential lifecycle checks distinct from concurrent revocation guarantees.
+
+A useful control pair reaches the same sensitive operation with only the disputed guard or recovery mechanism changed. Confirm that the unsafe case violates the expected property and that the corrected case preserves allowed behavior. An unrelated startup failure is not a successful negative control.
 
 ## Impact and remediation
 

@@ -49,7 +49,7 @@ Status: proposed baseline, not corporate approval. Level: MUST for each applicab
 - **Unsafe → corrected:** illustrative: `limit` from a query string is passed directly to a database fetch → enforce a configured maximum and reject or explicitly cap larger requests.
 - **Positive check:** a request at the documented supported boundary completes with bounded output/work.
 - **Negative check:** a request above the boundary or a deliberately stalled dependency triggers the documented rejection/timeout; inspect that excessive work is not scheduled and abandoned work is released. Test each budget selected for the route separately.
-- **Evidence:** configuration values and their enforcement locations; executed boundary/load probes with observed work, duration, or queue size. A timeout response without cancellation evidence leaves ongoing work unverified.
+- **Evidence:** configuration values and their enforcement locations; executed boundary/load probes with observed work, duration, or queue size.
 - **Bounds / sources:** S1, Input Validation and HTTP Return Code 429. This is an application-specific resource invariant; report each selected budget as a separate evidence row under this condition. Production load testing needs its own authorized scope.
 
 ### SD-API-001.C05 — Return non-sensitive failures

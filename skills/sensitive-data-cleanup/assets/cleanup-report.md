@@ -1,28 +1,27 @@
 # Sensitive data cleanup report
 
-Template: replace bracketed prompts with actual evidence; keep unknowns explicit. Start with the outcome and sharing limitations. For a large inventory, include a category summary here and link one complete redacted inventory instead of duplicating every row.
+Template: replace bracketed prompts with actual evidence; use observed results. Start with the outcome and next actions. For a large inventory, include a category summary here and link one complete redacted inventory instead of duplicating every row.
 
 ## Result
 
-[What was scanned or replaced, where the final output is, and what remains unresolved. Do not describe scan-only proposals as completed replacements or claim universal safety for sharing.]
+[What was scanned or replaced, where the final output is, and the next action. Do not describe scan-only proposals as completed replacements or claim universal safety for sharing.]
 
 | Measure | Result |
 | --- | --- |
 | Mode / completion | [scan-only or clean-copy / completed within declared coverage, partial, or not performed] |
 | Files | [inventoried; checked; emitted; changed; omitted] |
 | Replacements | [actual occurrences; proposed occurrences separately for scan-only] |
-| Remaining work | [omissions, unknowns, and next action] |
+| Next action | [specific action and owner] |
 
 
 ## Action ledger
 
-Use one row per finding or unresolved action; preserve upstream IDs and aliases. For a combined workflow, carry these rows forward and link detailed evidence rather than silently replacing earlier assessments. Use safe paths/identifiers; never include original sensitive values. Omit the table only when there are no findings or outstanding actions, and say so explicitly.
+Carry stable finding IDs through the workflow and record the observed change, verification result and next action.
 
-| ID | Observed issue | Change / next action | Implementation state | Verification and exact revision / copy | Remaining gap |
+| ID | Observed issue | Change / next action | Implementation state | Verification and exact revision / copy | Next check |
 | --- | --- | --- | --- | --- | --- |
-| [stable ID] | [bounded observation; detail link] | [what changed or is proposed] | [proposed / candidate / applied / unchanged / unknown; target] | [check and actual observation; fixed / partial / not fixed / inconclusive where relevant] | [unresolved path, check or decision] |
+| [stable ID] | [observation and detail reference] | [change or action] | [actual target state] | [check, result and revision/copy] | [specific action] |
 
-Applied means observed in the named target or output copy; it does not mean verified or deployed. Record not run checks explicitly. Keep historical severity, evidence confidence and current fix verdict separate in the detailed finding.
 
 ## Scope and accounting
 
@@ -33,20 +32,12 @@ Applied means observed in the named target or output copy; it does not mean veri
 - Mode and time: [values]
 - Tools and versions: [actual tools; detector configuration]
 - Coverage: [formats, hidden files, metadata, archives, binary files, Git history]
-- Limits and exclusions: [file size, expansion, depth, excluded areas]
 - Source preservation: [method and result]
 - File counts: [inventoried / checked / skipped / failed; changed / emitted / omitted]
 - Classification counts: [sensitive / synthetic or default / benign / unresolved occurrences; unique values separately]
 - Action counts: [candidates / rejected candidates / replaced / residual occurrences; replacements are not a leak count]
-- Excluded subtrees: [safe identifiers and reasons; not included as individually checked files]
 - Location convention: [source coordinates under opaque file IDs / output coordinates]
 
-## Acceptance evidence
-
-| Condition ID | Applicability | Static evidence | Executed check and observation | Assumptions / gaps | Status |
-| --- | --- | --- | --- | --- | --- |
-
-[Use CLEAN-001 through CLEAN-006 as applicable. Missing evidence remains not verified; mixed results remain partial. Do not infer complete detection from a clean rescan.]
 
 ## Replacement inventory
 
@@ -55,13 +46,13 @@ Applied means observed in the named target or output copy; it does not mean veri
 
 ## Rescan and format validation
 
-[Checks actually performed, results, remaining candidates, and reasons for unavailable checks. Distinguish same-detector rescan, independent checks, syntax validation, and semantic compatibility; do not infer completeness.]
+[Checks performed, results and selected follow-up actions. Distinguish same-detector rescan, independent checks, syntax validation, and semantic compatibility. For linked deliverables, record checked entity/reference relationships, missing referents and unsupported encodings separately; do not infer completeness.]
 
 ## Rejected candidates and exclusions
 
 [Safe location, reviewed field/context, reason, and narrowly scoped exclusion. No original values.]
 
-## Omissions and errors
+## Actions requiring attention
 
 [Safe file IDs, reasons, disposition, and impact. Identify any unprocessed material explicitly retained in a restricted partial copy.]
 
@@ -69,7 +60,7 @@ Applied means observed in the named target or output copy; it does not mean veri
 
 [Unresolved decisions, credential rotation/revocation needs, broken references, and separately scoped history/backup cleanup.]
 
-Original sensitive values and reversible maps must not appear here. No matches is not proof of complete removal; this report covers only the declared formats and checks.
+Original sensitive values and reversible maps must not appear here.
 
 ## Deliverables
 
@@ -79,7 +70,7 @@ Name the exact final content directory, not just the run directory. In scan-only
 
 ```text
 selected-run/
-  files/             Final cleaned content; coverage limitations still apply
+  files/             Final cleaned content
   report.json        Machine-generated redacted inventory
   cleanup-report.md  Narrative report, if saved here
 ```

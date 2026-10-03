@@ -14,7 +14,7 @@ Required fields: finding_id, origin_assessment_id, aliases, source_refs, title, 
 - severity and confidence: independent values with rationale; unknown permitted; keep scanner severity separately.
 - implementation_state: unknown / not_started / candidate / applied.
 - verification_status: not_checked / fixed / partially_fixed / not_fixed / inconclusive at the checked revision.
-- evidence: kind, safe relative artifact/location, revision, observation, assumptions, limits.
+- evidence: kind, safe relative artifact/location, revision, observation, assumptions, limits. For state-dependent claims, include relevant dependency/configuration references and the before/change/after context; use the observed context.
 - acceptance_cases: original failure, relevant alternate path, allowed behavior, expected outcomes.
 - history: upstream assessment references and explained changes; never overwrite historical evidence.
 
@@ -30,4 +30,4 @@ Verification includes original/patched target references and a case matrix with 
 
 Run only stages authorized by the task. Triage/review produces evidence; implementation changes implementation state/revision; verification produces a new verdict; optional cleanup works on a separate selected delivery copy. No stage authorizes remote writes or publication. Existing authorization for a combined local workflow persists across stages.
 
-Recheck fingerprints, revisions, working snapshot, scope, and completion markers on resume. Preserve finished assessments and invalidate affected evidence on drift. Reconcile contradictions using revision-specific evidence or retain inconclusive status. Applied patches, closed tickets, suppressions, and absent scanner results never automatically imply fixed. Same-assistant implementation and verification is self-verification, not an independent evaluation.
+Recheck fingerprints, revisions, working snapshot, scope, and completion markers on resume. Preserve finished assessments and invalidate affected evidence on code, policy, dependency or relevant state drift; record which claims need rerunning. A demonstrated recurrence appends history under the same origin ID, while missing current evidence remains inconclusive. Reconcile contradictions using revision-specific evidence or retain inconclusive status. Applied patches, closed tickets, suppressions, and absent scanner results never automatically imply fixed. Same-assistant implementation and verification is self-verification, not an independent evaluation.

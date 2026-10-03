@@ -9,7 +9,7 @@ Created for [Defrixx’s security resource](https://defrixx.github.io/en/). The 
 | Your task | Skill | What you receive |
 | --- | --- | --- |
 | Write or change code with security requirements in mind | [secure-development](skills/secure-development/SKILL.md) | Relevant requirements, implementation changes, and verification evidence |
-| Find and remove sensitive information from a folder | [sensitive-data-cleanup](skills/sensitive-data-cleanup/SKILL.md) | A separate cleaned copy and a report of replacements, omissions, and limitations |
+| Find and remove sensitive information from a folder | [sensitive-data-cleanup](skills/sensitive-data-cleanup/SKILL.md) | A separate cleaned copy and a redacted replacement inventory and a cleaned-copy result |
 | Assess a pull request or repository for vulnerabilities | [security-review](skills/security-review/SKILL.md) | Confirmed findings, separate hypotheses, and a prioritized remediation plan |
 | Triage an existing scanner report | [security-report-triage](skills/security-report-triage/SKILL.md) | Accounted signals, justified grouping, and an action queue; bounded SARIF intake |
 | Verify a specified repair | [security-fix-verification](skills/security-fix-verification/SKILL.md) | Per-finding verdicts, original/bypass/allowed cases, and evidence limits |
@@ -22,11 +22,11 @@ Use each skill independently or combine them in a task-driven sequence: triage o
 
 **Understand the change → select applicable requirements → implement controls → verify → report.**
 
-The assistant identifies the stack, data, and trust boundaries, then reads only the relevant requirements. It explains what applies, implements within the requested scope, and checks both allowed and rejected behavior. Requirements are a proposed engineering baseline, not approved corporate policy or compliance certification.
+The assistant identifies the stack, data, and trust boundaries, then reads only the relevant requirements. It explains what applies, implements within the requested scope, and checks both allowed and rejected behavior. Requirements form a source-backed engineering baseline selected for the target trust model.
 
 > Use secure-development while implementing this upload endpoint. Apply relevant requirements, explain applicability, and report what was verified.
 
-**Result:** changed code or an explicitly labeled candidate, applied requirement IDs, evidence, and remaining gaps. See the [development report template](skills/secure-development/assets/development-report.md).
+**Result:** changed code or an explicitly labeled candidate, applied requirement IDs, evidence, and next actions. See the [development report template](skills/secure-development/assets/development-report.md).
 
 ### Sensitive data cleanup — before sharing material
 
@@ -46,7 +46,7 @@ Choose the mode that matches the task:
 
 > Remove only JPEG/PNG metadata into a separate copy. Leave source files unchanged and omit other formats.
 
-**Result:** a cleaned copy when requested, a redacted inventory, and explicit coverage limits. Unsupported or failed files are omitted and reported. Image metadata removal can change orientation/color interpretation in viewers; visible image content is not redacted. No complete personal-data discovery or runnable-copy guarantee is claimed. See the [cleanup report template](skills/sensitive-data-cleanup/assets/cleanup-report.md).
+**Result:** a cleaned copy when requested, a redacted inventory, and processing outcomes. Supported image cleanup removes JPEG/PNG metadata while preserving encoded pixels. See the [cleanup report template](skills/sensitive-data-cleanup/assets/cleanup-report.md).
 
 ### Security review — assess existing code
 
@@ -61,7 +61,7 @@ The assistant follows untrusted data across security boundaries and checks reach
 
 > Use security-review on this PR from the supplied base/head revisions. Separate introduced and existing issues and produce a report without changing code.
 
-> Use security-review on the current repository. Record the threat model, confirmed findings, hypotheses, and untested areas.
+> Use security-review on the current repository. Record the threat model, confirmed findings, hypotheses, and assessed data flows.
 
 **Result:** actionable findings with evidence, confidence, prerequisites, remediation, and fix-verification criteria. Review does not itself authorize code changes or publication. See the [review report template](skills/security-review/assets/review-report.md).
 
@@ -85,17 +85,23 @@ The assistant follows untrusted data across security boundaries and checks reach
 
 The independent [prompt-integrity package](tools/prompt-integrity/README.md) checks application-controlled static instructions immediately before model-request dispatch. Its adapters support strict subsets of Ollama `/api/chat` and LM Studio `/v1/chat/completions` with pinned tool definitions. It blocks mismatches and sends the checked snapshot, including on explicitly managed retries and fallback attempts.
 
-The application must protect its baseline separately and route every model call through the wrapper. This checks request integrity; it does not establish model obedience or resistance to prompt injection. Installation and CLI examples are in the package guide.
+The application must protect its baseline separately and route every model call through the wrapper. Installation and CLI examples are in the package guide.
+
+## Model security regression gate
+
+The independent [model-security-eval CLI](tools/model-security-eval/README.md) tests local LM Studio/Ollama models against fixed synthetic instruction overrides, private-canary leaks, forged approvals, scope escapes and indirect/multiple-turn attacks. Select chat, read, write, command and external-service capabilities and set request/time budgets. Allowed controls prevent an always-refusing model from passing.
+
+It emits JSON CI events, private JSON/Markdown evidence, baseline comparisons and exit codes: 0 pass, 1 fail, 2 inconclusive/error. Profiles select the synthetic developer workflow; identity discovery binds responses to the chosen local model. File, shell and external actions use in-memory fixtures. See the [CI entry script](tools/model-security-eval/examples/ci-gate.sh) for a blocking promotion step.
 
 ## What belongs in the result
 
-Reports lead with **the outcome and next actions**, followed by evidence and limitations. Include only the attachments needed to act on the result: a detailed redacted inventory, the final cleaned copy, or a relevant patch/reproduction when useful.
+Reports lead with **the outcome and next actions**, followed by selected evidence. Include only the attachments needed to act on the result: a detailed redacted inventory, the final cleaned copy, or a relevant patch/reproduction when useful.
 
 `artifacts/` is local working storage. Intermediate trials, raw logs, superseded copies, private indexes, and replacement maps do not belong in the ordinary delivery bundle. An ignored file is not automatically safe to share. Do not delete supporting evidence or publish a bundle as a side effect of preparing a report.
 
 ## Requirement coverage
 
-The [requirements catalog](skills/secure-development/references/requirements-index.md) contains 120 individually identified conditions across 28 topics, with 12 implementation controls across three stack profiles. It covers secrets, cryptography, certificates, APIs, identity and access, input handling, storage, files, client security, deployment, dependencies, and other security domains. Infrastructure as Code, CI/CD, and Kubernetes are separate topics.
+The [requirements catalog](skills/secure-development/references/requirements-index.md) contains 126 individually identified conditions across 29 topics, with 12 implementation controls across three stack profiles. It covers secrets, cryptography, certificates, APIs, identity and access, input handling, storage, files, client security, deployment, dependencies, and other security domains. Infrastructure as Code, CI/CD, and Kubernetes are separate topics.
 
 Stack profiles add implementation and acceptance checks for:
 
@@ -103,7 +109,7 @@ Stack profiles add implementation and acceptance checks for:
 - [TypeScript / React / Next.js](skills/secure-development/references/stacks/typescript-nextjs.md)
 - [Docker Compose / BuildKit](skills/secure-development/references/stacks/docker-compose.md)
 
-Requirements use [stable IDs, applicability, rules, implementation guidance, verification, sources, and exceptions](skills/secure-development/references/requirement-format.md). Passing one condition does not establish that an entire topic is satisfied. Source dates and supported versions must be rechecked when applying version-sensitive guidance.
+Requirements use [stable IDs, applicability, rules, implementation guidance, verification, sources, and exceptions](skills/secure-development/references/requirement-format.md). Assess each condition against its specific acceptance checks. Source dates and supported versions must be rechecked when applying version-sensitive guidance.
 
 ---
 
@@ -154,7 +160,7 @@ python3 -m unittest discover -s tests -v
 python3 scripts/run_regressions.py --output artifacts/new-regression-run
 ```
 
-Create `artifacts/` if absent and use a new run directory. The [synthetic regression corpus](tests/README.md) exercises helper behavior, source preservation, path boundaries, classification, PR provenance, and copied-skill execution. Reports record source fingerprints, versions, and outcomes. Structural validation checks packaging and links; it does not establish skill behavior.
+Create `artifacts/` if absent and use a new run directory. The [synthetic regression corpus](tests/README.md) exercises helper behavior, source preservation, path boundaries, classification, PR provenance, and copied-skill execution. Reports record source fingerprints, versions, and outcomes. Structural validation checks packaging and links.
 
 The separate [integration suite](tests/integration/README.md) exercises synthetic FastAPI/SQLAlchemy, Next.js/Chromium, and Compose/BuildKit applications.
 
@@ -170,59 +176,31 @@ Start with report triage for existing scanner signals or security review for cod
 
 Checks cover helpers, workflow examples, and HTTP integration for prompt-integrity. Working evidence is stored in ignored `artifacts/`.
 
-Complete personal-data discovery, document/archive cleanup and visible image-content redaction remain outside the current coverage. JPEG/PNG support is metadata-only.
+JPEG/PNG cleanup supports metadata-only processing.
 
 Instructions required to use a copied skill remain inside that skill's directory. Local maintainer instructions and evaluation artifacts are not part of the distributed skills.
 
-Per-condition evidence is generated as `requirement-evidence.json` by the regression runner: every topic condition, stack control and workflow condition is listed, with exact tested clauses or explicit untested status. See the [coverage manifest](tests/requirement_coverage.json) and [manual applicability review](tests/requirements-manual-review.md).
+Per-condition evidence is generated as `requirement-evidence.json` by the regression runner: every topic condition, stack control and workflow condition is listed, with per-clause evidence records. See the [coverage manifest](tests/requirement_coverage.json) and [manual applicability review](tests/requirements-manual-review.md).
 
-Optional [framework and lifecycle integrations](tests/integration/README.md) exercise OAuth/OIDC/JWT client/verifier boundaries with a synthetic issuer, real MongoDB/Jinja, Next.js Data Cache and Chromium policies. Failure injection verifies cleanup of owned resources while preserving a separate scope; exact tested clauses and limits are in the integration evidence manifest.
+Optional [framework and lifecycle integrations](tests/integration/README.md) exercise OAuth/OIDC/JWT client/verifier boundaries with a synthetic issuer, real MongoDB/Jinja, Next.js Data Cache and Chromium policies. Failure injection verifies cleanup of owned resources while preserving a separate scope; per-clause observations are recorded in the integration evidence manifest.
 
 
-## Reporting and integration follow-up
+## Workflow reports
 
-The skills now require an evidence check before delivery and include a common
-action ledger in their standalone report templates. Carry the same finding IDs
-through triage/review, implementation and verification. Keep candidate/applied
-state independent of the fix verdict; never close an issue solely because a patch
-was produced. For cleanup, identify the delivered copy separately from the
-preserved source. The tool has its own [integration report template](tools/prompt-integrity/examples/integration-report.md).
+The five skills use a common action ledger. Carry the same finding IDs through triage, review, implementation and verification; record changes and verification results at the selected revision. Cleanup identifies the final delivered copy and its preserved source. Prompt integrity uses its own [integration report template](tools/prompt-integrity/examples/integration-report.md).
 
-### Component results
+## Deeper acceptance checks
 
-| Component | Implemented change | Evidence / current limitation |
+Existing condition IDs are retained. Authorization checks now distinguish alternate output paths and the effective boundary of rights/publication changes. Business-operation checks identify independent commits and ambiguous outcomes. Data-lifecycle checks separate serving denial from disposition of retained copies.
+
+| Improvement | Observable check | Scope of evidence |
 | --- | --- | --- |
-| Security review | Unknown history remains unknown; repairs must preserve the stated invariant | Labeled history controls; improved model reporting still needs a new trial |
-| Secure development | Exact-property coverage and observed application state required | Labeled coverage/state controls; no whole-control inference from one test |
-| Sensitive data cleanup | Helper execution, syntax validation and rescans reported separately | Existing real-helper regressions; autonomous helper selection not established |
-| Security report triage | Content identity separated from provenance; unresolved items retained | Existing triage regressions; revised reporting not yet model-evaluated |
-| Security fix verification | Case counts, alternate paths, candidate state and actual authorship reconciled | Partial/fixed fixture controls; revised reporting not yet model-evaluated |
-| prompt-integrity | Checked example attempts, optional release digest pin, safe failure codes | Package tests exercise wire rejection, release lifecycle and diagnostics |
-| Combined workflow | Same ledger fields in all five report templates and tool report | Handoff guidance implemented with stable finding IDs and separate verification states |
+| Alternate access and lifecycle | Allowed/excluded reads across five paths; warm state, revocation, transfer, deletion and delayed publication | Synthetic SQLite authority/projection stores; sequential lifecycle transitions |
+| Repeated effects and recovery | Synchronized duplicate attempts; actual process death at three commit boundaries; independent recipient counts | Two SQLite stores model caller and recipient; recipient deduplication is assumed and exercised |
+| Cleanup usability | Replaced identifiers retain a two-file reference graph, distinct entities and benign labels | Actual helper; declared JSON value relationships |
+| Report evidence validity | Policy drift, unknown revisions and contradictory current results reject unsupported claims | Structured evaluator inputs; explicit dependency set |
 
-### Shared action ledger
-
-This is the repository follow-up register, not a report of repaired vulnerabilities
-in EZII or another target. Changes are applied in the local working tree, not
-published or deployed. Test sources below identify reproducible checks; dated run
-outputs remain local in ignored `artifacts/`.
-
-| ID | Observed issue | What changed | Implementation state | Verification | What remains |
-| --- | --- | --- | --- | --- | --- |
-| REPORT-01 | Historical provenance asserted from one snapshot | Require same-finding revision comparison; explicit unknown | Applied to review/triage guidance | [Labeled claim controls](evals/tests/test_report_grounding.py) | New model trial; original report errors remain historical evidence |
-| REPORT-02 | Narrow tests presented as broader control coverage | Require evidence for the exact condition and revision | Applied to development guidance | Same fixture: unrelated property, stale revision and unexecuted check rejected | Measure model compliance on broader tasks |
-| REPORT-03 | Candidate confused with applied or fully fixed | Explicit target/state evidence and per-path verdict | Applied to guidance and templates | Candidate/application and partial/fixed controls | Verify the resulting revision and preserve per-path evidence |
-| REPORT-04 | Cleanup execution narration and verification authorship/counts overclaimed | Reconcile claims with actual tool records and known authorship | Applied to cleanup/verification guidance | Existing helper and fix-verification tests; new wording structurally validated only | Fresh semantic assessment of generated reports |
-| TOOL-01 | Dispatch protection needs attempt-by-attempt evidence | Test tamper at primary, retry and fallback; document call inventory | Applied to package tests/docs | [Actual HTTP tests](tools/prompt-integrity/tests/test_integration.py), guarded pilot-loop tests | Keep the call inventory current; unguarded eval modes remain explicit |
-| TOOL-02 | Version alone does not detect changed release bytes | Optional digest pin, pinned startup example, CLI pin | Applied to package | [Release lifecycle tests](tools/prompt-integrity/tests/test_release.py) | Protected release distribution and trusted pin storage belong to deployment |
-| TOOL-03 | Generic transport errors obscure failure class | Bounded diagnostic codes propagated into guarded pilot output | Applied to tool and evaluation harness | Failure/redaction tests and guarded pilot diagnostic test | Timeout cannot prove the provider did not receive a request |
-| FLOW-01 | Findings and unresolved work scattered across reports | Common action ledger in standalone templates; component summary and this register | Applied to documentation | Template structure/link validation | End-to-end user trial; no automated cross-report synchronization |
-| EVAL-01 | Model pilot mixed with general repository scripts | Move runner, workers, rubric and harness tests into `evals/`; run both test suites | Applied to repository layout | Pilot regression tests and full suite; fingerprints include `evals/` | Evaluation harness stays outside copied skills; local results must not be committed |
-
-These changes address implementation and reporting contracts. They do not establish
-improved model accuracy, generalized prompt-injection resistance, or complete
-application security. The next behavioral trial should assess the updated skill
-fingerprints and the whole handoff, preserving unresolved findings in the final ledger.
+Review and verification guidance use these sequences to select decisive tests. Triage preserves findings across successive reports and reopens demonstrated recurrences under their original IDs. Evidence affected by code, configuration or relevant state changes is reassessed without rewriting earlier observations. See the [test contracts](tests/README.md#stateful-acceptance-cases) for fixture tasks and expected outcomes.
 
 ## License
 

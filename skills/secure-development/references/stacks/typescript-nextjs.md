@@ -16,7 +16,7 @@ Status: proposed baseline, source-reviewed; every applicable rule below is a pro
 - **Unsafe → corrected:** hide an edit button but let the handler update any supplied record ID → resolve the server-side principal, validate the request, and authorize the operation and record before writing.
 - **Positive check:** a synthetic authorized caller updates its permitted record and receives only the intended public result.
 - **Negative check:** invoke each operation directly as an unauthenticated caller, an unauthorized role, and a caller supplying another object's ID; expect no unauthorized state change. Test forbidden privilege fields independently.
-- **Evidence:** trace every callable entry point to its data-access checks; execute requests through the relevant Next.js mechanism and inspect persisted state. A Route Handler test does not establish Server Action protection; mocked identities leave actual authentication unverified.
+- **Evidence:** trace every callable entry point to its data-access checks; execute requests through the relevant Next.js mechanism and inspect persisted state.
 
 ## SD-TS-002 — Keep rendering data inert
 
@@ -30,7 +30,7 @@ Status: proposed baseline, source-reviewed; every applicable rule below is a pro
 - **Unsafe → corrected:** render a plain user label with `dangerouslySetInnerHTML` → render it as `{label}`; if rich text is required, apply the selected sanitizer policy at the HTML boundary.
 - **Positive check:** plain labels retain their literal content; allowed rich-text formatting remains usable where supported.
 - **Negative check:** synthetic element/event payloads do not set a browser execution marker; forbidden attributes and URL schemes are absent or inert through the actual rich-text path.
-- **Evidence:** inspect the value producer, context, sanitizer configuration/version, and sink; execute browser checks of DOM and side effects. A string snapshot cannot establish browser execution behavior; a text-only test leaves rich HTML unverified.
+- **Evidence:** inspect the value producer, context, sanitizer configuration/version, and sink; execute browser checks of DOM and side effects.
 
 ## SD-TS-003 — Keep credentials out of browser bundles
 

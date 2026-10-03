@@ -16,7 +16,7 @@ Status: proposed baseline, source-reviewed on 2026-09-24. Every control below is
 - **Unsafe → corrected:** pass an arbitrary request dictionary into an ORM update → validate a dedicated mutation model with forbidden extra fields, then explicitly select writable attributes.
 - **Positive check:** submit documented fields at allowed boundaries, including a permitted extension when supported; expect only the intended mutation.
 - **Negative check:** submit an unauthorized `is_admin` field, invalid strict type, and excessive length separately; expect no forbidden mutation. Closed contracts reject extra fields. An explicitly extensible contract accepts a valid extension while rejecting or safely discarding prohibited extensions according to its policy; inspect persistence separately.
-- **Evidence:** inspect the actual route model and persistence mapping; execute requests through FastAPI and inspect committed state. A model-only test leaves route wiring and side effects unverified.
+- **Evidence:** inspect the actual route model and persistence mapping; execute requests through FastAPI and inspect committed state.
 
 ## SD-PY-002 — Keep secrets outside response models
 
@@ -72,4 +72,4 @@ Status: proposed baseline, source-reviewed on 2026-09-24. Every control below is
 - **Unsafe → corrected:** serialize the full validation exception/body → emit only approved error codes and safe field locations, omitting input values.
 - **Positive check:** a benign invalid field produces the documented useful error response and permitted diagnostic event.
 - **Negative check:** malformed input containing a synthetic credential appears in neither the response nor captured application logs, including nested validation errors.
-- **Evidence:** inspect handler registration and diagnostic serializers; execute malformed requests and capture both surfaces. Proxy/server logs and unexecuted middleware paths remain explicit gaps.
+- **Evidence:** inspect handler registration and diagnostic serializers; execute malformed requests and capture both surfaces.

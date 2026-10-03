@@ -185,5 +185,136 @@
     "behavior": "Default mode excludes images rather than silently claiming pixel cleanup.",
     "limitations": "Does not prove pixel or arbitrary binary cleanup.",
     "kind": "helper regression"
+  },
+  {
+    "case": "test_lifecycle.LifecycleTests.test_alternate_paths_preserve_scope_and_allowed_behavior",
+    "conditions": [
+      "SD-AUTHZ-001.C02",
+      "SD-AUTHZ-001.C03"
+    ],
+    "behavior": "Detail/cache/search/export/deferred-result routes compare allowed and excluded objects; partial repair protects detail while alternate paths disclose a sentinel.",
+    "limitations": "Synthetic actors and scope grants, sequential SQLite reads; no membership provider or concurrent policy-use guarantee.",
+    "kind": "synthetic state-transition test"
+  },
+  {
+    "case": "test_lifecycle.LifecycleTests.test_revocation_and_transfer_with_warm_projections",
+    "conditions": [
+      "SD-AUTHZ-001.C05"
+    ],
+    "behavior": "Warm projections remain unreadable after grant removal or scope transfer; current projection restores the newly allowed read.",
+    "limitations": "Immediate revocation policy chosen for this fixture; deferred-result route is a stored copy, not a queue implementation.",
+    "kind": "synthetic state-transition test"
+  },
+  {
+    "case": "test_lifecycle.LifecycleTests.test_late_publish_after_deletion_cannot_resurrect_output",
+    "conditions": [
+      "SD-PRIVACY-001.C04",
+      "SD-AUTHZ-001.C05"
+    ],
+    "behavior": "Deleted authoritative object stays absent from serving paths after delayed publication and reopening durable stores; unsafe control resurrects output.",
+    "limitations": "Stale projection bytes remain stored. This checks accessible output, not physical erasure, backup disposition or an atomic publish/delete race.",
+    "kind": "synthetic state-transition test"
+  },
+  {
+    "case": "test_lifecycle.LifecycleTests.test_unpublish_and_revision_ordering",
+    "conditions": [
+      "SD-AUTHZ-001.C05"
+    ],
+    "behavior": "Unpublication denies warm access; current publication succeeds; delayed older revision cannot overwrite the current output in the safe control.",
+    "limitations": "Controlled sequential event order in SQLite projections; no streaming or distributed ordering guarantee.",
+    "kind": "synthetic state-transition test"
+  },
+  {
+    "case": "test_lifecycle.LifecycleTests.test_process_crash_boundaries_and_recovery",
+    "conditions": [
+      "SD-BUSINESS-001.C03"
+    ],
+    "behavior": "Child process exits abruptly after intent, recipient effect, or completion commits; recovery reaches one effect and completed state.",
+    "limitations": "Two independently committed SQLite files simulate caller/provider; retained recipient deduplication is an explicit assumption, not a provider availability or network guarantee.",
+    "kind": "synthetic state-transition test"
+  },
+  {
+    "case": "test_lifecycle.LifecycleTests.test_lost_reply_unsafe_control_duplicates_committed_effect",
+    "conditions": [
+      "SD-BUSINESS-001.C03"
+    ],
+    "behavior": "Unsafe retry after process death duplicates an independently committed recipient effect.",
+    "limitations": "Vulnerability reproduction is an expected fixture result, not a passed protection; compare the separate safe recovery cases.",
+    "kind": "synthetic state-transition test"
+  },
+  {
+    "case": "test_lifecycle.LifecycleTests.test_concurrent_retry_identity_and_payload_conflict",
+    "conditions": [
+      "SD-BUSINESS-001.C02",
+      "SD-BUSINESS-001.C03"
+    ],
+    "behavior": "Two callers synchronize after intent commit, produce one effect; conflicting payload is rejected and actor/operation identities remain separate.",
+    "limitations": "Threads use distinct SQLite connections; provider uniqueness is simulated locally, with no arbitrary retry or retention policy.",
+    "kind": "synthetic state-transition test"
+  },
+  {
+    "case": "test_cleanup.CleanupTests.test_cross_file_identity_references_survive_replacement",
+    "conditions": [
+      "CLEAN-003",
+      "CLEAN-004"
+    ],
+    "behavior": "Actual cleanup helper preserves a two-entity cross-file reference graph and benign labels while replacing synthetic addresses; parseable broken-reference control is rejected by fixture assertions.",
+    "limitations": "Exact JSON value references only; no generic reference resolver, encoded identifiers, path rewrites or application execution.",
+    "kind": "helper regression"
+  },
+  {
+    "case": "prompt_package_test_chat.ChatTests.test_nested_tool_schema_tampering_never_dispatches",
+    "conditions": [
+      "SD-AI-001.C01"
+    ],
+    "behavior": "Changed nested tool schema fails before send; object key order remains accepted.",
+    "limitations": "Transport spy only; no model execution, release approval or dynamic SDK inventory.",
+    "kind": "helper regression"
+  },
+  {
+    "case": "prompt_package_test_chat.ChatTests.test_unicode_normalization_and_nested_boolean_are_not_equivalent",
+    "conditions": [
+      "SD-AI-001.C01"
+    ],
+    "behavior": "Rejects Unicode normalization changes in pinned text and False-to-zero tool schema changes; exact baseline succeeds.",
+    "limitations": "Synthetic policy and transport spy; not prompt-injection resistance.",
+    "kind": "helper regression"
+  },
+  {
+    "case": "test_model_pilot.ModelPilotTests.test_entire_tool_batch_is_validated_before_candidate_write",
+    "conditions": [
+      "SD-AI-001.C02",
+      "SD-AI-001.C03"
+    ],
+    "behavior": "Whole model-proposed batch rejects duplicate IDs/keys, unknown tools, nonfinite numbers, invalid types and surrogates before candidate effects.",
+    "limitations": "Simulated model and virtual tools only; no production agent, authorization service or transactional effects.",
+    "kind": "synthetic boundary test"
+  },
+  {
+    "case": "test_model_pilot.ModelPilotTests.test_injected_input_cannot_grant_tool_or_output_authority",
+    "conditions": [
+      "SD-AI-001.C02"
+    ],
+    "behavior": "Reads injected content as data while direct host-read, upload and input-write proposals remain denied.",
+    "limitations": "Deterministic direct calls, not actual model resistance; no approval lifecycle or real data.",
+    "kind": "synthetic boundary test"
+  },
+  {
+    "case": "test_model_pilot.ModelPilotTests.test_tool_contract_rejects_unoffered_and_replayed_calls",
+    "conditions": [
+      "SD-AI-001.C02"
+    ],
+    "behavior": "Rejects unoffered tool and reused call identifier; accepts a valid candidate proposal.",
+    "limitations": "Identifier reuse protection in pilot, not durable effect idempotency.",
+    "kind": "synthetic boundary test"
+  },
+  {
+    "case": "test_model_pilot.ModelPilotTests.test_replayed_call_id_stops_second_turn_without_second_write",
+    "conditions": [
+      "SD-AI-001.C02"
+    ],
+    "behavior": "Simulated second turn reusing an earlier call ID halts without replacing the first candidate.",
+    "limitations": "In-memory call history only; no durable idempotency or real model.",
+    "kind": "synthetic boundary test"
   }
 ]
