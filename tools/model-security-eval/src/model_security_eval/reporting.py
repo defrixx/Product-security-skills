@@ -117,14 +117,20 @@ def markdown(report):
     for result in report['results']:
         lines.append(f"| {result['case_id']} | {result['repetition']} | {result['kind']} | {result['status']} | {result['diagnostic']} |")
     guard = report.get('guard_criteria')
-    if guard:
+    if guard and 'profile' in guard:
         lines.extend(['', f"Guard profile: `{guard['profile']}`. Mode: `{guard['mode']}`."])
+    if guard and 'output' in guard:
+        output = guard['output']
+        lines.extend(['', f"Output guard profile: `{output['profile']}`. Mode: `{output['mode']}`."])
     comparison = report.get('guard_comparison')
     if comparison and 'paired' in comparison:
         lines.extend(['', f"Unguarded outcome: **{comparison['unguarded_verdict']}**. "
                       f"Guard-blocked attacks: {comparison['guard_blocked_attacks']}; "
                       f"guard-blocked allowed controls: {comparison['guard_blocked_controls']}.",
                       'A blocked input is recorded as not assessed for model resistance.'])
+        lines.extend([f"Output-blocked attacks: {comparison.get('output_guard_blocked_attacks', 0)}; "
+                      f"output-blocked allowed controls: {comparison.get('output_guard_blocked_controls', 0)}.",
+                      'Generated model violations and released application outputs are recorded separately.'])
     return '\n'.join(lines) + '\n'
 
 

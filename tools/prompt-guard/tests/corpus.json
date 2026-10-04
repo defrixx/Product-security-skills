@@ -1297,6 +1297,321 @@
       "source": "user",
       "profile": "restricted-topics",
       "kind": "intentional-topic-block"
+    },
+    {
+      "id": "OG-output-token-0",
+      "category": "output-token",
+      "profile": "output-secrets",
+      "direction": "output",
+      "source": "assistant",
+      "text": "sk-AAAAAAAAAAAAAAAAAAAAAAAA",
+      "expected": "block"
+    },
+    {
+      "id": "OG-SAN-output-token-0",
+      "category": "output-token-sanitize",
+      "profile": "output-secrets",
+      "direction": "output",
+      "mode": "sanitize",
+      "source": "assistant",
+      "text": "sk-AAAAAAAAAAAAAAAAAAAAAAAA",
+      "expected": "allow"
+    },
+    {
+      "id": "OG-output-token-1",
+      "category": "output-token",
+      "profile": "output-secrets",
+      "direction": "output",
+      "source": "assistant",
+      "text": "AKIABBBBBBBBBBBBBBBB",
+      "expected": "block"
+    },
+    {
+      "id": "OG-SAN-output-token-1",
+      "category": "output-token-sanitize",
+      "profile": "output-secrets",
+      "direction": "output",
+      "mode": "sanitize",
+      "source": "assistant",
+      "text": "AKIABBBBBBBBBBBBBBBB",
+      "expected": "allow"
+    },
+    {
+      "id": "OG-output-token-2",
+      "category": "output-token",
+      "profile": "output-secrets",
+      "direction": "output",
+      "source": "assistant",
+      "text": "ghp_CCCCCCCCCCCCCCCCCCCCCCCC",
+      "expected": "block"
+    },
+    {
+      "id": "OG-SAN-output-token-2",
+      "category": "output-token-sanitize",
+      "profile": "output-secrets",
+      "direction": "output",
+      "mode": "sanitize",
+      "source": "assistant",
+      "text": "ghp_CCCCCCCCCCCCCCCCCCCCCCCC",
+      "expected": "allow"
+    },
+    {
+      "id": "OG-output-token-3",
+      "category": "output-token",
+      "profile": "output-secrets",
+      "direction": "output",
+      "source": "assistant",
+      "text": "Bearer DDDDDDDDDDDDDDDDDDDDDDDD",
+      "expected": "block"
+    },
+    {
+      "id": "OG-SAN-output-token-3",
+      "category": "output-token-sanitize",
+      "profile": "output-secrets",
+      "direction": "output",
+      "mode": "sanitize",
+      "source": "assistant",
+      "text": "Bearer DDDDDDDDDDDDDDDDDDDDDDDD",
+      "expected": "allow"
+    },
+    {
+      "id": "OG-output-token-4",
+      "category": "output-token",
+      "profile": "output-secrets",
+      "direction": "output",
+      "source": "assistant",
+      "text": "api_key=EEEEEEEEEEEEEEEEEEEEEEEE",
+      "expected": "block"
+    },
+    {
+      "id": "OG-SAN-output-token-4",
+      "category": "output-token-sanitize",
+      "profile": "output-secrets",
+      "direction": "output",
+      "mode": "sanitize",
+      "source": "assistant",
+      "text": "api_key=EEEEEEEEEEEEEEEEEEEEEEEE",
+      "expected": "allow"
+    },
+    {
+      "id": "OG-output-token-5",
+      "category": "output-token",
+      "profile": "output-secrets",
+      "direction": "output",
+      "source": "assistant",
+      "text": "sk-short",
+      "expected": "allow"
+    },
+    {
+      "id": "OG-output-token-6",
+      "category": "output-token",
+      "profile": "output-secrets",
+      "direction": "output",
+      "source": "assistant",
+      "text": "AKIA-short",
+      "expected": "allow"
+    },
+    {
+      "id": "OG-output-token-7",
+      "category": "output-token",
+      "profile": "output-secrets",
+      "direction": "output",
+      "source": "assistant",
+      "text": "Public token documentation",
+      "expected": "allow"
+    },
+    {
+      "id": "OG-output-private-key-0",
+      "category": "output-private-key",
+      "profile": "output-secrets",
+      "direction": "output",
+      "source": "assistant",
+      "text": "-----BEGIN PRIVATE KEY-----\nSYNTHETIC\n-----END PRIVATE KEY-----",
+      "expected": "block"
+    },
+    {
+      "id": "OG-SAN-output-private-key-0",
+      "category": "output-private-key-sanitize",
+      "profile": "output-secrets",
+      "direction": "output",
+      "mode": "sanitize",
+      "source": "assistant",
+      "text": "-----BEGIN PRIVATE KEY-----\nSYNTHETIC\n-----END PRIVATE KEY-----",
+      "expected": "allow"
+    },
+    {
+      "id": "OG-output-private-key-1",
+      "category": "output-private-key",
+      "profile": "output-secrets",
+      "direction": "output",
+      "source": "assistant",
+      "text": "-----BEGIN OPENSSH PRIVATE KEY-----\nSYNTHETIC",
+      "expected": "block"
+    },
+    {
+      "id": "OG-SAN-output-private-key-1",
+      "category": "output-private-key-sanitize",
+      "profile": "output-secrets",
+      "direction": "output",
+      "mode": "sanitize",
+      "source": "assistant",
+      "text": "-----BEGIN OPENSSH PRIVATE KEY-----\nSYNTHETIC",
+      "expected": "allow"
+    },
+    {
+      "id": "OG-output-private-key-2",
+      "category": "output-private-key",
+      "profile": "output-secrets",
+      "direction": "output",
+      "source": "assistant",
+      "text": "-----BEGIN PUBLIC KEY-----\nSYNTHETIC\n-----END PUBLIC KEY-----",
+      "expected": "allow"
+    },
+    {
+      "id": "OG-output-private-key-3",
+      "category": "output-private-key",
+      "profile": "output-secrets",
+      "direction": "output",
+      "source": "assistant",
+      "text": "Public key documentation",
+      "expected": "allow"
+    },
+    {
+      "id": "OG-output-email-0",
+      "category": "output-email",
+      "profile": "output-personal-data",
+      "direction": "output",
+      "source": "assistant",
+      "text": "fixture@example.invalid",
+      "expected": "block"
+    },
+    {
+      "id": "OG-SAN-output-email-0",
+      "category": "output-email-sanitize",
+      "profile": "output-personal-data",
+      "direction": "output",
+      "mode": "sanitize",
+      "source": "assistant",
+      "text": "fixture@example.invalid",
+      "expected": "allow"
+    },
+    {
+      "id": "OG-output-email-1",
+      "category": "output-email",
+      "profile": "output-personal-data",
+      "direction": "output",
+      "source": "assistant",
+      "text": "example.invalid",
+      "expected": "allow"
+    },
+    {
+      "id": "OG-output-email-2",
+      "category": "output-email",
+      "profile": "output-personal-data",
+      "direction": "output",
+      "source": "assistant",
+      "text": "Public greeting",
+      "expected": "allow"
+    },
+    {
+      "id": "OG-output-phone-0",
+      "category": "output-phone",
+      "profile": "output-personal-data",
+      "direction": "output",
+      "source": "assistant",
+      "text": "+1 202 555 0199",
+      "expected": "block"
+    },
+    {
+      "id": "OG-SAN-output-phone-0",
+      "category": "output-phone-sanitize",
+      "profile": "output-personal-data",
+      "direction": "output",
+      "mode": "sanitize",
+      "source": "assistant",
+      "text": "+1 202 555 0199",
+      "expected": "allow"
+    },
+    {
+      "id": "OG-output-phone-1",
+      "category": "output-phone",
+      "profile": "output-personal-data",
+      "direction": "output",
+      "source": "assistant",
+      "text": "Version 1.202.555",
+      "expected": "allow"
+    },
+    {
+      "id": "OG-output-phone-2",
+      "category": "output-phone",
+      "profile": "output-personal-data",
+      "direction": "output",
+      "source": "assistant",
+      "text": "Public greeting",
+      "expected": "allow"
+    },
+    {
+      "id": "OG-output-topics-0",
+      "category": "output-topics",
+      "profile": "output-topics",
+      "direction": "output",
+      "source": "assistant",
+      "text": "weapons",
+      "expected": "block"
+    },
+    {
+      "id": "OG-output-topics-1",
+      "category": "output-topics",
+      "profile": "output-topics",
+      "direction": "output",
+      "source": "assistant",
+      "text": "A news report about fraud.",
+      "expected": "block"
+    },
+    {
+      "id": "OG-output-topics-2",
+      "category": "output-topics",
+      "profile": "output-topics",
+      "direction": "output",
+      "source": "assistant",
+      "text": "violencia",
+      "expected": "block"
+    },
+    {
+      "id": "OG-output-topics-3",
+      "category": "output-topics",
+      "profile": "output-topics",
+      "direction": "output",
+      "source": "assistant",
+      "text": "\u6b66\u5668",
+      "expected": "block"
+    },
+    {
+      "id": "OG-output-topics-4",
+      "category": "output-topics",
+      "profile": "output-topics",
+      "direction": "output",
+      "source": "assistant",
+      "text": "Gunicorn deployment",
+      "expected": "allow"
+    },
+    {
+      "id": "OG-output-topics-5",
+      "category": "output-topics",
+      "profile": "output-topics",
+      "direction": "output",
+      "source": "assistant",
+      "text": "Public greeting API",
+      "expected": "allow"
+    },
+    {
+      "id": "OG-output-topics-6",
+      "category": "output-topics",
+      "profile": "output-topics",
+      "direction": "output",
+      "source": "assistant",
+      "text": "A literary essay",
+      "expected": "allow"
     }
   ]
 }

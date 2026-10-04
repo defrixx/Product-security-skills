@@ -23,6 +23,22 @@ from prompt_guard.files import read_bytes, write_new
 
 
 class CLITests(unittest.TestCase):
+    def test_output_direction_checked_copy_and_closed_tool_contract(self):
+        self.input.write_bytes(b'Public greeting API')
+        target = self.output / 'approved.txt'
+        code, report = self.call('--direction', 'output', '--output', str(target), '--output-root', str(self.output))
+        self.assertEqual(code, 0)
+        self.assertEqual(report['direction'], 'output')
+        self.assertEqual(target.read_bytes(), b'Public greeting API')
+        contract = self.config / 'contract.json'
+        contract.write_text(json.dumps({'schema': None, 'tools': {}}))
+        self.input.write_text(json.dumps({'content': 'Public greeting', 'tool_calls': [
+            {'id': 'fixture', 'name': 'unapproved', 'arguments': {}}]}))
+        code, report = self.call('--direction', 'output', '--format', 'json', '--output-contract', str(contract))
+        self.assertEqual(code, 1)
+        self.assertEqual(report['code'], 'tool_call_rejected')
+        self.assertEqual(self.call('--direction', 'output', '--source', 'user')[0], 3)
+
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
         self.addCleanup(self.tmp.cleanup)

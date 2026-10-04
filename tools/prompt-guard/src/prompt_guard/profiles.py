@@ -2,7 +2,8 @@
 from importlib.resources import files
 from .core import decode, policy_from_dict, require
 
-PROFILES = ('user-input', 'retrieval', 'tool-results', 'security', 'restricted-topics', 'security-and-topics')
+PROFILES = ('user-input', 'retrieval', 'tool-results', 'security', 'restricted-topics', 'security-and-topics',
+            'output-topics', 'output-secrets', 'output-security-and-topics', 'output-personal-data')
 
 
 def load_profile(name):

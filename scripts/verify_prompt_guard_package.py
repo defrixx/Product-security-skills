@@ -62,7 +62,7 @@ def main():
             wheel = next(output.glob('*.whl'))
             with zipfile.ZipFile(wheel) as bundle:
                 assert 'prompt_guard/worker.py' in bundle.namelist()
-                assert len([n for n in bundle.namelist() if '/policies/' in n and n.endswith('.json')]) == 6
+                assert len([n for n in bundle.namelist() if '/policies/' in n and n.endswith('.json')]) == 10
             runtime = temp / 'runtime'
             venv.EnvBuilder(with_pip=True).create(runtime)
             python = runtime / 'bin/python'

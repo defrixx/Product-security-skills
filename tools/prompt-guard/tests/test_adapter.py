@@ -5,16 +5,97 @@ import os
 from pathlib import Path
 import sys
 import threading
+import time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 import unittest
 
 if not os.environ.get('PROMPT_GUARD_TEST_PACKAGED'):
     sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'src'))
-from prompt_guard import GuardError, load_profile, policy_from_dict
+from prompt_guard import GuardError, OutputGuard, load_profile, policy_from_dict
 from prompt_guard.adapters import GuardedDispatch, GuardRejected
 
 
 class AdapterTests(unittest.TestCase):
+    def test_stream_deadline_closes_trickling_transport_before_release(self):
+        class Handler(BaseHTTPRequestHandler):
+            def log_message(self, *args):
+                pass
+            def do_POST(self):
+                self.rfile.read(int(self.headers['Content-Length']))
+                self.send_response(200)
+                self.send_header('Content-Type', 'text/event-stream')
+                self.end_headers()
+                try:
+                    for _ in range(20):
+                        self.wfile.write(b': keepalive\n\n')
+                        self.wfile.flush()
+                        time.sleep(.05)
+                except (BrokenPipeError, ConnectionResetError):
+                    pass
+        server = ThreadingHTTPServer(('127.0.0.1', 0), Handler)
+        thread = threading.Thread(target=server.serve_forever, daemon=True)
+        thread.start()
+        try:
+            template = {'model': 'synthetic', 'stream': True, 'messages': [{'role': 'system', 'content': 'Trusted fixture.'}]}
+            boundary = GuardedDispatch.create(load_profile('security'), 'http://127.0.0.1:%d/v1/chat/completions' % server.server_port,
+                                              template, output_guard=OutputGuard.create(load_profile('output-topics')))
+            request = dict(template, messages=template['messages'] + [{'role': 'user', 'content': 'public'}])
+            emitted = []
+            started = time.monotonic()
+            with self.assertRaises(GuardRejected) as caught:
+                boundary.send_stream(request, emitted.append, timeout=.15)
+            self.assertEqual(caught.exception.result.decision, 'error')
+            self.assertEqual(emitted, [])
+            self.assertLess(time.monotonic() - started, 1)
+        finally:
+            server.shutdown()
+            thread.join()
+            server.server_close()
+
+    def test_real_streaming_provider_output_is_buffered_before_release(self):
+        received = []
+        class Handler(BaseHTTPRequestHandler):
+            def log_message(self, *args):
+                pass
+            def do_POST(self):
+                request = json.loads(self.rfile.read(int(self.headers['Content-Length'])))
+                received.append(request)
+                text = 'weapons' if request['messages'][-1]['content'] == 'trigger' else 'Public greeting'
+                self.send_response(200)
+                if self.path == '/api/chat':
+                    self.send_header('Content-Type', 'application/x-ndjson')
+                    wire = b''.join(json.dumps({'message': {'role': 'assistant', 'content': part}, 'done': done}).encode() + b'\n'
+                                    for part, done in ((text[:3], False), (text[3:], True)))
+                else:
+                    self.send_header('Content-Type', 'text/event-stream')
+                    wire = b''.join(b'data: ' + json.dumps({'choices': [{'index': 0, 'delta': {'content': part},
+                                   'finish_reason': 'stop' if done else None}]}).encode() + b'\n\n'
+                                   for part, done in ((text[:3], False), (text[3:], True))) + b'data: [DONE]\n\n'
+                self.end_headers()
+                self.wfile.write(wire)
+        server = ThreadingHTTPServer(('127.0.0.1', 0), Handler)
+        thread = threading.Thread(target=server.serve_forever, daemon=True)
+        thread.start()
+        try:
+            template = {'model': 'synthetic', 'stream': True, 'messages': [{'role': 'system', 'content': 'Trusted fixture.'}]}
+            for path in ('/api/chat', '/v1/chat/completions'):
+                boundary = GuardedDispatch.create(load_profile('security'), 'http://127.0.0.1:%d%s' % (server.server_port, path),
+                                                  template, output_guard=OutputGuard.create(load_profile('output-topics')))
+                request = dict(template, messages=template['messages'] + [{'role': 'user', 'content': 'public'}])
+                emitted = []
+                diagnostics = boundary.send_stream(request, emitted.append)
+                self.assertEqual(diagnostics['output']['decision'], 'allow')
+                self.assertEqual(emitted, [{'content': 'Public greeting', 'tool_calls': []}])
+                request['messages'][-1]['content'] = 'trigger'
+                with self.assertRaises(GuardRejected):
+                    boundary.send_stream(request, emitted.append)
+                self.assertEqual(len(emitted), 1)
+            self.assertEqual(len(received), 4)
+        finally:
+            server.shutdown()
+            thread.join()
+            server.server_close()
+
     def test_real_provider_dispatch_and_rejected_requests(self):
         received = []
         class Handler(BaseHTTPRequestHandler):

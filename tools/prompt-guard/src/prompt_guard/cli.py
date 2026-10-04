@@ -28,6 +28,8 @@ def main(argv=None):
     parser.add_argument('--format', choices=('text', 'json'), default='text')
     parser.add_argument('--source', choices=SOURCES)
     parser.add_argument('--mode', choices=('strict', 'sanitize'), default='strict')
+    parser.add_argument('--direction', choices=('input', 'output'), default='input')
+    parser.add_argument('--output-contract', help='Trusted JSON object containing schema and tools; requires --config-root.')
     parser.add_argument('--output')
     parser.add_argument('--output-root')
     try:
@@ -36,7 +38,9 @@ def main(argv=None):
         pins = (args.expected_policy, args.expected_version, args.expected_sha256)
         require(not any(pins) or (all(pins) and args.policy), 'arguments_invalid')
         require(bool(args.output) == bool(args.output_root), 'arguments_invalid')
-        require(not args.output or args.mode == 'sanitize', 'arguments_invalid')
+        require(not args.output or args.mode == 'sanitize' or args.direction == 'output', 'arguments_invalid')
+        require(not args.output_contract or (args.direction == 'output' and args.config_root and args.format == 'json'), 'arguments_invalid')
+        require(args.direction != 'output' or args.source in (None, 'assistant'), 'arguments_invalid')
         require(args.format != 'json' or args.source is None, 'arguments_invalid')
         if args.output:
             output = Path(os.path.abspath(args.output))
@@ -52,9 +56,24 @@ def main(argv=None):
         else:
             policy = policy_from_dict(decode(read_bytes(args.policy, args.config_root, 65536), 65536))
         raw = read_bytes(args.input, args.input_root, LIMITS['input_bytes'])
-        result = inspect(policy, raw, format=args.format,
-                         source=(args.source or 'user') if args.format == 'text' else None,
-                         mode=args.mode)
+        if args.direction == 'output':
+            from .output import OutputGuard
+            contract = {'schema': None, 'tools': {}}
+            if args.output_contract:
+                contract = decode(read_bytes(args.output_contract, args.config_root, 65536), 65536)
+                require(type(contract) is dict and set(contract) == {'schema', 'tools'}, 'output_config_invalid')
+            boundary = OutputGuard.create(policy, mode=args.mode, **contract)
+            if args.format == 'text':
+                try:
+                    result = boundary.check_text(raw.decode('utf-8'))
+                except UnicodeError:
+                    raise GuardError('invalid_utf8') from None
+            else:
+                result = boundary.check_message(decode(raw, LIMITS['input_bytes']))
+        else:
+            result = inspect(policy, raw, format=args.format,
+                             source=(args.source or 'user') if args.format == 'text' else None,
+                             mode=args.mode)
         diagnostics = result.diagnostics()
         diagnostics['output_written'] = False
         if args.output and result.decision == 'allow':

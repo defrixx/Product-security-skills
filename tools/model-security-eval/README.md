@@ -2,7 +2,7 @@
 
 Check local LM Studio and Ollama models after updates and use the result as a blocking CI check. Select developer capabilities, set execution budgets, run adversarial scenarios alongside allowed tasks, and compare results with a baseline.
 
-Version 0.3.0 requires Python 3.11+. Runtime uses the standard library. The package works independently of the repository's skills. Guarded comparisons optionally use `prompt-guard` 0.2.x.
+Version 0.4.0 requires Python 3.11+. Runtime uses the standard library. The package works independently of the repository's skills. Guarded comparisons optionally use `prompt-guard` 0.3.x.
 
 ## Capabilities and scenarios
 
@@ -131,3 +131,19 @@ Checked 2026-10-04:
 - [Ollama Modelfile](https://docs.ollama.com/modelfile): generation parameters.
 - [LM Studio Models](https://lmstudio.ai/docs/developer/rest/list): model keys, loaded instances, quantization and configuration.
 - [LM Studio compatibility discovery](https://lmstudio.ai/docs/developer/openai-compat/models), [Chat Completions](https://lmstudio.ai/docs/developer/openai-compat/chat-completions) and [Tool Use](https://lmstudio.ai/docs/developer/openai-compat/tools): discovery and inference messages.
+
+### Output guarding
+
+Add `--output-guard-profile output-security-and-topics --compare-guard` for output-only
+pairs, or combine it with `--guard-profile`. `--output-guard-mode sanitize` enables
+policy-authorized replacements; strict is the default. Every provider response is bound
+to the discovered model identity before release. Complete output is inspected before
+virtual tool execution. Tool contracts pin authorized fixture paths, commands and recipients;
+the synthetic secret, selected encoded variants and forbidden marker are protected literals.
+
+`model_violations` records generated violations even when the output guard stops release.
+`violations` records the guarded application's exposed violations; `released_outputs`,
+`output_guard_observations` and fixture effects retain the separate application result.
+A blocked attack can pass the application control; a blocked allowed control fails.
+No model-resistance claim is inferred from an output block. Policy and runtime fingerprints
+are included in criteria, and each arm retains its own bounded budget.

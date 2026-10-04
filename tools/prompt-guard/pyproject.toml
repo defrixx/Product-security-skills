@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "prompt-guard"
-version = "0.2.0"
-description = "Source-aware policy inspection and explicit sanitization of prompt data"
+version = "0.3.0"
+description = "Policy inspection and explicit sanitization at model input and output boundaries"
 requires-python = ">=3.11"
 readme = "README.md"
 license = {file = "LICENSE"}

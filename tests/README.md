@@ -77,3 +77,8 @@ The catalog exercises sequential state transitions with SQLite projection tables
 `test_cleanup.py` also compares a two-file identity/reference graph before and after the actual helper runs. A parseable but broken-reference control demonstrates why syntax checks alone are insufficient. The declared fixture relationship is checked explicitly; this checks the declared entity/reference graph.
 
 Exact clauses and limits are mapped in `requirement_coverage.json`. Expected vulnerable-control outcomes count as successful regression assertions, never successful security controls.
+
+Output regressions exercise withheld delivery, explicit redaction with revalidation,
+closed structured/tool contracts, all chunk split positions for protected literals,
+split UTF-8, protocol completion, fragmented tool arguments, SSE/NDJSON loopback
+transport, iterator closure and paired generated-versus-released evidence.

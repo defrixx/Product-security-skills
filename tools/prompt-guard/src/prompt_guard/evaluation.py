@@ -25,7 +25,11 @@ def evaluate_corpus(cases, *, repetitions=1):
     for repetition in range(repetitions):
         for case in cases:
             sample = time.monotonic()
-            if 'messages' in case:
+            if case.get('direction') == 'output':
+                from .output import OutputGuard
+                boundary = OutputGuard.create(policies[case['profile']], mode=case.get('mode', 'strict'))
+                result = boundary.check_text(case['text'])
+            elif 'messages' in case:
                 result = inspect(policies[case['profile']], json.dumps({'messages': case['messages']}).encode(),
                                  format='json', source=None)
             else:

@@ -1,8 +1,8 @@
 # prompt-guard
 
-Inspect untrusted prompt data against a versioned, source-aware policy. Use strict mode to block matching requests or explicitly choose sanitize mode to remove or replace policy-selected fragments and check the result again.
+Inspect untrusted prompt data and model outputs against independent versioned, source-aware policies. Use strict mode to block matching requests or explicitly choose sanitize mode to remove or replace policy-selected fragments and check the result again.
 
-Version 0.2.0 requires Python 3.11+ on Linux or macOS. Runtime uses the standard library. The package runs independently of the repository's skills and other tools. The inspection CLI is offline; the optional provider adapter sends only to its explicitly configured numeric loopback endpoint.
+Version 0.3.0 requires Python 3.11+ on Linux or macOS. Runtime uses the standard library. The package runs independently of the repository's skills and other tools. The inspection CLI is offline; the optional provider adapter sends only to its explicitly configured numeric loopback endpoint.
 
 ## Modes and outcomes
 
@@ -166,4 +166,111 @@ python -m unittest discover -s tests -v
 
 Run from this package directory. [corpus.json](tests/corpus.json) contains labeled synthetic multilingual attacks, benign controls and intentional strict-topic blocks. `prompt_guard.evaluation.evaluate_corpus` reports per-category positives/misses/false blocks, separate review/errors, policy fingerprints, descriptive latency and throughput without recording input text. The corpus defines lexical ground truth, not recall on arbitrary real requests.
 
-Repository maintainers can run `python scripts/verify_prompt_guard_package.py --output artifacts/new-package-run` with setuptools 68+ and wheel available. It builds a standalone sdist and wheel, installs offline into a disposable venv, exercises the installed CLI/tests, and records sequential/four-worker measurements. The GitHub workflow runs package checks and repository regressions across Python 3.11–3.14 on Linux/macOS; it does not publish a release.
+Repository maintainers can run `python scripts/verify_prompt_guard_package.py --output artifacts/new-package-run` with setuptools 68+ and wheel available. It builds a standalone sdist and wheel, installs offline into a disposable venv, exercises the installed CLI/tests, and records sequential/four-worker measurements. Run these checks in the deployment CI environment on its selected supported Python version.
+
+## Output boundaries
+
+Select a separate output policy and keep it in trusted application configuration.
+`output-topics` blocks matched topic mentions in both modes. `output-secrets` detects
+private-key blocks (including an unfinished block), selected token shapes and credential
+assignments. `output-security-and-topics` combines these. `output-personal-data` is an
+explicit email/international-phone profile; selecting it also blocks public contact
+examples in strict mode. These are lexical profiles. Exact protected values are supplied
+through `protected=(...)`; they are always blocked, including in sanitize mode. Select
+encoded variants explicitly when your application's protected-value contract needs them.
+
+```python
+from prompt_guard import OutputGuard, load_profile
+
+boundary = OutputGuard.create(
+    load_profile("output-security-and-topics"),
+    mode="sanitize",
+    protected=("SYNTHETIC_APPLICATION_CANARY",),
+)
+result = boundary.check_text("Public greeting API")
+if result.decision == "allow":
+    deliver(result.payload.decode("utf-8"))
+else:
+    deliver("The response was withheld by application policy.")
+```
+
+Use an application-owned fallback, never fragments from a rejected result. Output
+results expose bytes only on `allow`; diagnostics and repr exclude their content.
+A custom output policy must select the `assistant` source. `check_message` accepts
+`{"content": text_or_json, "tool_calls": [{"id": ..., "name": ..., "arguments": ...}]}`.
+It scans string values in content/arguments, then field names and routing metadata,
+with assembled rules also inspecting the combined values. Sanitization changes values
+only; modifying names, keys or IDs is refused. The original object is preserved.
+Transformed content and arguments must satisfy their contracts again.
+
+### Structured content and tools
+
+`OutputGuard.create(..., schema=..., tools={name: argument_schema})` pins contracts.
+Unconfigured tools are denied. A batch is validated completely before any handler runs.
+Use `execute_tools(message, executors)` for trusted application handlers, or dispatch
+only the calls decoded from an allowed result. The method returns `(diagnostics, results)`;
+a rejected proposal returns `results=None`. Tool results must pass the input boundary
+before the next model round. Handlers own current authorization, effect deadlines and
+transactions; handler failure stops later calls and raises `tool_execution_failed`,
+without rolling back earlier effects. Do not accept a handler registry from model data.
+
+The JSON contract subset supports `type`, `enum`, closed object `properties`/`required`/
+`additionalProperties: false`, array `items`/`minItems`/required `maxItems`, string
+`minLength`/required `maxLength`, and numeric `minimum`/`maximum`. Unknown keywords,
+references, regex validators and coercion are rejected. Nesting is limited to 16;
+booleans do not satisfy numeric contracts. Bind sensitive paths, recipients and commands
+to exact application-authorized enums rather than accepting unrestricted strings.
+Contracts validate JSON values; filesystem access still belongs to the trusted handler.
+
+### Provider responses and streaming
+
+Set `output_guard=boundary` on `GuardedDispatch.create(...)`. For `stream: false`,
+`send` and `send_user_text` return safe diagnostics and an approved canonical message,
+not the original provider envelope. `check_provider(response, "openai" | "ollama")`
+provides the same boundary separately. Structured contracts parse the provider's content
+as strict JSON. One complete assistant choice is supported; length-limited/truncated
+responses, unsupported message fields and malformed argument JSON close the gate.
+Multimodal content and additional provider channels require a separately defined contract.
+
+For a trusted template with `stream: true`, call `send_stream(request, emit, timeout=30)`.
+It consumes OpenAI-compatible SSE or Ollama NDJSON, collects fragmented tool arguments,
+requires the terminal protocol marker, validates the completed message and invokes `emit`
+once only on `allow`. No raw protocol event reaches the caller. The local sender uses
+numeric loopback HTTP, bounded input, explicit content types, socket read timeouts, a whole-transport shutdown deadline and
+no redirects/retries. The iterator closes on completion or rejection. An integrity-backed
+stream requires an explicit `stream_sender` that owns final-byte integrity verification.
+The wire contracts follow [Chat Completions streaming](https://developers.openai.com/api/reference/resources/chat)
+and [Ollama streaming](https://docs.ollama.com/api/streaming).
+
+For application-decoded text chunks, `boundary.stream(chunks, emit, delivery="buffered")`
+accepts UTF-8 bytes or strings, including split Unicode sequences. Buffered delivery
+holds the entire answer until acceptance and supports both modes, regex, normalization
+and assembled policies. Default limits are 4,096 chunks, 1 MiB and 60 seconds between
+iterator reads; custom iterators must enforce their own blocking-read timeout.
+
+`delivery="delayed"` is an explicitly selected text-only option for raw case-sensitive
+literal rules. It checks accumulated text and retains the longest possible partial-match
+tail. Arbitrary regex, normalization, assembled rules and sanitize replacements require
+buffered delivery and return `stream_policy_requires_buffering` before reading data.
+Delayed delivery can stop later output but cannot retract an earlier approved prefix;
+use buffering for whole-answer rejection on any topic mention. Diagnostics include
+`emitted_characters`, never emitted text. Emitter/iterator failures stop delivery without
+fallback. A callback should commit the approved fragment atomically.
+
+The offline CLI accepts `--direction output`. Text is assigned to `assistant`; JSON is
+a canonical output message. `--output-contract /path/to/config/contract.json` requires
+`--config-root` and exactly `{"schema": ..., "tools": ...}`. A separate approved copy can
+be written with `--output`/`--output-root` in either output mode. Input files are preserved.
+
+```sh
+prompt-guard --direction output --profile output-security-and-topics \
+  --input /path/to/input/answer.txt --input-root /path/to/input
+```
+
+Use `model-security-eval --output-guard-profile output-security-and-topics --compare-guard`
+for paired output evaluation, optionally together with an input profile. Reports retain
+raw-generation violations as redacted evidence separately from released outputs, output
+guard decisions and virtual effects. Blocking a model violation can pass the application
+control while the generated model violation remains recorded. Blocked benign controls
+fail; output execution errors are inconclusive. The evaluator protects the fixture canary
+and selected encoded variants and binds tool arguments to its synthetic authorized scope.

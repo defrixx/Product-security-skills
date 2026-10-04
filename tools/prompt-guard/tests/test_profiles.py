@@ -129,7 +129,7 @@ class ProfileTests(unittest.TestCase):
         report = evaluate_corpus(cases)
         failures = [r for r in report['results'] if r['decision'] != r['expected']]
         self.assertEqual(failures, [])
-        self.assertEqual(len(report['results']), 143)
+        self.assertEqual(len(report['results']), len(cases))
         self.assertTrue(report['all_expected'])
         self.assertIn('topic-violence', report['by_category'])
         self.assertGreater(report['by_category']['topic-violence']['true_negative'], 0)
