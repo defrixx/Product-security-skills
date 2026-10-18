@@ -24,6 +24,9 @@ Requirements: Python 3.11+, Git, and a POSIX filesystem with no-follow/descripto
 | Cleanup classification | Retain a reviewed UI label while redacting a credential in the same JSON file | Exact field suppression; changed suppression value is rejected; adjacent secret still redacted |
 | Cleanup preservation | Process repeated/overlapping values, hidden files, and structured data | Consistent distinct replacements, unchanged input bytes, valid JSON/CSV, no originals in reports |
 | Cleanup boundaries | Supply links, a FIFO, malformed input, oversized files, collisions, and failing writes | No out-of-root reads/writes through links; omitted unsafe files; explicit incomplete/partial status |
+| Security delta | Expose an unchanged privileged helper through a new caller | Original caller denies, new caller discloses synthetic data; legitimate administrator path still works |
+| Linked cleanup | Repeat two distinct synthetic entities across JSON, CSV and text | One consistent marker per entity, distinct entities retained, benign label and originals preserved |
+| Compound cleanup boundary | Supply nested ZIP and Office comment/property content | Unsupported containers omitted without extraction; original bytes preserved and report redacted |
 | PR provenance | Review a branch after the target advances independently | Merge-base-to-head changes exclude the target-only commit; exact revisions recorded |
 | PR classification | Compare vulnerable legacy/new queries and a parameterized control | New flaw reproduced only on head; legacy flaw reproduced before and after; safe query remains effective |
 | PR unavailable context | Remove a requested revision or provide dirty/untracked content | No silent fallback, no checkout, working tree unchanged |

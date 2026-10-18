@@ -31,6 +31,7 @@ Carry stable finding IDs through the workflow and record the observed change, ve
 - Origin / aliases / raw result references: [identities and grouping rationale]
 - Root cause and affected paths: [each path, guards, prerequisites, impact]
 - Evidence: [static or executed observations, exact revision, safe references]
+- Artifact applicability, when relevant: [safe artifact identity, component/source/version, build inclusion, advisory conditions, reachability; observed/contradicted/unknown links and next check]
 - Original scanner label / contextual severity / confidence: [independent fields]
 - Remediation and acceptance cases: [original failure, alternate paths, allowed behavior]
 - Implementation / verification: [unknown or actual state; no inferred fix]

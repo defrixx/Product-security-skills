@@ -30,7 +30,7 @@ Carry stable finding IDs through the workflow and record the observed change, ve
 - Origin / aliases: [stable references]
 - Historical assessment / severity: [status and rationale at original revision]
 - Root cause and change: [entry, attacker control, guards, operation, impact, changed mechanism]
-- Affected paths: [each path and distinct guard]
+- Affected paths / bypass matrix: [each entry/input representation, actor, distinct guard, common repair boundary and linked acceptance case]
 - State and evidence dependencies: [relevant policy/configuration, versions and setup; effective transition boundary; changed dependencies and cases rerun, when applicable]
 
 | Case / path | Expected | Original observation | Patched observation | Evidence kind / reference | Next action |

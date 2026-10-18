@@ -2,11 +2,21 @@
 
 ## Mode selection
 
-An explicit PR, target/base/head comparison, or selected pull request means `PR` mode. An explicit whole-repository assessment means `repo` mode. Infer a mode from unambiguous task context; otherwise ask which mode is intended and perform only a safe inventory while waiting.
+Choose the smallest scope supported by the request. Preserve the report's `PR` (change comparison) and `repo` (snapshot assessment) modes; record the subtype below. Do not default an ambiguous request to an entire repository.
+
+| Requested input | Mode / subtype | Bind the assessment to |
+| --- | --- | --- |
+| PR or branch comparison | PR / branch | Exact target, head and merge base; merge-base-to-head unless another comparison was requested |
+| Specific commit | PR / commit | Commit and selected parent; root commits use the empty tree; ask about an ambiguous merge parent |
+| Uncommitted changes | PR / working-tree | HEAD, staged and unstaged changes, and in-scope untracked files; preserve index versus working-tree content |
+| File or directory | repo / path | Exact revision or working-tree snapshot and path boundary; inspect callers outside it as context |
+| Whole repository | repo / repository | Exact revision or identified working-tree snapshot |
+
+An explicit request to review current changes includes staged, unstaged and relevant untracked content. Record file identities/content fingerprints for mutable inputs without copying sensitive values into reports. Do not combine staged and unstaged versions silently or claim snapshot atomicity if files changed during collection. Reconcile changed inputs before concluding. The optional PR helper supports committed comparisons only; collect working-tree evidence separately. A path audit includes existing code in that path; reading callers outside it does not authorize an unrelated repository audit. If the intended scope remains unclear, ask and continue only a safe inventory.
 
 ## Pull request
 
-Input: local base/head revisions, or a PR whose metadata and source are accessible. Record target branch, exact base/head commit IDs, and merge base. Compare merge base to head for branch-introduced changes; document any different comparison semantics. Separate committed PR content from uncommitted working-tree changes.
+For the PR/branch subtype, input is local base/head revisions or a PR whose metadata and source are accessible. Record target branch, exact base/head commit IDs, and merge base. Compare merge base to head for branch-introduced changes; document any different comparison semantics. For commit and working-tree subtypes, use the comparison defined in the mode table instead. Separate committed PR content from uncommitted working-tree changes.
 
 Inspect modified code and the callers, routes, models, configurations, tests, and data flows necessary to assess it. Do not limit reasoning to added lines. Classify each finding as introduced, pre-existing, or provenance unknown. Check the base version where possible; do not attribute a pre-existing issue to the PR merely because nearby lines changed. Put existing issues in a separate report section.
 

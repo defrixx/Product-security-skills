@@ -37,3 +37,7 @@ Present concrete outcomes, selected evidence and next actions. Preserve factual 
 Before delivery, match every verified condition to evidence for that exact property at the reported revision. A scoped lookup does not establish input shape/type validation or tenant membership. Passing tests on a submitted patch establish candidate behavior; label a change applied only when its presence in the named target is observed, and keep deployment status separate.
 
 For a combined workflow, carry the report template's action ledger forward using the original finding IDs. Keep historical assessments and evidence; update implementation and verification states separately. Summarize unresolved items first. A standalone use requires no sibling skill or shared repository file.
+
+## Architecture and stateful changes
+
+Use [architecture profiles](references/architecture-profiles.md) to select controls against actual interfaces and actors, then map them to the requirements index's existing condition IDs. Profiles add selection guidance, not new normative requirements. For cached/deferred data, retries and independently committed effects, use [lifecycle and recovery scenarios](references/lifecycle-and-recovery.md) with the applicable authorization, business-logic, storage and event conditions. State the effective transition/recovery contract before implementation and test both permitted behavior and forbidden effects.

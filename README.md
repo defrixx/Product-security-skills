@@ -52,12 +52,12 @@ Choose the mode that matches the task:
 
 **Fix the scope → model threats → find candidates → validate → analyze impact → report.**
 
-The assistant follows untrusted data across security boundaries and checks reachability, prerequisites, existing defenses, and impact. Scanner signals remain hypotheses until supported by evidence.
+The assistant follows untrusted data across security boundaries and checks reachability, prerequisites, existing defenses, and impact. Architecture profiles guide selection; change reviews compare old/new guarantees, and stateful checks cover derived access, revocation and recovery. Scanner signals remain hypotheses until supported by evidence.
 
 | Mode | Scope |
 | --- | --- |
-| Pull request | Exact base/head revisions and surrounding code; distinguish introduced and pre-existing issues |
-| Repository | Agreed components and revision, with working-tree state, exclusions, and coverage recorded |
+| Changes / pull request | Branch, commit or uncommitted changes with exact comparison inputs and surrounding flows; distinguish introduced and pre-existing issues |
+| Repository / selected paths | Agreed repository, files or subtree and revision, with working-tree state and assessed flows recorded |
 
 > Use security-review on this PR from the supplied base/head revisions. Separate introduced and existing issues and produce a report without changing code.
 
@@ -79,7 +79,7 @@ The assistant follows untrusted data across security boundaries and checks reach
 
 > Use security-fix-verification to recheck finding F-007 at this patched revision. Preserve the original finding ID and distinguish candidate changes from applied fixes.
 
-**Result:** fixed, partially fixed, not fixed, or inconclusive for each selected finding, with supporting evidence. Historical confirmation remains separate from the later repair verdict. See the [verification report template](skills/security-fix-verification/assets/verification-report.md).
+**Result:** fixed, partially fixed, not fixed, or inconclusive for each selected finding, with supporting evidence. Repair cases cover relevant alternate callers, input channels and lifecycle effects alongside allowed behavior. Historical confirmation remains separate from the later repair verdict. See the [verification report template](skills/security-fix-verification/assets/verification-report.md).
 
 ## Prompt integrity tooling
 

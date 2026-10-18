@@ -30,3 +30,5 @@ For AI-related signals, separate static prompt tampering, model-influenced propo
 Before delivery, distinguish content identity from historical provenance: matching hashes do not establish who produced a report or when a defect arose. Retain unknowns when comparison history is absent. Preserve unresolved signals in the action queue and distinguish a proposed repair, an observed applied change, and a verified fix; none implies the others.
 
 For a combined workflow, carry the report template's action ledger forward using the original finding IDs. Keep historical assessments and evidence; update implementation and verification states separately. Summarize unresolved items first. A standalone use requires no sibling skill or shared repository file.
+
+For dependency and image results, use the [artifact applicability chain](references/artifact-applicability.md) to separate advisory matching, resolved identity, build inclusion, delivered inventory and vulnerable functionality. Unknown links retain concrete investigation actions; they do not turn into disproved signals.

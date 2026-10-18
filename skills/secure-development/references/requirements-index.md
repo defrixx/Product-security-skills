@@ -38,7 +38,7 @@ Use these starting points to select individual conditions, then read their appli
 | Change browser document delivery | [SD-WEB-001.C07–C08](topics/client-web-security.md) | Select framing and response protections from the threat model, not an unconditional header bundle. |
 | Add a non-SQL query or server template | [SD-INPUT-001.C06–C07](topics/input-validation-injection.md) | LDAP/XPath/prototype mutation and other engines require separately sourced, sink-specific assessment when used. |
 | Assemble model requests, expose agent tools or use generated changes | [SD-AI-001.C01–C06](topics/ai-assisted-development.md) | Select actual runtime boundaries; ordinary AI-written code needs C06 and its affected conventional controls, not a model gateway. |
-| Add an HTTP MCP endpoint | [SD-MCP-001.C01–C06](topics/mcp-security.md) | Select applicable token/session conditions; HTTP Origin tests do not apply to stdio. |
+| Add an HTTP MCP endpoint | [SD-MCP-001.C01–C06](topics/mcp-security.md) | Record the protocol revision: for 2026-07-28 select per-request authorization, issuer-bound registration, header/body agreement, private caches, retry idempotency and elicitation state/consent as applicable. Select session/resumable checks explicitly for legacy profiles such as 2025-11-25. HTTP Origin/header checks do not apply to stdio. |
 
 ## Topic catalog
 

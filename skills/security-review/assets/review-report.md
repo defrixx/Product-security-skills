@@ -32,10 +32,12 @@ Count confirmed findings once, including pre-existing findings. Keep hypotheses 
 
 ## Scope and method
 
-- Mode: [PR / repo]
+- Mode / subtype: [PR or repo; branch / commit / working-tree / path / repository]
 - Repository: [safe identifier]
 - Revisions: [base/head/merge base or commit and working-tree state]
 - Comparison semantics: [what the diff represents, if applicable]
+- Intended behavior: [relevant specification/policy sections; specified, inferred or unresolved invariants; concrete conflicts and their disposition]
+- Selected analysis: [applicable domains and tool choices tied to assessed paths]
 - Assessed components: [boundaries and entry points]
 - Tools/checks: [versions, executed checks and observations]
 - Evidence environment: [original code executed, extracted functions, mocks/stubs, real integrations]
@@ -54,6 +56,8 @@ Count confirmed findings once, including pre-existing findings. Keep hypotheses 
 
 - Severity / remediation priority: [rating and contextual rationale]
 - Confidence: [level and evidence basis]
+- Classification / scoring: [optional verified CWE/title and OWASP edition; CVSS version, vector, computed score/nomenclature and rationale when requested]
+- Violated invariant: [specified source or explicitly inferred rule and supporting evidence]
 - Location: [safe path, lines/symbol, revision]
 - PR provenance: [introduced / pre-existing / unknown; base comparison evidence]
 - Prerequisites and reachability: [attacker capabilities and guards]
@@ -98,3 +102,7 @@ Use one row per distinct in-scope entry-to-operation path; separate paths when t
 ## Attachments
 
 [List only selected redacted evidence needed for reproduction or remediation. Raw logs, whole source copies, private indexes, and exploratory scripts are working material by default. A candidate patch is optional and does not imply it was applied.]
+
+## Security delta and stateful cases
+
+[When applicable: old/new actor-to-effect paths and changed guarantee; finding IDs and provenance evidence. For lifecycle/recovery cases, record the declared effective boundary, transition or crash stage, allowed control and observed outputs/durable effects. Omit when not applicable.]

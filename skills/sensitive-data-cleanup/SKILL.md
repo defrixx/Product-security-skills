@@ -53,3 +53,5 @@ Present concrete outcomes, selected evidence and next actions. Preserve factual 
 Before delivery, reconcile replacement and rescan claims with actual tool results and the exact delivered copy. A submitted candidate is not evidence that the helper ran; a syntax check is not a sensitive-data rescan. Present the check and observed result. Preserve the actual cleanup status.
 
 For a combined workflow, carry the report template's action ledger forward using the original finding IDs. Keep historical assessments and evidence; update implementation and verification states separately. Summarize unresolved items first. A standalone use requires no sibling skill or shared repository file.
+
+For archives, documents, embedded objects or linked representations, use [compound content and linked replacements](references/compound-content.md). Select tools and component coverage explicitly; this procedure does not extend the helper's supported formats. Reconcile entity relationships and contained components separately from top-level file counts.

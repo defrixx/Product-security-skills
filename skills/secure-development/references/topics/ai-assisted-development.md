@@ -78,7 +78,20 @@ Status: proposed engineering baseline; C01–C06 are MUST conditions when applic
 
 ## Sources
 
-All checked 2026-10-03 against OWASP Gen AI Security Project, LLM Top 10 **2025**. These threat documents support the rationale; the scoped MUST conditions and acceptance cases above are this repository's proposed engineering baseline.
+Current taxonomy: [OWASP GenAI LLM Top 10 2026](https://genai.owasp.org/resource/owasp-genai-llm-top-10-2026/), cross-checked against the [canonical 2026 final list](https://github.com/GenAI-Security-Project/GenAI-LLM-Top10/blob/main/2026/README.md) on 2026-10-16. Use the edition with every risk identifier. These threat documents support the rationale; the scoped MUST conditions and acceptance cases above remain this repository's proposed engineering baseline, not verbatim OWASP requirements.
+
+The S1–S6 source IDs and 2025 URLs below preserve the historical source record checked on 2026-10-03. Do not relabel old evidence with new category numbers. For new work, use the following crosswalk to the published 2026 taxonomy; Hidden Context Exposure expands the former System Prompt Leakage category.
+
+| Source ID used above | Historical category (2025) | Current category (2026) |
+| --- | --- | --- |
+| S1 | LLM01 Prompt Injection | LLM01 Prompt Injection |
+| S2 | LLM06 Excessive Agency | LLM03 Excessive Agency |
+| S3 | LLM05 Improper Output Handling | LLM10 Improper Output Handling |
+| S4 | LLM08 Vector and Embedding Weaknesses | LLM09 Vector and Embedding Weaknesses |
+| S5 | LLM07 System Prompt Leakage | LLM08 Hidden Context Exposure |
+| S6 | LLM10 Unbounded Consumption | LLM06 Unbounded Consumption |
+
+Historical references (verification date 2026-10-03):
 
 - **S1:** [LLM01:2025 Prompt Injection](https://genai.owasp.org/llmrisk/llm01-prompt-injection/) — indirect injection, privilege control and external-content segregation.
 - **S2:** [LLM06:2025 Excessive Agency](https://genai.owasp.org/llmrisk/llm062025-excessive-agency/) — functionality, permissions and autonomy.

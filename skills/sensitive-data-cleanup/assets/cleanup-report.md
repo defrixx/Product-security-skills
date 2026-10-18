@@ -76,3 +76,7 @@ selected-run/
 ```
 
 The helper creates `report.json` and, for clean-copy mode, `files/`; the narrative is written separately. Select attachments explicitly rather than handing over the whole working directory. A `RUNNING` marker indicates incomplete output that must not be delivered as a completed result.
+
+## Compound content and linked data
+
+[When selected: format/tool and component coverage, checked/skipped/failed component counts separate from outer-file counts, repack/rescan observations, reference resolution and entity-distinctness results, and specific broken relationships or required processing actions. Use opaque identities; omit original values and paths. Omit this section when not applicable.]
