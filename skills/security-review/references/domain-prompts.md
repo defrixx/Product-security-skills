@@ -33,7 +33,11 @@ Load this section for model-selected tools, MCP, agent loops, delegated work, pe
 
 Inspect reach (accessible data/tools/credentials) separately from latitude (decisions allowed without further authorization). Require only controls justified by the target's risk and authorization contract. Delimiters, canaries and model refusals alone do not establish an enforced action boundary. An out-of-band approval UI is an implementation option, not a universal requirement.
 
+For scoped agent tests, define the expected output, authorization decision and downstream effect separately. Missing traces or unrelated denials are inconclusive. Record configuration/state and attack budgets, compare matched budgets and include benign controls. Select cases by risk; no complete red-team engagement is implied.
+
 ## Sources
+
+- [OWASP GenAI Red Teaming Manual](https://genai.owasp.org/resource/genai-red-teaming-manual-version-1-0/), version 1.0, §7.2–7.4 (pp. 119–122), methodological guidance; verified 2026-10-23.
 
 - [OWASP Top 10:2025](https://top10.owasp.org/2025/), 2025 edition, category overview; verified 2026-10-18. Use the edition explicitly when classifying; do not infer a one-to-one mapping from older editions.
 - [OWASP Top 10 for Agentic Applications for 2026](https://genai.owasp.org/resource/owasp-top-10-for-agentic-applications-for-2026/), 2026 edition, ASI01–ASI10; verified 2026-10-18. These prompts synthesize investigation questions; taxonomy labels do not establish exploitability or an official CWE mapping.

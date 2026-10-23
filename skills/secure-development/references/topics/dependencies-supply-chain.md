@@ -21,12 +21,12 @@ Status: proposed baseline; C01–C04 are MUST conditions when applicable. Use th
 - **Apply when:** installation or build steps consume dependency versions or artifact references.
 - **Required / prohibited:** consume the reviewed resolved graph and verify available content integrity. Unexpected graph/content changes must fail or return to review; do not silently regenerate a lock during a release build.
 - **Rationale:** mutable resolution can introduce code that was never assessed.
-- **Implement:** use the ecosystem's frozen/locked installation mode and integrity metadata, including transitive dependencies and build tools. Pin immutable image content where supported. Maintain deliberate update changes rather than treating pins as permanent protection.
+- **Implement:** use the ecosystem's frozen/locked installation mode and integrity metadata, including transitive dependencies and build tools. Pin immutable image content where supported. Maintain deliberate update changes rather than treating pins as permanent protection. For GitHub Actions, S2 describes public-preview workflow lockfiles for GitHub Enterprise Cloud, its data-residency variant, Team and Free; confirm deployed-platform support. When supported and onboarded, inspect the reviewed `actions.lock`, resolved commits and source repository IDs. The called reusable workflow's dependencies need its own repository's lockfile. Keep full-SHA pinning for workflows without support/onboarding; review generator changes to workflow references and allowlist compatibility before adoption.
 - **Unsafe → corrected:** resolve a floating dependency afresh in release CI → install the reviewed locked graph and reject manifest/lock inconsistency.
 - **Positive check:** a clean isolated install produces the recorded dependency versions and identities.
 - **Negative check:** a changed package byte stream or inconsistent manifest/lock causes failure before the altered dependency is executed.
 - **Evidence:** lock and integrity metadata inspection; executed clean-install and tamper-rejection observations. Matching hashes prove matching bytes, not that those bytes are benign.
-- **Bounds / sources:** S1, Lockfile/Version Pinning. Record platform-specific graph differences and package-manager versions; dependency reproducibility does not imply bit-for-bit build reproducibility.
+- **Bounds / sources:** S1, Lockfile/Version Pinning; S2 for the conditional GitHub Actions implementation. Record platform-specific graph differences and package-manager versions; dependency reproducibility does not imply bit-for-bit build reproducibility.
 
 ### SD-SUPPLY-001.C03 — Assess advisories against the delivered inventory
 
@@ -53,5 +53,7 @@ Status: proposed baseline; C01–C04 are MUST conditions when applicable. Use th
 - **Bounds / sources:** S1, Verify Provenance and Enforce Code Signing. Provenance establishes asserted origin under a trust model, not absence of malicious source or a compromised trusted builder.
 
 ## Sources
+
+- **S2:** [GitHub workflow dependency lockfiles](https://docs.github.com/en/actions/concepts/security/workflow-dependency-lockfiles) and [adoption guidance](https://docs.github.com/en/actions/how-tos/secure-your-work/lock-workflow-dependencies), [official availability announcement](https://github.blog/changelog/2026-10-14-github-actions-workflow-lockfiles-in-public-preview/), public preview for GitHub Enterprise Cloud, its data-residency variant, Team and Free; source identity, reusable-workflow boundaries and generator side effects checked 2026-10-23.
 
 - **S1:** [OWASP Software Supply Chain Security](https://cheatsheetseries.owasp.org/cheatsheets/Software_Supply_Chain_Security_Cheat_Sheet.html) — Mitigating Dependency Threats; Build Threats; Deployment and Runtime Threats. Living documentation; checked 2026-09-24. Package-manager, registry, and attestation implementation settings require matching vendor/version documentation.
