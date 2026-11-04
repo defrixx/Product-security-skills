@@ -197,6 +197,22 @@ class OutputTests(unittest.TestCase):
         frames[1] = b'data: ' + json.dumps({'choices': [{'delta': {'tool_calls': [parts[1]]}}]}).encode() + b'\n\n'
         self.assertEqual(guard.check_provider_stream(iter(frames), 'openai').decision, 'block')
 
+    def test_error_bearing_stream_events_are_never_usage_metadata(self):
+        guard = OutputGuard.create(literal())
+        first = {'choices': [{'index': 0, 'delta': {'content': 'Public greeting'}, 'finish_reason': 'stop'}]}
+        def frame(value): return b'data: ' + json.dumps(value).encode() + b'\n\n'
+        done = b'data: [DONE]\n\n'
+        usage = {'choices': [], 'usage': {}}
+        self.assertEqual(guard.check_provider_stream(iter([frame(first), frame(usage), done]), 'openai').decision, 'allow')
+        for error in [{'message': 'synthetic failure'}, {}, None, '']:
+            for value in [{**usage, 'error': error}, {**first, 'error': error}]:
+                with self.subTest(value=value):
+                    frames = [frame(first), frame(value), done] if value['choices'] == [] else [frame(value), done]
+                    response = guard.check_provider_stream(iter(frames), 'openai')
+                    self.assertEqual(response.decision, 'error');self.assertIsNone(response.payload)
+        ollama = {'message': {'role': 'assistant', 'content': 'Public'}, 'done': True, 'error': {'message': 'synthetic failure'}}
+        self.assertEqual(guard.check_provider_stream(iter([json.dumps(ollama).encode()+b'\n']), 'ollama').decision, 'error')
+
     def test_ndjson_complete_response_and_truncation(self):
         guard = OutputGuard.create(literal())
         frames = [json.dumps({'message': {'role': 'assistant', 'content': text}, 'done': done}).encode() + b'\n'

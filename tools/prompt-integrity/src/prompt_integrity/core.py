@@ -139,7 +139,11 @@ def policy_from_dict(value, expected_profile, expected_version):
         require(type(obj[field]) is str and SAFE_ID.fullmatch(obj[field]) is not None)
     require(obj['profile_id'] == expected_profile and obj['profile_version'] == expected_version, 'version_mismatch')
     from .chat import ADAPTER as CHAT_ADAPTER, validate_options
-    require(obj['adapter_id'] in (ADAPTER, CHAT_ADAPTER) and obj['adapter_version'] == '1')
+    from .provider import ADAPTER as PROVIDER_ADAPTER, validate_options as provider_options
+    from .agent import GATEWAY as AGENT_GATEWAY, PROVIDER as AGENT_PROVIDER, validate_options as agent_options
+    agent = obj['adapter_id'] in (AGENT_GATEWAY, AGENT_PROVIDER)
+    require(obj['adapter_id'] in (ADAPTER, CHAT_ADAPTER, PROVIDER_ADAPTER, AGENT_GATEWAY, AGENT_PROVIDER) and obj['adapter_version'] == '1')
+    provider = obj['adapter_id'] == PROVIDER_ADAPTER
     chat = obj['adapter_id'] == CHAT_ADAPTER
     limits = obj['limits']
     require(type(limits) is dict and set(limits) == set(DEFAULT_LIMITS))
@@ -156,7 +160,7 @@ def policy_from_dict(value, expected_profile, expected_version):
         require(item['role'] == 'system' and type(item['text']) is str)
     data = obj['data_message_policy']
     require(type(data) is dict and set(data) == {'roles', 'min_messages', 'max_messages'})
-    require(type(data['roles']) is list and bool(data['roles']) and all(r in (('user', 'assistant', 'tool') if chat else ('user', 'assistant')) for r in data['roles']))
+    require(type(data['roles']) is list and bool(data['roles']) and all(r in (('user', 'assistant', 'tool') if chat or agent else ('user', 'assistant')) for r in data['roles']))
     require(len(set(data['roles'])) == len(data['roles']))
     require(type(data['min_messages']) is int and type(data['max_messages']) is int)
     require(0 <= data['min_messages'] <= data['max_messages'] <= limits['messages']-len(trusted))
@@ -166,7 +170,13 @@ def policy_from_dict(value, expected_profile, expected_version):
         require(SAFE_ID.fullmatch(alias) is not None and type(model) is str and 0 < len(model) <= 256)
     # Intentionally only a fixed non-streaming option. No arbitrary option bags.
     options = obj['allowed_request_fields']
-    if chat:
+    if agent:
+        require(len(trusted) == 1 and len(targets) == 1)
+        agent_options(options, obj['adapter_id'] == AGENT_PROVIDER)
+    elif provider:
+        require(data['roles'] == ['user'] and len(trusted) == 1 and len(targets) == 1)
+        provider_options(options)
+    elif chat:
         validate_options(options)
     else:
         require(type(options) is dict and set(options) == {'stream'})
@@ -194,9 +204,12 @@ def _prepare(policy, request, target_alias):
     require(type(target_alias) is str and target_alias in obj['allowed_targets'], 'unknown_target')
     require(type(snapshot) is dict, 'unsupported_shape')
     from .chat import ADAPTER as CHAT_ADAPTER, validate_request
-    if obj['adapter_id'] == CHAT_ADAPTER:
+    from .provider import ADAPTER as PROVIDER_ADAPTER, validate_request as provider_request
+    from .agent import GATEWAY as AGENT_GATEWAY, PROVIDER as AGENT_PROVIDER, validate_request as agent_request
+    if obj['adapter_id'] in (CHAT_ADAPTER, PROVIDER_ADAPTER, AGENT_GATEWAY, AGENT_PROVIDER):
         require(snapshot.get('model') == obj['allowed_targets'][target_alias], 'unknown_target')
-        validate_request(snapshot, obj)
+        validator = agent_request if obj['adapter_id'] in (AGENT_GATEWAY, AGENT_PROVIDER) else provider_request if obj['adapter_id'] == PROVIDER_ADAPTER else validate_request
+        validator(snapshot, obj)
         return obj, encode(snapshot, limits['request_bytes'])
     require(set(snapshot) == {'model', 'messages', 'stream'}, 'unsupported_shape')
     require(snapshot['model'] == obj['allowed_targets'][target_alias], 'unknown_target')

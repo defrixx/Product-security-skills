@@ -120,3 +120,50 @@ work. An integrity failure must stop the attempt without unchecked fallback.
 | CLI | Offline policy/request validation |
 
 Record application jobs, wrappers, retries and fallback paths using the [integration report template](examples/integration-report.md).
+
+
+## Final OpenAI provider text contract
+
+`openai-provider-text-v1` is a separate versioned final-provider wire adapter for
+bounded non-streaming text requests. It accepts exactly `model`, `messages`,
+`temperature` and `max_completion_tokens`. It is intended for the observed
+Bifrost v2.4.0 OpenAI-base non-streaming serialization. Even an extra
+`stream: false` field is rejected. Tools, legacy `max_tokens`, routing options
+and arbitrary provider fields are outside this adapter. Existing Ollama and
+LM Studio adapter contracts are unchanged.
+
+The immutable policy permits one model target and one exact system instruction,
+followed by bounded user-only text messages. Temperature/token limits are pinned
+with type-sensitive equality. Duplicate keys, extra instructions, changed model
+or options and unsupported fields stop before transport dispatch.
+
+See [synthetic provider baseline](examples/provider-baseline.json) and
+[request](examples/provider-request.json). Approve the baseline separately and
+load it with `load_policy` using a trusted profile/version/SHA-256 pin. Call
+`verify_and_send(policy, request, "provider", transport)` with a trusted fixed
+endpoint transport. It validates a snapshot, serializes the checked final bytes
+and invokes `transport.send` once; do not reassemble the JSON or issue another
+model request afterward.
+
+This establishes final-byte integrity only when that transport performs the
+actual final provider send and deployment prevents alternate access to the model.
+Checking the same contract earlier in a gateway pipeline does not establish that
+boundary. The adapter checks instructions/model/options, not model output,
+provider revision attestation or semantic safety of user messages.
+
+### Additional Bifrost agent wire profiles
+
+`bifrost-chat-agent-v1` and `openai-provider-agent-v1` add explicit pinned chat
+history/tools and buffered-stream request profiles. They do not change the
+existing non-streaming adapters. Pin a single model/system, roles
+`user`/`assistant`/`tool`, the exact offered tool descriptions and schemas, and
+all request options. The gateway profile requires exactly `stream` (boolean),
+`temperature`, `max_tokens`, `tools`; the provider profile requires `temperature`
+and `max_completion_tokens`, optional nonempty `tools`, optional `stream: true`,
+and optional `stream_options: {"include_usage": true}` only with streaming.
+Unknown fields and option changes are rejected. Tool arguments/history retain
+the existing closed chat grammar. Validation uses a non-streaming grammar
+projection, but verification serializes and dispatches the **original validated
+request**, including streaming flags, exactly once. This module does not inspect
+responses, authorize or execute tools, attest serving weights, or provide a
+network transport. Applications must compose those boundaries explicitly.

@@ -54,7 +54,7 @@ def stream_response(chunks, backend, *, max_bytes=1048576, max_events=4096):
             terminal = True
             return
         value = decode(raw, max_bytes)
-        require(type(value) is dict, 'provider_stream_invalid')
+        require(type(value) is dict and 'error' not in value, 'provider_stream_invalid')
         if backend == 'ollama':
             require(not finished and type(value.get('done')) is bool, 'provider_stream_invalid')
             message = value.get('message')

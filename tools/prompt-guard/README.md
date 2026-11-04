@@ -235,7 +235,9 @@ Multimodal content and additional provider channels require a separately defined
 For a trusted template with `stream: true`, call `send_stream(request, emit, timeout=30)`.
 It consumes OpenAI-compatible SSE or Ollama NDJSON, collects fragmented tool arguments,
 requires the terminal protocol marker, validates the completed message and invokes `emit`
-once only on `allow`. No raw protocol event reaches the caller. The local sender uses
+once only on `allow`. Any event containing an `error` field is rejected, including
+a usage-only event after the final choice; a subsequent terminal marker cannot
+turn that error into success. No raw protocol event reaches the caller. The local sender uses
 numeric loopback HTTP, bounded input, explicit content types, socket read timeouts, a whole-transport shutdown deadline and
 no redirects/retries. The iterator closes on completion or rejection. An integrity-backed
 stream requires an explicit `stream_sender` that owns final-byte integrity verification.

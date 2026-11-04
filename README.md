@@ -221,3 +221,15 @@ Review and verification guidance use these sequences to select decisive tests. T
 ## License
 
 Licensed under the [MIT License](LICENSE). Include the license notice when redistributing a standalone skill.
+
+## Bifrost OSS integration
+
+The [Bifrost integration](integrations/bifrost/README.md) provides Prompt Guard
+input/output inspection, gateway-ingress and final-provider Prompt Integrity,
+reasoning-aware output, buffered SSE, authorized tool dispatch, and Model
+Security Eval route trials. It includes
+a token-authenticated ingress, a fixed-target egress service, a tested isolated
+reference path and a reproducible real-Bifrost trial with a synthetic model.
+The five independent skills can also be staged for manual Skills Repository import.
+Mandatory guarantees require the documented isolation and closed request contract;
+using the opt-in client alone permits direct-gateway bypass.

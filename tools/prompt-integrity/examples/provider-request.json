@@ -1,0 +1,15 @@
+{
+  "model": "synthetic",
+  "messages": [
+    {
+      "role": "system",
+      "content": "Reply exactly READY with no explanation."
+    },
+    {
+      "role": "user",
+      "content": "hello"
+    }
+  ],
+  "temperature": 0,
+  "max_completion_tokens": 64
+}
