@@ -16,6 +16,12 @@ Status: proposed baseline; C01–C04 are MUST conditions when applicable. Use th
 - **Evidence:** trigger-to-checkout-to-runner trace and credential availability; executed isolated workflow observations. A local simulation does not prove hosted platform trigger semantics.
 - **Bounds / sources:** S1, Pipeline and Execution Environment. Inspect scripts before tests; do not use real release credentials in adversarial fixtures.
 
+#### GitHub Actions trigger policy (checked 2026-11-13)
+
+GitHub announced default blocking of `pull_request_target` in public repositories from 2026-12-02, with brownouts on 2026-11-09 and 2026-11-16, 16:00–18:00 UTC (S3). The announced scope is GitHub Free, Team and Enterprise Cloud; private/internal repositories and GitHub Enterprise Server are outside that change.
+
+Inspect applicable Actions event policies and evaluate-mode observations before relying on this trigger. Keep the block unless a specifically reviewed workflow needs an explicit allowance. An allowance does not make fork code trusted: preserve C01 isolation and C02 least privilege, and never execute contributor-controlled code with base-repository secrets. Do not recommend a blanket opt-out merely to restore passing CI. Recheck current vendor policy for the deployment date and edition.
+
 ### SD-CICD-001.C02 — Limit each job identity to required operations
 
 - **Apply when:** jobs receive repository tokens, cloud identities, registry credentials, or deployment rights.
@@ -56,3 +62,5 @@ Status: proposed baseline; C01–C04 are MUST conditions when applicable. Use th
 
 - **S1:** [OWASP CI CD Security](https://cheatsheetseries.owasp.org/cheatsheets/CI_CD_Security_Cheat_Sheet.html) — Pipeline and Execution Environment; IAM. Living documentation; checked 2026-09-24.
 - **S2:** [OWASP Docker Security](https://cheatsheetseries.owasp.org/cheatsheets/Docker_Security_Cheat_Sheet.html) — daemon socket, user, capabilities, privilege escalation, and secrets guidance. Living documentation; checked 2026-09-24. Runtime options require version-matched vendor verification.
+
+- **S3:** [GitHub: pull_request_target blocked by default December 2](https://github.blog/changelog/2026-11-02-pull_request_target-blocked-by-default-december-2/) — announcement dated 2026-11-02; checked 2026-11-13. Event-policy enforcement is separate from the workflow trust boundary.
